@@ -1,0 +1,11 @@
+mvnw clean package -DskipTest
+
+// esta correindo postgres local?
+$ psql -U postgres -c "SELECT version();"
+
+
+psql -h localhost -p 5432 -U my
+
+docker exec -it  trainhub-backend psql -U postgres
+
+
