@@ -3,3 +3,14 @@ CREATE ROLE db_admin WITH LOGIN PASSWORD 'adminPass';
 
 -- Crear base de datos
 CREATE DATABASE trainhub_db OWNER db_admin;
+mvnw clean package -DskipTest
+
+// esta correindo postgres local?
+$ psql -U postgres -c "SELECT version();"
+
+
+psql -h localhost -p 5432 -U my
+
+docker exec -it  trainhub-backend psql -U postgres
+
+
