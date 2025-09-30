@@ -1,0 +1,5 @@
+-- Crear rol admin
+CREATE ROLE db_admin WITH LOGIN PASSWORD 'adminPass';
+
+-- Crear base de datos
+CREATE DATABASE trainhub_db OWNER db_admin;
