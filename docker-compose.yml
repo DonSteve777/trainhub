@@ -1,8 +1,6 @@
 # // contenedor para postgres y el servicio pgAdmin
 # https://hub.docker.com/_/postgres
-version: '3.8'
 services:
-
   postgres:
     image: postgres:17
     restart: always
