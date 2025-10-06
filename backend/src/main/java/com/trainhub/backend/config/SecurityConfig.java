@@ -20,16 +20,29 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // jwt Bearer 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             // For REST APIs, ignore CSRF for API routes
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            // cross-site request forgery
+            // ataque er el que elo envio de un formulario web es interceptado
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/users/register"))
+
+            // desactivar completamente cuando use JWT
+            // .csrf(csrf -> csrf.disable())
+
+            // permiter /register y /login sin token
+            // proteger el restop con JWTAuthenticationFilter
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register").permitAll()
+                .requestMatchers("/api/users/register").permitAll() // open access
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults());
+            .httpBasic(Customizer.withDefaults()); // BasicAuthenticationFilter
+
+            // EN PRODUCCION USARÉ:
+//             .httpBasic(AbstractHttpConfigurer::disable)
+// .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
         return http.build();
     }
