@@ -2,12 +2,19 @@ package com.trainhub.backend.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.validation.UserValidator;
 import com.trainhub.backend.dto.UserCreationDTO;
+import com.trainhub.backend.dto.LoginRequestDTO;
+import com.trainhub.backend.dto.LoginResponseDTO;
 import com.trainhub.backend.model.User;
+import com.trainhub.backend.security.JwtService;
+import com.trainhub.backend.security.CustomUserDetailsService;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -16,12 +23,24 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserValidator userValidator;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService userDetailsService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserValidator userValidator) {
+    public UserService(
+            UserRepository userRepository, 
+            PasswordEncoder passwordEncoder, 
+            UserValidator userValidator,
+            JwtService jwtService,
+            AuthenticationManager authenticationManager,
+            CustomUserDetailsService userDetailsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userValidator = userValidator;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
     }
 
 
@@ -79,6 +98,33 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
+    /**
+     * 🔐 Método de Login
+     * Autentica al usuario y genera un token JWT
+     */
+    public LoginResponseDTO login(LoginRequestDTO loginRequest) {
+        // 1. Autenticar con Spring Security
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsernameOrEmail(),
+                        loginRequest.getPassword()
+                )
+        );
 
-    
+        // 2. Si llega aquí, la autenticación fue exitosa
+        // Obtener el usuario completo de la BD
+        User user = userDetailsService.loadUserEntityByUsername(loginRequest.getUsernameOrEmail());
+
+        // 3. Generar el token JWT
+        var userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsernameOrEmail());
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        // 4. Crear y retornar la respuesta
+        return new LoginResponseDTO(
+                jwtToken,
+                user.getId(),
+                user.getUsername(),
+                user.getEmail()
+        );
+    }
 }
