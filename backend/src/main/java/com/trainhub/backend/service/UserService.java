@@ -104,19 +104,23 @@ public class UserService {
      */
     public LoginResponseDTO login(LoginRequestDTO loginRequest) {
         // 1. Autenticar con Spring Security
+//         Las valida contra la base de datos (usando tu CustomUserDetailsService)
+// Compara la contraseña ingresada con la almacenada (usando el encoder de contraseñas)
+// Si las credenciales son correctas, continúa la ejecución
+// Si son incorrectas, lanza una excepción BadCredentialsException
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsernameOrEmail(),
-                        loginRequest.getPassword()
+                        loginRequest.usernameOrEmail(),
+                        loginRequest.password()
                 )
         );
 
-        // 2. Si llega aquí, la autenticación fue exitosa
+        // 2. Si llega aquí, la autenticación fue exitosa (si no, excepción BadCredentialsException)
         // Obtener el usuario completo de la BD
-        User user = userDetailsService.loadUserEntityByUsername(loginRequest.getUsernameOrEmail());
+        User user = userDetailsService.loadUserEntityByUsername(loginRequest.usernameOrEmail());
 
         // 3. Generar el token JWT
-        var userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsernameOrEmail());
+        var userDetails = userDetailsService.loadUserByUsername(loginRequest.usernameOrEmail());
         String jwtToken = jwtService.generateToken(userDetails);
 
         // 4. Crear y retornar la respuesta
@@ -126,5 +130,13 @@ public class UserService {
                 user.getUsername(),
                 user.getEmail()
         );
+    }
+
+    /**
+     * 👤 Obtener usuario actual por username
+     * Usado para el endpoint /me
+     */
+    public User getCurrentUser(String username) {
+        return userDetailsService.loadUserEntityByUsername(username);
     }
 }

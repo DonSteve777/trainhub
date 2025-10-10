@@ -47,8 +47,9 @@ public class SecurityConfig {
             
             // Configurar endpoints públicos y protegidos
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger
+                .requestMatchers("/api/users/register", "/api/users/login"
+                ).permitAll()
+                // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger
                 .anyRequest().authenticated()
             )
             
@@ -66,12 +67,12 @@ public class SecurityConfig {
 
     /**
      * Proveedor de autenticación que usa nuestro UserDetailsService
+     * a partir de un objeto Authentication
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = DaoAuthenticationProvider.withUserDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder())
-                .build();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
