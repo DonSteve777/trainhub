@@ -1,0 +1,48 @@
+@startuml
+title Proceso de Autenticación JWT - Simplificado
+
+actor Usuario
+participant "Frontend" as FE
+participant "Backend API" as API
+participant "UserService" as US
+participant "JwtService" as JWT
+database "Base de Datos" as DB
+
+== 🔐 Login ==
+
+Usuario -> FE: Credenciales\n(username + password)
+FE -> API: POST /api/users/login
+API -> US: Validar credenciales
+US -> DB: Buscar usuario
+DB --> US: Usuario encontrado
+
+alt Credenciales válidas
+    US -> JWT: Generar token
+    JWT --> US: JWT Token
+    US --> API: LoginResponse + Token
+    API --> FE: HTTP 200 + Token
+    FE --> Usuario: ✅ Login exitoso
+else Credenciales inválidas
+    US --> API: Error de autenticación
+    API --> FE: HTTP 401
+    FE --> Usuario: ❌ Error de login
+end
+
+== 🛡️ Acceso Protegido ==
+
+Usuario -> FE: Solicitar datos
+FE -> API: GET /api/users/me\nAuthorization: Bearer {token}
+
+alt Token válido
+    API -> JWT: Validar token
+    JWT --> API: Token OK
+    API -> DB: Obtener datos usuario
+    DB --> API: Datos usuario
+    API --> FE: HTTP 200 + Datos
+    FE --> Usuario: ✅ Datos obtenidos
+else Token inválido
+    API --> FE: HTTP 401
+    FE --> Usuario: ❌ No autorizado
+end
+
+@enduml

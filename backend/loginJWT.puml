@@ -1,0 +1,23 @@
+@startuml
+actor Usuario
+participant "Cliente (Frontend)" as FE
+participant "Servidor (Backend)" as BE
+database "Base de Datos" as DB
+
+== Inicio de sesión ==
+Usuario -> FE: Ingresa credenciales (usuario/contraseña)
+FE -> BE: POST /login (credenciales)
+BE -> DB: Verificar credenciales
+DB --> BE: Resultado de la validación (válido)
+BE -> BE: Generar token JWT
+BE --> FE: Retorna JWT
+FE -> Usuario: Almacena token (localStorage / sessionStorage)
+
+== Acceso a recurso protegido ==
+Usuario -> FE: Solicita recurso protegido
+FE -> BE: GET /recurso (Authorization: Bearer JWT)
+BE -> BE: Validar token JWT
+BE -> DB: (opcional) Obtener datos del usuario
+DB --> BE: Datos del usuario
+BE --> FE: Respuesta con datos del recurso
+@enduml
