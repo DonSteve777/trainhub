@@ -1,4 +1,0 @@
-mvnw clean package -DskipTest
-
-psql -h localhost -p 5432 -U my
-
