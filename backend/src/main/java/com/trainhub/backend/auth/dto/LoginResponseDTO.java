@@ -1,4 +1,4 @@
-package com.trainhub.backend.dto;
+package com.trainhub.backend.auth.dto;
 
 public record LoginResponseDTO(
     String token,

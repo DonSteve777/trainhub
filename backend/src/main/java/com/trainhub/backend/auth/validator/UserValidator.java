@@ -1,4 +1,4 @@
-package com.trainhub.backend.validation;
+package com.trainhub.backend.auth.validator;
 
 import java.util.Optional;
 
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.trainhub.backend.exception.EmailAlreadyExistsException;
 import com.trainhub.backend.exception.UsernameAlreadyExistsException;
-import com.trainhub.backend.repository.UserRepository;
+import com.trainhub.backend.auth.repository.UserRepository;
 
 @Component
 public class UserValidator {

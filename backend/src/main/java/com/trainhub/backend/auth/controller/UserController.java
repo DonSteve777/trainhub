@@ -1,4 +1,4 @@
-package com.trainhub.backend.controller;
+package com.trainhub.backend.auth.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -8,19 +8,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.trainhub.backend.dto.UserCreationDTO;
-import com.trainhub.backend.model.User;
-import com.trainhub.backend.dto.LoginRequestDTO;
-import com.trainhub.backend.dto.LoginResponseDTO;
-import com.trainhub.backend.service.UserService;
+import com.trainhub.backend.auth.dto.LoginRequestDTO;
+import com.trainhub.backend.auth.dto.LoginResponseDTO;
+import com.trainhub.backend.auth.dto.UserCreationDTO;
+import com.trainhub.backend.auth.model.User;
+import com.trainhub.backend.auth.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
 public class UserController {
-
 
     private final UserService userService;
 
@@ -32,7 +31,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserCreationDTO request) {
         userService.registerNewUser(request);
-        return ResponseEntity.ok("Usuario registrado con éxito");   
+        return ResponseEntity.ok("Usuario registrado con éxito");
     }
 
     @PostMapping("/login")
@@ -44,9 +43,10 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<User> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName(); // Obtener el username del token JWT
-        User currentUser = userService.getCurrentUser(username); // Buscar el usuario completo
+        String username = authentication.getName();
+        User currentUser = userService.getCurrentUser(username);
         return ResponseEntity.ok(currentUser);
     }
-
 }
+
+

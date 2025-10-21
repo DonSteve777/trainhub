@@ -1,4 +1,4 @@
-package com.trainhub.backend.dto;
+package com.trainhub.backend.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

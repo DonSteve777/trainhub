@@ -1,7 +1,7 @@
-package com.trainhub.backend.config;
+package com.trainhub.backend.auth.config;
 
-import com.trainhub.backend.security.CustomUserDetailsService;
-import com.trainhub.backend.security.JwtAuthenticationFilter;
+import com.trainhub.backend.auth.security.CustomUserDetailsService;
+import com.trainhub.backend.auth.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,39 +36,20 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configuración principal de seguridad con JWT
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Desactivar CSRF ya que usamos JWT (stateless)
             .csrf(AbstractHttpConfigurer::disable)
-            
-            // Configurar endpoints públicos y protegidos
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register", "/api/users/login"
-                ).permitAll()
-                // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                 .anyRequest().authenticated()
             )
-            
-            // Stateless session - no guardar sesiones
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            
-            // Agregar nuestro filtro JWT antes del filtro de autenticación de Spring
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
-    /**
-     * Proveedor de autenticación que usa nuestro UserDetailsService
-     * a partir de un objeto Authentication
-     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
@@ -76,12 +57,10 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    /**
-     * AuthenticationManager para usar en el proceso de login
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 }
+
 

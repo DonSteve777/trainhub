@@ -1,4 +1,4 @@
-package com.trainhub.backend.service;
+package com.trainhub.backend.auth.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,14 +6,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.trainhub.backend.repository.UserRepository;
-import com.trainhub.backend.validation.UserValidator;
-import com.trainhub.backend.dto.UserCreationDTO;
-import com.trainhub.backend.dto.LoginRequestDTO;
-import com.trainhub.backend.dto.LoginResponseDTO;
-import com.trainhub.backend.model.User;
-import com.trainhub.backend.security.JwtService;
-import com.trainhub.backend.security.CustomUserDetailsService;
+import com.trainhub.backend.auth.repository.UserRepository;
+import com.trainhub.backend.auth.validator.UserValidator;
+import com.trainhub.backend.auth.dto.LoginRequestDTO;
+import com.trainhub.backend.auth.dto.LoginResponseDTO;
+import com.trainhub.backend.auth.dto.UserCreationDTO;
+import com.trainhub.backend.auth.model.User;
+import com.trainhub.backend.auth.security.JwtService;
+import com.trainhub.backend.auth.security.CustomUserDetailsService;
 
 import java.time.LocalDateTime;
 
@@ -59,12 +59,7 @@ public class UserService {
             .email(user.getEmail())
             .username(user.getUsername())
             .password(hashedPassword)  // Password hasheada
-            .fullName(user.getFullName())
-            .bio(user.getBio())
-            .profilePictureUrl(user.getProfilePictureUrl())
-            .location(user.getLocation())
             .createdAt(now)
-            .updatedAt(now)
             .build();
 
         // 💾 Guardamos en la DB
@@ -91,7 +86,6 @@ public class UserService {
             .password(hashedPassword)
             // .fullName(fullName)
             .createdAt(now)
-            .updatedAt(now)
             .build();
 
         // 💾 Guardamos en la DB
