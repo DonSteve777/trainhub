@@ -5,11 +5,22 @@ services:
     image: postgres:17
     restart: always
     ports:
+    #  host:contenedor
       - "5431:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+
+  # para que el contenedor cree estas variables de entorno al inciar( estas coinciden con las del properties):
+  # si no, hay que crearlas manualmente, que es lo que he estado haciendo
+  # postgres:
+  #   image: postgres:17
+  #   environment:
+  #     POSTGRES_USER: dev_user
+  #     POSTGRES_PASSWORD: dev_pass
+  #     POSTGRES_DB: trainhub_dev_db
+
     volumes:
       - ./postgresdata:/var/lib/postgresql/data
   pgadmin:
@@ -23,6 +34,21 @@ services:
       - postgres
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    volumes:
+    # hot-reload
+      - ./backend/src:/app/src
+      # - ./backend/src/main/resources:/app/src/main/resources
+      # - ./backend/src/main/java:/app/src/main/java
+      # - ./backend/src/main/resources/application.properties:/app/src/main/resources/application.properties
+
 
 volumes:
   pgadmin_data:
