@@ -4,36 +4,22 @@
 # Diseño
 [x ] Requisitos funcionales
 [ ] Generar BDD mediante IA
+  [ x] definir entidades  
   [ ] Índices para optimizar consultas frecuentes
   [ ] Constraints a nivel de BD para validación
   [ ] Triggers para actualizar updated_at
   [ ] Vistas para consultas comunes (feed, conversaciones)
-[ ] Requisitos no funcionales
 
-[ ] Vídeo desarrollo con IA
-
-
-
-
-### profile
-- [] probar endpoints 
-  - [] Spring test, pruebas ent to end
-  https://youtu.be/fEv3AXFqLXg?si=08CR2fkjXD33Y4_H
-
-### Storage
-- [] probar endpoints
-- ### configuracion basica de seguridad
-- [] solucionar: endpoint inexistente retorna un 403
-
----
-
-## Autenticacion
-### JWt
-[ ] Entender
-[ ] Rehacer si hace falta
-[ ] Testear
-[ ] Documentar
-
+ * Requisitos No Funcionales (RNF): 
+    Especificar aspectos como el rendimiento, la seguridad, la usabilidad, y la mantenibilidad del sistema.
+ * Diseño de la Arquitectura/Módulos: --> **FUNCION PLAN de IA**
+    Definir la estructura general del software, cómo se divide en módulos o componentes, y cómo interactúan entre sí.
+ * Diseño de la Interfaz de Usuario (UI/UX): 
+    Crear esbozos (wireframes) o prototipos de las pantallas para garantizar una buena experiencia de usuario.
+ * Planificación del Proyecto: 
+    Estimar tiempos y recursos, y definir las tareas y el calendario de desarrollo.
+ * Definición de Tecnologías: 
+    Elegir el lenguaje de programación, los frameworks, las herramientas de desarrollo, y el entorno de despliegue.
 
 
 --- 
