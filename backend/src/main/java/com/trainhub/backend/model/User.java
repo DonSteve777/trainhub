@@ -100,3 +100,11 @@ public class User {
     }
 }
 
+public enum AccountStatus {
+    PENDING_CONFIRMATION,
+    ACTIVE,
+    BLOCKED
+}
+
+
+
