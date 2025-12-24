@@ -34,17 +34,17 @@ services:
       - postgres
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-  backend:
-    build:
-      context: ./backend
-      dockerfile: ../Dockerfile
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-    volumes:
-    # hot-reload
-      - ./backend/src:/app/src
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: ../Dockerfile
+  #   ports:
+  #     - "8081:8081"
+  #   depends_on:
+  #     - postgres
+  #   volumes:
+  #   # hot-reload
+  #     - ./backend/src:/app/src
       # - ./backend/src/main/resources:/app/src/main/resources
       # - ./backend/src/main/java:/app/src/main/java
       # - ./backend/src/main/resources/application.properties:/app/src/main/resources/application.properties

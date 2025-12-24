@@ -1,12 +1,12 @@
-FROM maven:3.9-eclipse-temurin-17
-WORKDIR /app
+# FROM maven:3.9-eclipse-temurin-17
+# WORKDIR /app
 
-# Pre-descarga dependencias para acelerar builds
-COPY pom.xml .
-RUN mvn -q -B -DskipTests dependency:go-offline
+# # Pre-descarga dependencias para acelerar builds
+# COPY pom.xml .
+# RUN mvn -q -B -DskipTests dependency:go-offline
 
-# Copia el resto del proyecto (incluye src y mvnw si lo usas)
-COPY . .
+# # Copia el resto del proyecto (incluye src y mvnw si lo usas)
+# COPY . .
 
-# Arranque en modo desarrollo con hot-reload
-CMD ["mvn","spring-boot:run","-Dspring-boot.run.fork=false"]
+# # Arranque en modo desarrollo con hot-reload
+# CMD ["mvn","spring-boot:run","-Dspring-boot.run.fork=false"]
