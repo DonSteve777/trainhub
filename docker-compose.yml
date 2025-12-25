@@ -8,9 +8,9 @@ services:
     #  host:contenedor
       - "5431:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: trainhub_dev_db
 
   # para que el contenedor cree estas variables de entorno al inciar( estas coinciden con las del properties):
   # si no, hay que crearlas manualmente, que es lo que he estado haciendo
