@@ -1,6 +1,8 @@
 package com.trainhub.backend.controller;
 
+import com.trainhub.backend.dto.request.LoginRequest;
 import com.trainhub.backend.dto.request.RegisterRequest;
+import com.trainhub.backend.dto.response.LoginResponse;
 import com.trainhub.backend.dto.response.RegisterResponse;
 import com.trainhub.backend.service.auth.AuthService;
 import jakarta.validation.Valid;
@@ -31,6 +33,18 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         RegisterResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Endpoint para iniciar sesión.
+     *
+     * @param request La solicitud de login con email y contraseña
+     * @return La respuesta con el token JWT y mensaje de éxito
+     */
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 }
