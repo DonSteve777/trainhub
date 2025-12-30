@@ -47,5 +47,17 @@ public class AuthController {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Endpoint para confirmar el email del usuario.
+     *
+     * @param token El token de confirmación
+     * @return La respuesta con el mensaje de éxito
+     */
+    @GetMapping("/confirm-email/{token}")
+    public ResponseEntity<Void> confirmEmail(@PathVariable String token) {
+        authService.confirmEmail(token);
+        return ResponseEntity.ok().build();
+    }
 }
 

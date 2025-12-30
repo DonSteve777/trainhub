@@ -10,6 +10,9 @@ mvn spring-boot:run
     // AccountStatus.PENDING_CONFIRMATION
         AccountStatus.ACTIVE    // temporal, meintras el email confirmacion no esta implementado
 
+[ ] // En una implementación real, aquí se enviaría el email usando un servicio como
+        // Spring Mail, SendGrid, AWS SES, etc.
+
 [x ] probar endpoint /api/auth/register:
     respuestas del endpoint ✔️
     validaciones ✔️

@@ -1,5 +1,14 @@
 package com.trainhub.backend.service.auth;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.trainhub.backend.dto.request.LoginRequest;
 import com.trainhub.backend.dto.request.RegisterRequest;
 import com.trainhub.backend.dto.response.LoginResponse;
@@ -11,20 +20,17 @@ import com.trainhub.backend.model.enums.AccountStatus;
 import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.JwtUtil;
 import com.trainhub.backend.service.email.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Servicio para operaciones de autenticación y registro de usuarios.
  */
 @Service
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -65,9 +71,9 @@ public class AuthService {
         User user = new User(
                 request.getEmail(),
                 passwordHash,
-                AccountStatus.ACTIVE
+                AccountStatus.PENDING_CONFIRMATION
         );
-        user.setEmailVerified(true);
+        user.setEmailVerified(false);
         user.setEmailConfirmationToken(confirmationToken);
 
         // 5. Guardar en BD
@@ -105,6 +111,11 @@ public class AuthService {
             throw new BadCredentialsException("Credenciales incorrectas");
         }
 
+        // Después de verificar password
+        if (!user.getEmailVerified()) {
+            throw new EmailNotVerifiedException("Por favor, confirma tu email primero");
+        }
+
         // 3. Validar estado de cuenta
         if (user.getAccountStatus() != AccountStatus.ACTIVE) {
             throw new AccountNotActiveException("La cuenta no está activa");
@@ -115,6 +126,23 @@ public class AuthService {
 
         // 5. Retornar LoginResponse
         return new LoginResponse(token, "Login exitoso");
+    }
+
+    public void confirmEmail(String token) {
+        // 1. Buscar usuario por token
+        Optional<User> userOptional = userRepository.findByEmailConfirmationToken(token);
+        if (userOptional.isEmpty()) {
+            logger.error("Token de confirmación inválido: {}", token);
+            throw new BadCredentialsException("Token de confirmación inválido");
+        }
+
+        User user = userOptional.get();
+
+        // 2. Actualizar estado de cuenta a ACTIVE
+        user.setAccountStatus(AccountStatus.ACTIVE);
+        user.setEmailVerified(true);
+        user.setEmailConfirmationToken(null);
+        userRepository.save(user);
     }
 }
 

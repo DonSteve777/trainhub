@@ -1,6 +1,8 @@
 package com.trainhub.backend.exception;
 
 import com.trainhub.backend.dto.response.ErrorResponse;
+import com.trainhub.backend.service.auth.EmailNotVerifiedException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +64,16 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AccountNotActiveException.class)
     public ResponseEntity<ErrorResponse> handleAccountNotActiveException(AccountNotActiveException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    /**
+     * Maneja excepciones de email no verificado (403 Forbidden).
+     * Se lanza cuando el email no está verificado.
+     */
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
