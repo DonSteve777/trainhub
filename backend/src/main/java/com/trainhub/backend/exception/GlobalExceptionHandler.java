@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manejador global de excepciones para toda la aplicación.
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
 
     /**
      * Maneja excepciones de validación (400 Bad Request).
@@ -86,6 +91,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse("Error interno del servidor: " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    /**
+ * Maneja excepciones de envío de email (503 Service Unavailable).
+ * Se lanza cuando hay problemas al enviar emails.
+ */
+    @ExceptionHandler(EmailSendingException.class)
+    public ResponseEntity<ErrorResponse> handleEmailSendingException(EmailSendingException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("Error al enviar el email de confirmación. Por favor, intenta más tarde.");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
     }
 }
 
