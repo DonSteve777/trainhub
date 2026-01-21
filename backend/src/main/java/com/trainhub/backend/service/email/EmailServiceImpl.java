@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Implementación del servicio de email usando Spring Mail.
@@ -25,7 +28,10 @@ public class EmailServiceImpl implements EmailService {
     private String baseUrl;
 
     @Value("${spring.mail.username}")
-    private String fromEmail;
+    private String MAIL_USERNAME;
+
+    @Value("${spring.mail.password}")
+    private String MAIL_PASSWORD;
 
     @Autowired
     public EmailServiceImpl(JavaMailSender mailSender) {
@@ -34,11 +40,13 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendConfirmationEmail(String email, String token) {
+
         try {
+
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(fromEmail);
+            helper.setFrom(MAIL_USERNAME);
             helper.setTo(email);
             helper.setSubject("Confirma tu cuenta de TrainHub");
 
@@ -47,11 +55,20 @@ public class EmailServiceImpl implements EmailService {
 
             helper.setText(htmlContent, true);
 
+
             mailSender.send(message);
+     
             logger.info("Email de confirmación enviado exitosamente a {}", email);
         } catch (MessagingException e) {
-            logger.error("Error al enviar email de confirmación a {}: {}", email, e.getMessage(), e);
+
+            logger.error("Error al enviar email de confirmación a {}, con token {}, " + 
+                "variable MAIL_USERNAME: {}, variable MAIL_PASSWORD: {}, con error: {}", email, token, MAIL_USERNAME, MAIL_PASSWORD, e.getMessage(), e);
+            throw new EmailSendingException("Error al enviar email de confirmación a " + email + ": " + e.getMessage(), e);
+        } catch (Exception e) {
+
+            logger.error("Error inesperado al enviar email de confirmación a {}: {}", email, e.getMessage(), e);
             throw new EmailSendingException("Error al enviar email de confirmación a " + email, e);
+            
         }
     }
 
