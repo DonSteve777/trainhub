@@ -15,4 +15,3 @@ public class EmailSendingException extends RuntimeException {
     }
 }
 
-
