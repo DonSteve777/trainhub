@@ -6,7 +6,7 @@ import { HeaderToolbarComponent } from './core/components/header-toolbar/header-
   selector: 'app-root',
   imports: [RouterOutlet, HeaderToolbarComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('frontend');

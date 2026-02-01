@@ -7,3 +7,4 @@ taskkill /F /IM java.exespring-boot:run
 tasklist | findstr /i "java"
 
 
+ESLint 
