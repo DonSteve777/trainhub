@@ -1,1 +1,27 @@
-<mat-toolbar color="primary">TFG — Frontend</mat-toolbar>
+<mat-toolbar color="primary" class="header-toolbar">
+  <div class="logo-container">
+    <img src="images/logotipo.png" alt="Logo" class="logo" />
+  </div>
+
+  <div class="search-container">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput type="text" placeholder="Buscar..." />
+    </mat-form-field>
+  </div>
+
+  <span class="spacer"></span>
+
+  <div class="actions">
+    <button type="button" class="create-button" mat-raised-button color="tertiary">
+      <mat-icon>add</mat-icon>
+      <span>Crear</span>
+    </button>
+    <button type="button" class="chat-button" mat-icon-button color="tertiary" aria-label="Abrir chat">
+      <mat-icon>chat_bubble</mat-icon>
+    </button>
+    <button type="button" class="profile-button" mat-icon-button aria-label="Mi perfil">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
