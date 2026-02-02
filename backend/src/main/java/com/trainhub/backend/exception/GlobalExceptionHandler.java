@@ -3,6 +3,11 @@ package com.trainhub.backend.exception;
 import com.trainhub.backend.dto.response.ErrorResponse;
 import com.trainhub.backend.service.auth.EmailNotVerifiedException;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import io.jsonwebtoken.JwtException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,6 +86,50 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    /**
+     * Maneja excepciones de token JWT expirado (401 Unauthorized).
+     * Se lanza cuando el token ha caducado y necesita ser renovado.
+     */
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
+        logger.warn("Token JWT expirado: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("El token ha expirado. Por favor, inicia sesión nuevamente.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Maneja excepciones de token JWT malformado (401 Unauthorized).
+     * Se lanza cuando el token no tiene el formato correcto.
+     */
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException ex) {
+        logger.warn("Token JWT malformado: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("El token proporcionado no es válido.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Maneja excepciones de firma de token JWT inválida (401 Unauthorized).
+     * Se lanza cuando la firma del token no es válida o ha sido manipulada.
+     */
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException ex) {
+        logger.warn("Firma de token JWT inválida: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("El token proporcionado no es válido.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Maneja otras excepciones relacionadas con JWT (401 Unauthorized).
+     * Captura cualquier otra excepción de JWT no manejada específicamente.
+     */
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
+        logger.warn("Error en el procesamiento del token JWT: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Error de autenticación: token inválido.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
     /**
