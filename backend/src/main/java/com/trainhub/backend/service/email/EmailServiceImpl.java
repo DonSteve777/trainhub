@@ -10,9 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 /**
  * Implementación del servicio de email usando Spring Mail.
@@ -26,6 +23,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
+
+    @Value("${app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     @Value("${spring.mail.username}")
     private String MAIL_USERNAME;
@@ -50,7 +50,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setTo(email);
             helper.setSubject("Confirma tu cuenta de TrainHub");
 
-            String confirmationUrl = baseUrl + "/api/auth/confirm-email/" + token;
+            String confirmationUrl = frontendUrl + "/confirm-email/" + token;
             String htmlContent = buildEmailContent(confirmationUrl);
 
             helper.setText(htmlContent, true);

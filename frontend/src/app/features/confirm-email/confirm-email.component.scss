@@ -1,0 +1,85 @@
+.confirm-email-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  max-width: 800px;
+  width: 100%;
+
+  h1 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 2rem;
+  }
+}
+
+.section {
+  margin-bottom: 2rem;
+
+  h2 {
+    color: #34495e;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.token-box,
+.response-box,
+.error-box {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  overflow-x: auto;
+
+  code,
+  pre {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: #495057;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+}
+
+.error-box {
+  background: #fff5f5;
+  border-color: #fc8181;
+
+  p {
+    color: #c53030;
+    margin: 0;
+  }
+}
+
+.loading {
+  text-align: center;
+  color: #667eea;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 2rem;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .section h2 {
+    font-size: 1rem;
+  }
+}

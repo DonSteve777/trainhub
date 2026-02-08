@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 @Service
 public class AuthService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -129,10 +128,14 @@ public class AuthService {
     }
 
     public void confirmEmail(String token) {
+        System.out.println("=== BACKEND: Confirmando email ===");
+        System.out.println("Token: " + token);
+        System.out.println("Endpoint: GET /api/auth/confirm-email/" + token);
+        
         // 1. Buscar usuario por token
         Optional<User> userOptional = userRepository.findByEmailConfirmationToken(token);
         if (userOptional.isEmpty()) {
-            logger.error("Token de confirmación inválido: {}", token);
+            System.out.println("Token de confirmación inválido: " + token);
             throw new BadCredentialsException("Token de confirmación inválido");
         }
 
@@ -143,6 +146,11 @@ public class AuthService {
         user.setEmailVerified(true);
         user.setEmailConfirmationToken(null);
         userRepository.save(user);
+        System.out.println("=== BACKEND: Email confirmado exitosamente ===");
+        System.out.println("User: " + user.getEmail());
+        System.out.println("Account Status: " + user.getAccountStatus());
+        System.out.println("Email Verified: " + user.getEmailVerified());
+        System.out.println("Email Confirmation Token: " + user.getEmailConfirmationToken());
     }
 }
 
