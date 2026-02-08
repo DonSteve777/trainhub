@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, inject, NgZone, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
 
 @Component({
@@ -12,7 +13,10 @@ import { ApiService } from '../../core/services/api.service';
 })
 export class ConfirmEmailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   token: string | null = null;
   apiResponse: any = null;
@@ -40,20 +44,33 @@ export class ConfirmEmailComponent implements OnInit {
     console.log('Método: GET');
 
     this.apiService.get(`/auth/confirm-email/${this.token}`)
+      .pipe(
+        finalize(() => this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }))
+      )
       .subscribe({
-        next: (response) => {
+        next: (response) => this.ngZone.run(() => {
           console.log('=== FRONTEND: Respuesta exitosa recibida ===');
           console.log('Respuesta:', response);
           this.apiResponse = response;
-          this.loading = false;
-        },
-        error: (err) => {
+          this.cdr.detectChanges();
+          
+        }),
+        error: (err) => this.ngZone.run(() => {
           console.error('=== FRONTEND: Error recibido ===');
           console.error('Error:', err);
           this.error = err.message || 'Error al confirmar el email';
           this.apiResponse = err;
-          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+        complete: () => {
         }
       });
+  }
+
+  goToHome() {
+    this.router.navigate(['/']);
   }
 }

@@ -30,5 +30,16 @@
         <pre>{{ apiResponse | json }}</pre>
       </div>
     </div>
+
+    <!-- Botón para ir a home -->
+    <div class="button-section">
+      <p style="color: red; font-size: 12px;">DEBUG: loading = {{ loading }}</p>
+      <button 
+        class="home-button" 
+        [disabled]="loading"
+        (click)="goToHome()">
+        {{ loading ? 'Esperando respuesta del servidor...' : 'Ir a home' }}
+      </button>
+    </div>
   </div>
 </div>
