@@ -1,0 +1,186 @@
+@use '@angular/material' as mat;
+
+// ========================================
+// TRAINHUB - Material Design 3 Theme
+// Sistema de colores deportivo y vibrante
+// ========================================
+
+// Paleta Primary - Naranja energético/rojo deportivo
+// Base: #FF5722 (Deep Orange)
+// Transmite energía, pasión y motivación deportiva
+$trainhub-primary-palette: (
+  0: #000000,
+  10: #3a0800,
+  20: #5f1100,
+  25: #6f1a00,
+  30: #802200,
+  35: #912a00,
+  40: #a33200,
+  50: #c84a0e,
+  60: #e96328,
+  70: #ff8a65,
+  80: #ffab91,
+  90: #ffd5c8,
+  95: #ffede9,
+  98: #fff8f6,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+// Paleta Secondary - Amarillo vibrante
+// Base: #FFC107 (Amber)
+// Para acentos y elementos de acción, representa logros y progreso
+$trainhub-secondary-palette: (
+  0: #000000,
+  10: #2a1800,
+  20: #462b00,
+  25: #543600,
+  30: #624100,
+  35: #714d00,
+  40: #805900,
+  50: #9f7200,
+  60: #c08c00,
+  70: #e2a500,
+  80: #ffc107,
+  90: #ffd54f,
+  95: #ffe57f,
+  98: #fff4b3,
+  99: #fffbf0,
+  100: #ffffff,
+);
+
+// Paleta Tertiary - Rojo intenso
+// Base: #F44336 (Red)
+// Para destacar información importante, métricas de rendimiento
+$trainhub-tertiary-palette: (
+  0: #000000,
+  10: #410002,
+  20: #690005,
+  25: #7e0007,
+  30: #93000a,
+  35: #a80710,
+  40: #ba1a1a,
+  50: #de3730,
+  60: #ff5449,
+  70: #ff897d,
+  80: #ffb4ab,
+  90: #ffdad6,
+  95: #ffedea,
+  98: #fff8f7,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+// Paleta Error - Rojo claro optimizado para dark mode
+$trainhub-error-palette: (
+  0: #000000,
+  10: #410e0b,
+  20: #601410,
+  25: #6f1c16,
+  30: #7f251c,
+  35: #8f2e22,
+  40: #9f3729,
+  50: #c14b39,
+  60: #e4614a,
+  70: #ff897d,
+  80: #ffb4ab,
+  90: #ffdad6,
+  95: #ffedea,
+  98: #fff8f7,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+// Paleta Neutral - Grises oscuros con tintes cálidos para dark mode
+$trainhub-neutral-palette: (
+  0: #000000,
+  10: #201a18,
+  20: #362f2d,
+  25: #423938,
+  30: #4e4543,
+  35: #5a504e,
+  40: #675c5a,
+  50: #817572,
+  60: #9c8e8b,
+  70: #b7a8a5,
+  80: #d3c3bf,
+  90: #f0dfdb,
+  95: #ffede9,
+  98: #fff8f6,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+// Paleta Neutral Variant - Variación de neutrales para superficies
+$trainhub-neutral-variant-palette: (
+  0: #000000,
+  10: #251917,
+  20: #3b2e2b,
+  25: #473936,
+  30: #534441,
+  35: #5f4f4c,
+  40: #6c5b58,
+  50: #857470,
+  60: #a08d89,
+  70: #bba7a3,
+  80: #d7c2bd,
+  90: #f4ddd9,
+  95: #ffede9,
+  98: #fff8f6,
+  99: #fffbff,
+  100: #ffffff,
+);
+
+// ========================================
+// Variables CSS personalizadas de Trainhub
+// ========================================
+:root {
+  // Colores de marca
+  --trainhub-accent: #FF5722;
+  --trainhub-accent-light: #FF8A65;
+  --trainhub-accent-dark: #E64A19;
+  
+  // Colores de estado
+  --trainhub-success: #66BB6A;
+  --trainhub-success-light: #81C784;
+  --trainhub-success-dark: #4CAF50;
+  
+  --trainhub-warning: #FFA726;
+  --trainhub-warning-light: #FFB74D;
+  --trainhub-warning-dark: #FF9800;
+  
+  --trainhub-error: #EF5350;
+  --trainhub-error-light: #E57373;
+  --trainhub-error-dark: #F44336;
+  
+  --trainhub-info: #29B6F6;
+  --trainhub-info-light: #4FC3F7;
+  --trainhub-info-dark: #0288D1;
+  
+  // Colores de progreso y logros
+  --trainhub-achievement-gold: #FFD700;
+  --trainhub-achievement-silver: #C0C0C0;
+  --trainhub-achievement-bronze: #CD7F32;
+  
+  // Degradados deportivos
+  --trainhub-gradient-energy: linear-gradient(135deg, #FF5722 0%, #FFC107 100%);
+  --trainhub-gradient-fire: linear-gradient(135deg, #F44336 0%, #FF5722 100%);
+  --trainhub-gradient-success: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  
+  // Fondos con tintes cálidos para dark mode
+  --trainhub-surface-dark: #1a1412;
+  --trainhub-surface-medium: #2d2522;
+  --trainhub-surface-light: #3f3733;
+  
+  // Sombras con tinte naranja
+  --trainhub-shadow-sm: 0 1px 3px rgba(255, 87, 34, 0.12);
+  --trainhub-shadow-md: 0 4px 6px rgba(255, 87, 34, 0.16);
+  --trainhub-shadow-lg: 0 10px 20px rgba(255, 87, 34, 0.2);
+  --trainhub-shadow-xl: 0 20px 40px rgba(255, 87, 34, 0.24);
+  
+  // Opacidades útiles
+  --trainhub-opacity-hover: 0.08;
+  --trainhub-opacity-focus: 0.12;
+  --trainhub-opacity-selected: 0.16;
+  --trainhub-opacity-disabled: 0.38;
+}

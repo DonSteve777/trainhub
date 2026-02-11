@@ -1,17 +1,26 @@
+// ========================================
+// TRAINHUB - Estilos Globales
+// ========================================
 // Include theming for Angular Material with `mat.theme()`.
 // This Sass mixin will define CSS variables that are used for styling Angular Material
 // components according to the Material 3 design spec.
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
+
 @use '@angular/material' as mat;
+@use './styles/theme' as theme;
 
 html {
   height: 100%;
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: theme.$trainhub-primary-palette,
+        secondary: theme.$trainhub-secondary-palette,
+        tertiary: theme.$trainhub-tertiary-palette,
+        error: theme.$trainhub-error-palette,
+        neutral: theme.$trainhub-neutral-palette,
+        neutral-variant: theme.$trainhub-neutral-variant-palette,
       ),
       typography: Roboto,
       density: 0,
