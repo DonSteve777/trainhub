@@ -31,14 +31,20 @@
       </div>
     </div>
 
+    <!-- Mensaje de éxito -->
+    <div class="section" *ngIf="apiResponse && !error && !loading">
+      <div class="success-box">
+        <p>¡Email confirmado exitosamente! Ya puedes acceder a tu cuenta.</p>
+      </div>
+    </div>
+
     <!-- Botón para ir a home -->
     <div class="button-section">
-      <p style="color: red; font-size: 12px;">DEBUG: loading = {{ loading }}</p>
       <button 
         class="home-button" 
         [disabled]="loading"
         (click)="goToHome()">
-        {{ loading ? 'Esperando respuesta del servidor...' : 'Ir a home' }}
+        {{ loading ? 'Validando...' : (error ? 'Volver al inicio' : 'Ir a mi cuenta') }}
       </button>
     </div>
   </div>

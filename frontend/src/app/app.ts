@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal, inject } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderToolbarComponent } from './core/components/header-toolbar/header-toolbar.component';
+import { filter, map } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -9,5 +11,18 @@ import { HeaderToolbarComponent } from './core/components/header-toolbar/header-
   styleUrl: './app.scss',
 })
 export class App {
+  private readonly router = inject(Router);
   protected readonly title = signal('frontend');
+
+  protected readonly showHeader = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => {
+        const url = (event as NavigationEnd).url;
+        // Ocultar header en la página de confirmación de email
+        return !url.includes('/confirm-email');
+      })
+    ),
+    { initialValue: true }
+  );
 }
