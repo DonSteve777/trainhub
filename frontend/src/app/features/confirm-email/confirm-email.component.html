@@ -2,14 +2,6 @@
   <div class="card">
     <h1>Confirmación de Email</h1>
 
-    <!-- Mostrar el token -->
-    <div class="section">
-      <h2>Token recibido:</h2>
-      <div class="token-box">
-        <code>{{ token || 'No se encontró token' }}</code>
-      </div>
-    </div>
-
     <!-- Estado de carga -->
     <div class="section" *ngIf="loading">
       <p class="loading">Validando token...</p>
@@ -23,13 +15,13 @@
       </div>
     </div>
 
-    <!-- Mostrar respuesta del backend -->
-    <div class="section" *ngIf="apiResponse && !loading">
+    <!-- Mostrar respuesta del backend, depuracion -->
+    <!-- <div class="section" *ngIf="apiResponse && !loading">
       <h2>Respuesta del backend:</h2>
       <div class="response-box">
         <pre>{{ apiResponse | json }}</pre>
       </div>
-    </div>
+    </div> -->
 
     <!-- Mensaje de éxito -->
     <div class="section" *ngIf="apiResponse && !error && !loading">
@@ -41,9 +33,10 @@
     <!-- Botón para ir a home -->
     <div class="button-section">
       <button 
-        class="home-button" 
+        class="continue-button" 
         [disabled]="loading"
-        (click)="goToHome()">
+        (click)="goToProfile()"
+        id="continue-button">
         {{ loading ? 'Validando...' : (error ? 'Volver al inicio' : 'Ir a mi cuenta') }}
       </button>
     </div>

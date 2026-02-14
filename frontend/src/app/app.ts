@@ -19,10 +19,10 @@ export class App {
       filter((event) => event instanceof NavigationEnd),
       map((event) => {
         const url = (event as NavigationEnd).url;
-        // Ocultar header en la página de confirmación de email
+        // Ocultar header en la página de confirmación de email y en home
         return !url.includes('/confirm-email');
       })
     ),
-    { initialValue: true }
+    { initialValue: false }
   );
 }

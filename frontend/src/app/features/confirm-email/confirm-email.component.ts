@@ -61,7 +61,7 @@ export class ConfirmEmailComponent implements OnInit {
         error: (err) => this.ngZone.run(() => {
           console.error('=== FRONTEND: Error recibido ===');
           console.error('Error:', err);
-          this.error = err.message || 'Error al confirmar el email';
+          this.error = 'Error al confirmar el email';
           this.apiResponse = err;
           this.cdr.detectChanges();
         }),
@@ -70,7 +70,7 @@ export class ConfirmEmailComponent implements OnInit {
       });
   }
 
-  goToHome() {
-    this.router.navigate(['/']);
+  goToProfile() {
+    this.router.navigate(['/user-profile']);
   }
 }
