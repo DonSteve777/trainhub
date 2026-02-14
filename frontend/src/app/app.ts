@@ -20,7 +20,7 @@ export class App {
       map((event) => {
         const url = (event as NavigationEnd).url;
         // Ocultar header en la página de confirmación de email y en home
-        return !url.includes('/confirm-email');
+        return !url.includes('/confirm-email') && url !== '/' && !url.includes('/home');
       })
     ),
     { initialValue: false }
