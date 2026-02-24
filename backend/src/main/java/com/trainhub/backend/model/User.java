@@ -17,6 +17,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name", nullable = false, length = 60)
+    @NotNull
+    private String name;
+
     @Column(name = "email", nullable = false, unique = true, length = 255)
     @NotNull
     @Email
@@ -25,6 +29,9 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 255)
     @NotNull
     private String passwordHash;
+
+    @Column(name = "bio", columnDefinition = "TEXT")
+    private String bio;
 
     @Column(name = "photo_url", length = 255)
     private String photoUrl;
@@ -46,8 +53,9 @@ public class User {
         this.emailVerified = false;
     }
 
-    public User(String email, String passwordHash, AccountStatus accountStatus) {
+    public User(String name, String email, String passwordHash, AccountStatus accountStatus) {
         this();
+        this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
         this.accountStatus = accountStatus;
@@ -60,6 +68,14 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -76,6 +92,14 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public String getPhotoUrl() {

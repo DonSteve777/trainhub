@@ -65,9 +65,9 @@ public class AuthService {
         // 3. Generar token UUID para confirmación
         String confirmationToken = UUID.randomUUID().toString();
 
-        // 4. Crear User con accountStatus=ACTIVE, emailVerified=true
-        // (La confirmación por email no está implementada todavía)
+        // 4. Crear User con accountStatus=PENDING_CONFIRMATION
         User user = new User(
+                request.getName(),
                 request.getEmail(),
                 passwordHash,
                 AccountStatus.PENDING_CONFIRMATION
