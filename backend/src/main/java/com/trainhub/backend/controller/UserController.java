@@ -37,9 +37,7 @@ public class UserController {
         
         UserProfileResponse response = new UserProfileResponse(
                 user.getId(),
-                user.getName(),
                 user.getEmail(),
-                user.getBio(),
                 user.getPhotoUrl(),
                 user.getAccountStatus(),
                 user.getEmailVerified()
@@ -74,9 +72,7 @@ public class UserController {
         }
 
         // Actualizar los campos del usuario
-        user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setBio(request.getBio());
         user.setPhotoUrl(request.getPhotoUrl());
 
         // Guardar cambios
@@ -85,9 +81,7 @@ public class UserController {
         // Crear respuesta
         UserProfileResponse response = new UserProfileResponse(
                 updatedUser.getId(),
-                updatedUser.getName(),
                 updatedUser.getEmail(),
-                updatedUser.getBio(),
                 updatedUser.getPhotoUrl(),
                 updatedUser.getAccountStatus(),
                 updatedUser.getEmailVerified()

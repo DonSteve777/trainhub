@@ -67,7 +67,6 @@ public class AuthService {
 
         // 4. Crear User con accountStatus=PENDING_CONFIRMATION
         User user = new User(
-                request.getName(),
                 request.getEmail(),
                 passwordHash,
                 AccountStatus.PENDING_CONFIRMATION

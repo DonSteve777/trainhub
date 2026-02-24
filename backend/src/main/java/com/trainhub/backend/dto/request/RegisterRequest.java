@@ -9,10 +9,6 @@ import jakarta.validation.constraints.Size;
  */
 public class RegisterRequest {
 
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 2, max = 60, message = "El nombre debe tener entre 2 y 60 caracteres")
-    private String name;
-
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "El email debe tener un formato válido")
     private String email;
@@ -25,21 +21,12 @@ public class RegisterRequest {
     public RegisterRequest() {
     }
 
-    public RegisterRequest(String name, String email, String password) {
-        this.name = name;
+    public RegisterRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
     // Getters y Setters
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
     }
