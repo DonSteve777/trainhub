@@ -1,8 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TrainhubLogoComponent } from '../../shared/components/trainhub-logo/trainhub-logo.component';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -14,10 +15,15 @@ import { ApiService } from '../../core/services/api.service';
 export class HomeComponent implements OnInit {
   loginForm!: FormGroup;
   private readonly apiService = inject(ApiService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/feed'], { replaceUrl: true });
+    }
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -25,16 +31,18 @@ export class HomeComponent implements OnInit {
   }
 
   onLogin(): void {
-    if (this.loginForm.valid) {
-      console.log('Login attempt:', this.loginForm.value);
-      // TODO: Implementar lógica de inicio de sesión
+    if (this.loginForm.invalid) {
+      return;
     }
-  }
-
-  // cuando se pulse el botón de registrarse, se envía una peticioón http a la ruta /api/auth/register
-  onRegister(): void {
-    this.apiService.post('/auth/register', this.loginForm.value).subscribe((response) => {
-      console.log(response);
+    this.apiService.post<{ token: string; message: string }>('/auth/login', this.loginForm.value).subscribe({
+      next: (res) => {
+        this.authService.setToken(res.token);
+        this.router.navigate(['/feed'], { replaceUrl: true });
+      },
+      error: (err) => {
+        console.error('Login error:', err);
+      },
     });
   }
+
 }

@@ -35,9 +35,9 @@
       <button 
         class="continue-button" 
         [disabled]="loading"
-        (click)="goToProfile()"
+        (click)="goToHome()"
         id="continue-button">
-        {{ loading ? 'Validando...' : (error ? 'Volver al inicio' : 'Ir a mi cuenta') }}
+        {{ loading ? 'Validando...' : 'Volver al inicio' }}
       </button>
     </div>
   </div>

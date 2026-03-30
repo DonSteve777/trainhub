@@ -70,7 +70,7 @@ export class ConfirmEmailComponent implements OnInit {
       });
   }
 
-  goToProfile() {
-    this.router.navigate(['/user-profile']);
+  goToHome() {
+    this.router.navigate(['/home']);
   }
 }

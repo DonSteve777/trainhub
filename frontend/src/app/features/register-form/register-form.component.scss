@@ -1,0 +1,290 @@
+// ========================================
+// REGISTER FORM COMPONENT
+// ========================================
+
+.register-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--trainhub-surface-dark) 0%,
+    var(--trainhub-surface-medium) 100%
+  );
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 20% 50%, rgba(255, 87, 34, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 50%, rgba(41, 182, 246, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .backend-message-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    min-width: 320px;
+    max-width: 440px;
+    padding: 1.5rem;
+    background: rgba(30, 28, 28, 0.95);
+    border: 1px solid rgba(255, 87, 34, 0.35);
+    border-radius: 12px;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .backend-message-card .backend-message {
+    margin: 0;
+    padding: 0.75rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #f0dfdb;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  .left-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    position: relative;
+    z-index: 1;
+
+    app-trainhub-logo {
+      animation: fadeInScale 1s ease-out;
+    }
+  }
+
+  .right-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 4rem;
+    position: relative;
+    z-index: 1;
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      background: linear-gradient(
+        135deg,
+        var(--trainhub-info) 0%,
+        var(--trainhub-accent) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInUp 1s ease-out 0.2s both;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+    }
+
+    p {
+      font-size: 1.25rem;
+      line-height: 1.6;
+      color: #f0dfdb;
+      max-width: 600px;
+      animation: fadeInUp 1s ease-out 0.4s both;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+      margin-bottom: 2rem;
+    }
+  }
+
+  .register-form {
+    width: 100%;
+    max-width: 400px;
+    animation: fadeInUp 1s ease-out 0.6s both;
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+
+      .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: var(--trainhub-text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+        }
+
+        &:focus {
+          outline: none;
+          background: rgba(255, 255, 255, 0.15);
+          border-color: var(--trainhub-accent);
+          box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
+        }
+      }
+
+      .error {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 0.85rem;
+        color: var(--trainhub-accent);
+      }
+    }
+
+    .backend-message-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .backend-message-wrapper .backend-message {
+      width: auto;
+      max-width: 100%;
+    }
+
+    .backend-message {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      color: #f0dfdb;
+      background: rgba(255, 87, 34, 0.15);
+      border: 1px solid rgba(255, 87, 34, 0.4);
+      border-radius: 8px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(
+        135deg,
+        var(--trainhub-accent) 0%,
+        var(--trainhub-accent-hover) 100%
+      );
+      color: #bdbdbd;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    .link-back {
+      display: block;
+      margin-top: 1.75rem;
+      text-align: center;
+      color: var(--trainhub-info);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: var(--trainhub-info-hover);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+
+    .left-section,
+    .right-section {
+      flex: none;
+      width: 100%;
+    }
+
+    .left-section {
+      min-height: 50vh;
+      padding: 2rem;
+    }
+
+    .right-section {
+      padding: 2rem 2rem 3rem;
+      align-items: center;
+      text-align: center;
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+      }
+
+      .register-form {
+        max-width: 100%;
+      }
+    }
+  }
+
+  @media (max-width: 640px) {
+    .left-section {
+      min-height: 40vh;
+      padding: 1.5rem;
+    }
+
+    .right-section {
+      padding: 2rem 1.5rem;
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
