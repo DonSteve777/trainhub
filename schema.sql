@@ -7,7 +7,9 @@ CREATE TABLE "users" (
   "photo_url" varchar(255),
   "account_status" varchar(50) NOT NULL CHECK (account_status IN ('PENDING_CONFIRMATION', 'ACTIVE', 'BLOCKED')),
   "email_verified" boolean DEFAULT false,
-  "email_confirmation_token" varchar(255)
+  "email_confirmation_token" varchar(255),
+  "password_reset_token" varchar(255),
+  "password_reset_expires_at" TIMESTAMP WITH TIME ZONE
 );
 
 
