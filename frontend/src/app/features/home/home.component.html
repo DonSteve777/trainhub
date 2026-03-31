@@ -1,47 +1,47 @@
-<div class="home-container">
+<div class="th-split-page">
   <!-- Mitad izquierda - Logo -->
-  <div class="left-section">
+  <div class="th-split-left">
     <app-trainhub-logo size="large"></app-trainhub-logo>
   </div>
   
   <!-- Mitad derecha - Contenido -->
-  <div class="right-section">
-    <h1>Bienvenido a TrainHub</h1>
-    <p>Tu plataforma definitiva para estadísticas Hyrox y comunidad de entrenamiento</p>
+  <div class="th-split-right">
+    <h1 class="th-title-gradient">Bienvenido a TrainHub</h1>
+    <p class="th-lead">Tu plataforma definitiva para estadísticas Hyrox y comunidad de entrenamiento</p>
     
     <!-- Formulario de inicio de sesión -->
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
-      <div class="form-group">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="th-form">
+      <div class="th-form-group">
         <input 
           type="email" 
           id="email" 
           formControlName="email"
           placeholder="tu@email.com"
-          class="form-control"
+          class="th-input"
         />
       </div>
       
-      <div class="form-group">
+      <div class="th-form-group">
         <input 
           type="password" 
           id="password" 
           formControlName="password"
           placeholder="Contraseña"
-          class="form-control"
+          class="th-input"
         />
       </div>
       
-      <button type="submit" class="btn-login">
+      <button type="submit" class="th-btn-primary">
         Iniciar sesión
       </button>
       
-      <a routerLink="/forgot-password" class="forgot-password">¿Has olvidado la contraseña?</a>
+      <a routerLink="/forgot-password" class="th-link-info">¿Has olvidado la contraseña?</a>
       
-      <div class="divider">
+      <div class="th-divider">
         <span>o</span>
       </div>
       
-      <button type="button" class="btn-register" id="register-button-home" routerLink="/register-form">
+      <button type="button" class="th-btn-outline-info" id="register-button-home" routerLink="/register-form">
         Registrarse
       </button>
     </form>
