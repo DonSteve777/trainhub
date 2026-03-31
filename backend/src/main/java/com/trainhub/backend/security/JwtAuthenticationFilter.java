@@ -9,8 +9,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +27,6 @@ import java.util.Optional;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -71,21 +68,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Configurar el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    logger.debug("Usuario autenticado: {} (ID: {})", user.getEmail(), userId);
+                    System.out.println("Usuario autenticado: " + user.getEmail() + " (ID: " + userId + ")");
                 } else {
-                    logger.warn("Usuario no encontrado con ID: {}", userId);
+                    System.out.println("Usuario no encontrado con ID: " + userId);
                 }
             }
         } catch (ExpiredJwtException e) {
-            logger.error("Token JWT expirado: {}", e.getMessage());
+            System.out.println("Token JWT expirado: " + e.getMessage());
             // El token ha expirado - se deja pasar la petición sin autenticación
             // El SecurityConfig rechazará peticiones no autenticadas a endpoints protegidos
         } catch (MalformedJwtException e) {
-            logger.error("Token JWT malformado: {}", e.getMessage());
+            System.out.println("Token JWT malformado: " + e.getMessage());
         } catch (SignatureException e) {
-            logger.error("Firma JWT inválida: {}", e.getMessage());
+            System.out.println("Firma JWT inválida: " + e.getMessage());
         } catch (Exception e) {
-            logger.error("Error al procesar el token JWT: {}", e.getMessage());
+            System.out.println("Error al procesar el token JWT: " + e.getMessage());
         }
 
         // Continuar con el siguiente filtro en la cadena

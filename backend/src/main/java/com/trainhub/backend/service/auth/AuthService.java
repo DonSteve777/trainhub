@@ -21,9 +21,6 @@ import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.JwtUtil;
 import com.trainhub.backend.service.email.EmailService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Servicio para operaciones de autenticación y registro de usuarios.
  */

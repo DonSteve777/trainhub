@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Manejador global de excepciones para toda la aplicación.
@@ -24,7 +22,6 @@ import org.slf4j.LoggerFactory;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
 
     /**
@@ -94,7 +91,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
-        logger.warn("Token JWT expirado: {}", ex.getMessage());
+        System.out.println("Token JWT expirado: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("El token ha expirado. Por favor, inicia sesión nuevamente.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
@@ -105,7 +102,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MalformedJwtException.class)
     public ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException ex) {
-        logger.warn("Token JWT malformado: {}", ex.getMessage());
+        System.out.println("Token JWT malformado: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("El token proporcionado no es válido.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
@@ -116,7 +113,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException ex) {
-        logger.warn("Firma de token JWT inválida: {}", ex.getMessage());
+        System.out.println("Firma de token JWT inválida: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("El token proporcionado no es válido.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
@@ -127,7 +124,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex) {
-        logger.warn("Error en el procesamiento del token JWT: {}", ex.getMessage());
+        System.out.println("Error en el procesamiento del token JWT: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("Error de autenticación: token inválido.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
