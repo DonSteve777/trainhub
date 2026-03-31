@@ -86,6 +86,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja excepciones de token de reseteo inválido o expirado (400 Bad Request).
+     */
+    @ExceptionHandler(InvalidPasswordResetTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPasswordResetTokenException(InvalidPasswordResetTokenException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
      * Maneja excepciones de token JWT expirado (401 Unauthorized).
      * Se lanza cuando el token ha caducado y necesita ser renovado.
      */

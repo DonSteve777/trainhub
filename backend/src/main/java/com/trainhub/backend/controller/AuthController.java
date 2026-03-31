@@ -2,8 +2,11 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.LoginRequest;
 import com.trainhub.backend.dto.request.RegisterRequest;
+import com.trainhub.backend.dto.request.ForgotPasswordRequest;
+import com.trainhub.backend.dto.request.ResetPasswordRequest;
 import com.trainhub.backend.dto.response.LoginResponse;
 import com.trainhub.backend.dto.response.RegisterResponse;
+import com.trainhub.backend.dto.response.MessageResponse;
 import com.trainhub.backend.service.auth.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +61,18 @@ public class AuthController {
     public ResponseEntity<Void> confirmEmail(@PathVariable String token) {
         authService.confirmEmail(token);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.requestPasswordReset(request.getEmail());
+        return ResponseEntity.ok(new MessageResponse("Si existe una cuenta con ese email, recibirás instrucciones para restablecer tu contraseña."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(new MessageResponse("Contraseña actualizada correctamente"));
     }
 }
 

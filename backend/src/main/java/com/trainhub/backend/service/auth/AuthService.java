@@ -2,6 +2,7 @@ package com.trainhub.backend.service.auth;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.time.OffsetDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,6 +16,7 @@ import com.trainhub.backend.dto.response.LoginResponse;
 import com.trainhub.backend.dto.response.RegisterResponse;
 import com.trainhub.backend.exception.AccountNotActiveException;
 import com.trainhub.backend.exception.BadCredentialsException;
+import com.trainhub.backend.exception.InvalidPasswordResetTokenException;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.model.enums.AccountStatus;
 import com.trainhub.backend.repository.UserRepository;
@@ -147,6 +149,42 @@ public class AuthService {
         System.out.println("Account Status: " + user.getAccountStatus());
         System.out.println("Email Verified: " + user.getEmailVerified());
         System.out.println("Email Confirmation Token: " + user.getEmailConfirmationToken());
+    }
+
+    @Transactional
+    public void requestPasswordReset(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return;
+        }
+
+        User user = userOptional.get();
+        String resetToken = UUID.randomUUID().toString();
+
+        user.setPasswordResetToken(resetToken);
+        user.setPasswordResetExpiresAt(OffsetDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        Optional<User> userOptional = userRepository.findByPasswordResetToken(token);
+        if (userOptional.isEmpty()) {
+            throw new InvalidPasswordResetTokenException("El token de reseteo es inválido o ha caducado");
+        }
+
+        User user = userOptional.get();
+        OffsetDateTime expiresAt = user.getPasswordResetExpiresAt();
+        if (expiresAt == null || expiresAt.isBefore(OffsetDateTime.now())) {
+            throw new InvalidPasswordResetTokenException("El token de reseteo es inválido o ha caducado");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetExpiresAt(null);
+        userRepository.save(user);
     }
 }
 

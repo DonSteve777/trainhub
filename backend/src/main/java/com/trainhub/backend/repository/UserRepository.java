@@ -28,5 +28,13 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @return Optional con el usuario si existe, vacío si no
      */
     Optional<User> findByEmailConfirmationToken(String token);
+
+    /**
+     * Busca un usuario por su token de reseteo de contraseña.
+     *
+     * @param token El token de reseteo de contraseña
+     * @return Optional con el usuario si existe, vacío si no
+     */
+    Optional<User> findByPasswordResetToken(String token);
 }
 
