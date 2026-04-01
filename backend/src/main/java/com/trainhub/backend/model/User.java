@@ -4,6 +4,7 @@ import com.trainhub.backend.model.enums.AccountStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
 
 /**
@@ -22,6 +23,11 @@ public class User {
     @NotNull
     @Email
     private String email;
+
+    @Column(name = "username", nullable = false, unique = true, length = 50)
+    @NotNull
+    @Size(max = 50)
+    private String username;
 
     @Column(name = "password_hash", nullable = false, length = 255)
     @NotNull
@@ -60,6 +66,14 @@ public class User {
         this.accountStatus = accountStatus;
     }
 
+    public User(String email, String username, String passwordHash, AccountStatus accountStatus) {
+        this();
+        this.email = email;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.accountStatus = accountStatus;
+    }
+
     // Getters y Setters
     public Integer getId() {
         return id;
@@ -75,6 +89,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPasswordHash() {

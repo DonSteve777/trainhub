@@ -58,6 +58,12 @@ public class AuthService {
             throw new DataIntegrityViolationException("El email ya está registrado");
         }
 
+        // 1.1 Verificar que el username no exista
+        Optional<User> existingUsername = userRepository.findByUsername(request.getUsername());
+        if (existingUsername.isPresent()) {
+            throw new DataIntegrityViolationException("El nombre de usuario ya está registrado");
+        }
+
         // 2. Hashear contraseña
         String passwordHash = passwordEncoder.encode(request.getPassword());
 
@@ -67,6 +73,7 @@ public class AuthService {
         // 4. Crear User con accountStatus=PENDING_CONFIRMATION
         User user = new User(
                 request.getEmail(),
+                request.getUsername(),
                 passwordHash,
                 AccountStatus.PENDING_CONFIRMATION
         );

@@ -13,6 +13,10 @@ public class RegisterRequest {
     @Email(message = "El email debe tener un formato válido")
     private String email;
 
+    @NotBlank(message = "El nombre de usuario es obligatorio")
+    @Size(max = 50, message = "El nombre de usuario no puede superar 50 caracteres")
+    private String username;
+
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
@@ -26,6 +30,12 @@ public class RegisterRequest {
         this.password = password;
     }
 
+    public RegisterRequest(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+    }
+
     // Getters y Setters
     public String getEmail() {
         return email;
@@ -33,6 +43,14 @@ public class RegisterRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

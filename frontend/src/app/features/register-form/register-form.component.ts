@@ -47,6 +47,7 @@ export class RegisterFormComponent implements OnInit {
     this.registerForm = this.fb.group(
       {
         email: ['', [Validators.required, Validators.email]],
+        username: ['', [Validators.required, Validators.maxLength(50)]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required, passwordMatchValidator()]],
       },
@@ -59,10 +60,11 @@ export class RegisterFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.registerForm.invalid) return;
-    const { email, password } = this.registerForm.value;
+    const { email, username, password } = this.registerForm.value;
     this.apiService
       .post<{ message: string; email: string }>('/auth/register', {
         email,
+        username,
         password,
       })
       .subscribe({
