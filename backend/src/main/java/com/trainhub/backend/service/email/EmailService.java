@@ -45,7 +45,7 @@ public class EmailService {
             helper.setTo(email);
             helper.setSubject("Confirma tu cuenta de TrainHub");
 
-            String confirmationUrl = baseUrl + "/api/auth/confirm-email/" + token;
+            String confirmationUrl = frontendUrl + "/confirm-email/" + token;
             String htmlContent = buildEmailContent(confirmationUrl);
 
             helper.setText(htmlContent, true);
