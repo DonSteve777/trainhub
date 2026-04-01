@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -31,18 +31,12 @@ function passwordMatchValidator(): ValidatorFn {
 })
 export class RegisterFormComponent implements OnInit {
   registerForm!: FormGroup;
+  private readonly fb = inject(FormBuilder);
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
-  backendMessage: string | null = null;
-  constructor(private fb: FormBuilder) {}
 
-  // qué hace este código?
-  // este código es para el formulario de registro de un nuevo usuario  
-  // se crea el formulario con los campos email, password y confirmPassword
-  // se valida que el password y el confirmPassword sean iguales
-  // se valida que el email sea un email válido
-  // se valida que el password tenga al menos 8 caracteres
-  // se valida que el confirmPassword tenga al menos 8 caracteres
+  readonly backendMessage = signal<string | null>(null);
+
   ngOnInit(): void {
     this.registerForm = this.fb.group(
       {
@@ -60,6 +54,7 @@ export class RegisterFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.registerForm.invalid) return;
+    this.backendMessage.set(null);
     const { email, username, password } = this.registerForm.value;
     this.apiService
       .post<{ message: string; email: string }>('/auth/register', {
@@ -71,9 +66,9 @@ export class RegisterFormComponent implements OnInit {
         next: () => this.router.navigate(['/verify-email']),
         error: (err) => {
           const body = err.error;
-          this.backendMessage =
-            body?.message ?? body?.error ?? 'Error al registrarse. Inténtalo de nuevo.';
-            console.log(this.backendMessage);
+          this.backendMessage.set(
+            body?.message ?? body?.error ?? 'Error al registrarse. Inténtalo de nuevo.'
+          );
         },
       });
   }
