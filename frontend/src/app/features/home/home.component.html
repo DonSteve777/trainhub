@@ -34,6 +34,12 @@
       <button type="submit" class="th-btn-primary">
         Iniciar sesión
       </button>
+
+      @if (backendMessage()) {
+        <div class="backend-message-wrapper">
+          <div class="backend-message" role="alert">{{ backendMessage() }}</div>
+        </div>
+      }
       
       <a routerLink="/forgot-password" class="th-link-info">¿Has olvidado la contraseña?</a>
       
