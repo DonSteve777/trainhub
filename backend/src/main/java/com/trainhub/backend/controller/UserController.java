@@ -7,13 +7,22 @@ import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.UserPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Controlador REST para operaciones de usuario.
@@ -24,6 +33,12 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     /**
      * Obtiene la información del perfil del usuario autenticado.
@@ -91,5 +106,47 @@ public class UserController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Sube la foto de avatar del usuario autenticado.
+     *
+     * @param userPrincipal El usuario autenticado actual
+     * @param file          El fichero de imagen enviado como multipart/form-data
+     * @return La URL pública donde quedó almacenado el avatar
+     */
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> uploadAvatar(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam("file") MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha proporcionado ningún fichero");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "El fichero debe ser una imagen");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+        }
+
+        String filename = UUID.randomUUID() + extension;
+
+        try {
+            Path uploadPath = Paths.get(uploadDir);
+            Files.createDirectories(uploadPath);
+            Path destination = uploadPath.resolve(filename);
+            file.transferTo(destination.toFile());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar el fichero");
+        }
+
+        String url = baseUrl + "/uploads/avatars/" + filename;
+        return ResponseEntity.ok(Map.of("url", url));
     }
 }
