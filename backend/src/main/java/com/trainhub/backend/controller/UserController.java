@@ -39,6 +39,7 @@ public class UserController {
                 user.getId(),
                 user.getEmail(),
                 user.getPhotoUrl(),
+                user.getUsername(),
                 user.getAccountStatus(),
                 user.getEmailVerified()
         );
@@ -74,6 +75,7 @@ public class UserController {
         // Actualizar los campos del usuario
         user.setEmail(request.getEmail());
         user.setPhotoUrl(request.getPhotoUrl());
+        user.setUsername(request.getName());
 
         // Guardar cambios
         User updatedUser = userRepository.save(user);
@@ -83,6 +85,7 @@ public class UserController {
                 updatedUser.getId(),
                 updatedUser.getEmail(),
                 updatedUser.getPhotoUrl(),
+                updatedUser.getUsername(),
                 updatedUser.getAccountStatus(),
                 updatedUser.getEmailVerified()
         );

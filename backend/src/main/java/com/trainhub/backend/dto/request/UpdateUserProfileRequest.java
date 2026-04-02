@@ -17,6 +17,10 @@ public class UpdateUserProfileRequest {
     @Size(max = 255, message = "La URL de la foto no puede tener más de 255 caracteres")
     private String photoUrl;
 
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 60, message = "El nombre no puede tener más de 60 caracteres")
+    private String name;
+
     public UpdateUserProfileRequest() {
     }
 
@@ -35,5 +39,13 @@ public class UpdateUserProfileRequest {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

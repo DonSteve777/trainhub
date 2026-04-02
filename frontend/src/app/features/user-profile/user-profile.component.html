@@ -1,9 +1,12 @@
 <div class="user-profile-container">
   <div class="profile-card">
     <h1>Mi Perfil</h1>
-    
-    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
-      <!-- Nombre -->
+
+    @if (isLoading()) {
+      <div class="loading-state">Cargando perfil...</div>
+    } @else {
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+              <!-- Nombre -->
       <div class="form-group">
         <label for="name">Nombre *</label>
         <input
@@ -13,73 +16,61 @@
           placeholder="Tu nombre"
           [class.error]="profileForm.get('name')?.touched && profileForm.get('name')?.invalid"
         />
-        <span class="error-message" *ngIf="getFieldError('name')">
+        <!-- <span class="error-message" *ngIf="getFieldError('name')">
           {{ getFieldError('name') }}
-        </span>
+        </span> -->
       </div>
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="tu@email.com"
+            [class.error]="profileForm.get('email')?.touched && profileForm.get('email')?.invalid"
+          />
+          @if (getFieldError('email')) {
+            <span class="error-message">{{ getFieldError('email') }}</span>
+          }
+        </div>
 
-      <!-- Email -->
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          placeholder="tu@email.com"
-          [class.error]="profileForm.get('email')?.touched && profileForm.get('email')?.invalid"
-        />
-        <span class="error-message" *ngIf="getFieldError('email')">
-          {{ getFieldError('email') }}
-        </span>
-      </div>
+        <!-- URL de la foto -->
+        <div class="form-group">
+          <label for="photoUrl">URL de la foto de perfil</label>
+          <input
+            id="photoUrl"
+            type="url"
+            formControlName="photoUrl"
+            placeholder="https://ejemplo.com/foto.jpg"
+            [class.error]="profileForm.get('photoUrl')?.touched && profileForm.get('photoUrl')?.invalid"
+          />
+          @if (getFieldError('photoUrl')) {
+            <span class="error-message">{{ getFieldError('photoUrl') }}</span>
+          }
+        </div>
 
-      <!-- Biografía -->
-      <div class="form-group">
-        <label for="bio">Biografía</label>
-        <textarea
-          id="bio"
-          formControlName="bio"
-          placeholder="Cuéntanos sobre ti..."
-          rows="4"
-          [class.error]="profileForm.get('bio')?.touched && profileForm.get('bio')?.invalid"
-        ></textarea>
-        <span class="error-message" *ngIf="getFieldError('bio')">
-          {{ getFieldError('bio') }}
-        </span>
-      </div>
+        <!-- Mensajes de éxito y error -->
+        @if (successMessage()) {
+          <div class="success-message">{{ successMessage() }}</div>
+        }
+        @if (errorMessage()) {
+          <div class="error-message-box">{{ errorMessage() }}</div>
+        }
 
-      <!-- URL de la foto -->
-      <div class="form-group">
-        <label for="photoUrl">URL de la foto de perfil</label>
-        <input
-          id="photoUrl"
-          type="url"
-          formControlName="photoUrl"
-          placeholder="https://ejemplo.com/foto.jpg"
-          [class.error]="profileForm.get('photoUrl')?.touched && profileForm.get('photoUrl')?.invalid"
-        />
-        <span class="error-message" *ngIf="getFieldError('photoUrl')">
-          {{ getFieldError('photoUrl') }}
-        </span>
-      </div>
-
-      <!-- Mensajes de éxito y error -->
-      <div class="success-message" *ngIf="successMessage">
-        {{ successMessage }}
-      </div>
-      <div class="error-message-box" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
-
-      <!-- Botón de enviar -->
-      <button
-        type="submit"
-        class="submit-button"
-        [disabled]="isSubmitting || profileForm.invalid"
-      >
-        <span *ngIf="!isSubmitting">Guardar cambios</span>
-        <span *ngIf="isSubmitting">Guardando...</span>
-      </button>
-    </form>
+        <!-- Botón de enviar -->
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="isSubmitting() || profileForm.invalid"
+        >
+          @if (isSubmitting()) {
+            <span>Guardando...</span>
+          } @else {
+            <span>Guardar cambios</span>
+          }
+        </button>
+      </form>
+    }
   </div>
 </div>
