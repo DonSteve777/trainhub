@@ -35,18 +35,34 @@
           }
         </div>
 
-        <!-- URL de la foto -->
-        <div class="form-group">
-          <label for="photoUrl">URL de la foto de perfil</label>
+        <!-- Avatar -->
+        <div class="form-group avatar-group">
+          <label>Foto de perfil</label>
+          <div class="avatar-wrapper">
+            @if (avatarDisplayUrl(); as url) {
+              <img class="avatar-preview" [src]="url" alt="Foto de perfil" />
+            } @else {
+              <div class="avatar-placeholder">
+                <span>Sin foto</span>
+              </div>
+            }
+            <button
+              type="button"
+              class="avatar-change-btn"
+              (click)="avatarFileInput.click()"
+            >
+              Cambiar foto
+            </button>
+          </div>
           <input
-            id="photoUrl"
-            type="url"
-            formControlName="photoUrl"
-            placeholder="https://ejemplo.com/foto.jpg"
-            [class.error]="profileForm.get('photoUrl')?.touched && profileForm.get('photoUrl')?.invalid"
+            #avatarFileInput
+            type="file"
+            accept="image/*"
+            class="avatar-file-input"
+            (change)="onFileSelected($event)"
           />
-          @if (getFieldError('photoUrl')) {
-            <span class="error-message">{{ getFieldError('photoUrl') }}</span>
+          @if (pendingAvatarFile(); as f) {
+            <span class="file-hint">Seleccionado: {{ f.name }}</span>
           }
         </div>
 
