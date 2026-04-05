@@ -4,12 +4,16 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { unauthorizedInterceptor } from './core/interceptors/unauthorized.interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor]), withInterceptorsFromDi()),
+    provideHttpClient(
+      withInterceptors([authInterceptor, unauthorizedInterceptor]),
+      withInterceptorsFromDi(),
+    ),
   ],
 };

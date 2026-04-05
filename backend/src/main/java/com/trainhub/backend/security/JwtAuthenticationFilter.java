@@ -1,8 +1,11 @@
 package com.trainhub.backend.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trainhub.backend.dto.response.ErrorResponse;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -10,6 +13,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -18,6 +22,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
@@ -36,26 +41,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
-            // Extraer el token del header Authorization
             String token = extractTokenFromRequest(request);
 
             if (token != null) {
-                // Validar el token y obtener el userId
                 Integer userId = jwtUtil.getUserIdFromToken(token);
 
-                // Cargar el usuario desde la base de datos
                 Optional<User> userOptional = userRepository.findById(userId);
 
                 if (userOptional.isPresent()) {
                     User user = userOptional.get();
                     UserPrincipal userPrincipal = new UserPrincipal(user);
 
-                    // Crear el objeto de autenticación
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     userPrincipal,
@@ -65,7 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    // Configurar el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     System.out.println("Usuario autenticado: " + user.getEmail() + " (ID: " + userId + ")");
@@ -75,18 +78,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (ExpiredJwtException e) {
             System.out.println("Token JWT expirado: " + e.getMessage());
-            // El token ha expirado - se deja pasar la petición sin autenticación
-            // El SecurityConfig rechazará peticiones no autenticadas a endpoints protegidos
+            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "El token ha expirado. Por favor, inicia sesión nuevamente.");
+            return;
         } catch (MalformedJwtException e) {
             System.out.println("Token JWT malformado: " + e.getMessage());
+            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "El token proporcionado no es válido.");
+            return;
         } catch (SignatureException e) {
             System.out.println("Firma JWT inválida: " + e.getMessage());
-        } catch (Exception e) {
+            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "El token proporcionado no es válido.");
+            return;
+        } catch (JwtException e) {
             System.out.println("Error al procesar el token JWT: " + e.getMessage());
+            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "Error de autenticación: token inválido.");
+            return;
         }
 
-        // Continuar con el siguiente filtro en la cadena
         filterChain.doFilter(request, response);
+    }
+
+    private void writeJsonError(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        objectMapper.writeValue(response.getOutputStream(), new ErrorResponse(message));
     }
 
     /**
