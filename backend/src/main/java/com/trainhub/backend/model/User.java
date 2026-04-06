@@ -1,11 +1,12 @@
 package com.trainhub.backend.model;
 
-import com.trainhub.backend.model.enums.AccountStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
+
+import com.trainhub.backend.enums.AccountStatus;
 
 /**
  * Entidad que representa un usuario en el sistema.

@@ -1,4 +1,4 @@
-package com.trainhub.backend.model.enums;
+package com.trainhub.backend.enums;
 
 /**
  * Enum que representa los estados posibles de una cuenta de usuario.

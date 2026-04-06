@@ -1,7 +1,8 @@
 package com.trainhub.backend.security;
 
+import com.trainhub.backend.enums.AccountStatus;
 import com.trainhub.backend.model.User;
-import com.trainhub.backend.model.enums.AccountStatus;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
