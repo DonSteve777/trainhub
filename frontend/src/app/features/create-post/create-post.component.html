@@ -1,0 +1,90 @@
+<div class="create-post-page">
+  <div class="create-post-content">
+    <h1 class="th-title-gradient">Nuevo entrenamiento</h1>
+    <p class="th-lead">
+      Anota tus tiempos (<strong>mm:ss</strong>)
+    </p>
+
+    <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="create-post-form">
+      <fieldset class="time-fieldset hyrox-fieldset">
+        <legend>Prueba HYROX</legend>
+        <div class="hyrox-table" role="group" aria-label="Tiempos por tramo de carrera y prueba">
+          <div class="hyrox-header-row">
+            <span class="hyrox-col-head">Carrera <span class="hyrox-format-hint">(mm:ss)</span></span>
+            <span class="hyrox-col-head">Prueba <span class="hyrox-format-hint">(mm:ss)</span></span>
+          </div>
+          <div formArrayName="segments">
+            @for (row of hyroxRows; track row.stationKey; let i = $index) {
+              <div class="hyrox-row" [formGroupName]="i">
+                <div class="hyrox-cell hyrox-cell-running">
+                  <label class="running-label" [for]="'run-time-' + i">{{ row.runningLabel }}</label>
+                  <input
+                    [id]="'run-time-' + i"
+                    type="text"
+                    formControlName="running"
+                    class="th-input time-input-mmss"
+                    placeholder="00:00"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    spellcheck="false"
+                    (input)="onMmSsInput($event, i, 'running')"
+                    [attr.aria-describedby]="'err-run-' + i"
+                  />
+                  @if (segments.at(i).get('running')?.invalid && segments.at(i).get('running')?.touched) {
+                    <span class="field-error" [id]="'err-run-' + i">
+                      @if (segments.at(i).get('running')?.hasError('required')) {
+                        Obligatorio
+                      } @else {
+                        Formato mm:ss (segundos 0–59), ej. 5:03
+                      }
+                    </span>
+                  }
+                </div>
+                <div class="hyrox-cell hyrox-cell-station">
+                  <label class="station-label" [for]="'st-time-' + i">{{ row.stationLabel }}</label>
+                  <input
+                    [id]="'st-time-' + i"
+                    type="text"
+                    formControlName="station"
+                    class="th-input time-input-mmss"
+                    placeholder="00:00"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    spellcheck="false"
+                    (input)="onMmSsInput($event, i, 'station')"
+                    [attr.aria-describedby]="'err-st-' + i"
+                  />
+                  @if (segments.at(i).get('station')?.invalid && segments.at(i).get('station')?.touched) {
+                    <span class="field-error" [id]="'err-st-' + i">
+                      @if (segments.at(i).get('station')?.hasError('required')) {
+                        Obligatorio
+                      } @else {
+                        Formato mm:ss (segundos 0–59), ej. 5:03
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="th-btn-primary create-post-submit" [disabled]="postForm.invalid || submitting()">
+        @if (submitting()) {
+          Publicando…
+        } @else {
+          Publicar entrenamiento
+        }
+      </button>
+
+      <a routerLink="/feed" class="th-link-info create-post-back">Volver al feed</a>
+
+      @if (backendMessage()) {
+        <div class="backend-message-wrapper">
+          <div class="backend-message" role="alert">{{ backendMessage() }}</div>
+        </div>
+      }
+    </form>
+  </div>
+</div>

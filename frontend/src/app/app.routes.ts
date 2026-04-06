@@ -5,12 +5,14 @@ import { UserProfileComponent } from './features/user-profile/user-profile.compo
 import { VerifyEmailComponent } from './features/verify-email/verify-email.component';
 import { RegisterFormComponent } from './features/register-form/register-form.component';
 import { FeedComponent } from './features/feed/feed.component';
+import { CreatePostComponent } from './features/create-post/create-post.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'feed', component: FeedComponent },
+  { path: 'create-post', component: CreatePostComponent },
   { path: 'confirm-email/:token', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
