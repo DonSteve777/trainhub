@@ -22,9 +22,6 @@ export class HomeComponent implements OnInit {
   readonly backendMessage = signal<string | null>(null);
 
   ngOnInit(): void {
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/feed'], { replaceUrl: true });
-    }
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],

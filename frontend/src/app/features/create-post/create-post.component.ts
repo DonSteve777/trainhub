@@ -10,7 +10,6 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
-import { AuthService } from '../../core/services/auth.service';
 
 /** Parsea "m:ss" o "mm:ss" (segundos 0–59). Devuelve null si no es válido. */
 export function parseMmSsToSeconds(value: string): number | null {
@@ -72,7 +71,6 @@ export class CreatePostComponent implements OnInit {
   postForm!: FormGroup;
   private readonly fb = inject(FormBuilder);
   private readonly apiService = inject(ApiService);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   /** Orden oficial HYROX: Running + estación por fila. */
@@ -131,10 +129,6 @@ export class CreatePostComponent implements OnInit {
   readonly submitting = signal(false);
 
   ngOnInit(): void {
-    if (!this.authService.isAuthenticated()) {
-      void this.router.navigate(['/'], { replaceUrl: true });
-      return;
-    }
     this.postForm = this.fb.group({
       segments: this.fb.array(this.hyroxRows.map(() => this.createSegmentGroup())),
     });

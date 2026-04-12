@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
@@ -29,7 +28,6 @@ const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
   styleUrl: './user-profile.component.scss',
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
-  private readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
   private readonly fb = inject(FormBuilder);
 
@@ -81,9 +79,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           });
         },
         error: (error) => {
-          if (error.status === 401) {
-            this.router.navigate(['/']);
-          } else {
+          if (error.status !== 401) {
             this.errorMessage.set('Error al cargar el perfil. Por favor, recarga la página.');
           }
         },

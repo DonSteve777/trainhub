@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 import { HomeComponent } from './features/home/home.component';
 import { ConfirmEmailComponent } from './features/confirm-email/confirm-email.component';
 import { UserProfileComponent } from './features/user-profile/user-profile.component';
@@ -11,12 +12,12 @@ import { ResetPasswordComponent } from './features/reset-password/reset-password
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'feed', component: FeedComponent },
-  { path: 'create-post', component: CreatePostComponent },
+  { path: 'feed', component: FeedComponent, canActivate: [authGuard] },
+  { path: 'create-post', component: CreatePostComponent, canActivate: [authGuard] },
   { path: 'confirm-email/:token', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
-  { path: 'user-profile', component: UserProfileComponent },
+  { path: 'user-profile', component: UserProfileComponent, canActivate: [authGuard] },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'register-form', component: RegisterFormComponent },
   { path: '**', redirectTo: '' },
