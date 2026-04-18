@@ -55,6 +55,7 @@ public class FeedService {
                 post.getSandbagLunges(),
                 post.getWallBalls(),
                 post.getTotalTime(),
+                post.getDescription(),
                 post.getCreationDate()
         );
     }

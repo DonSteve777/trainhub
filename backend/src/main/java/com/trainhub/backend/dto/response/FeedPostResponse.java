@@ -31,7 +31,14 @@ public class FeedPostResponse {
     private String w8Time;
 
     private String totalTime;
+    private String description;
     private LocalDateTime creationDate;
+
+    private Integer commentsCount;
+    private List<String> comments;
+ //TODO likes a comentarios
+ // likes a posts 
+
 
     public FeedPostResponse() {}
 
@@ -68,8 +75,8 @@ public class FeedPostResponse {
     public FeedPostResponse(Integer id2, Integer id3, String username2, String photoUrl2, Integer r1Time2,
             Integer r2Time2, Integer r3Time2, Integer r4Time2, Integer r5Time2, Integer r6Time2, Integer r7Time2,
             Integer r8Time2, Integer w1Time2, Integer w2Time2, Integer w3Time2, Integer w4Time2, Integer w5Time2,
-            Integer w6Time2, Integer w7Time2, Integer w8Time2, Integer totalTime2, LocalDateTime creationDate2) {
-        //TODO Auto-generated constructor stub
+            Integer w6Time2, Integer w7Time2, Integer w8Time2, Integer totalTime2, String description2,
+            LocalDateTime creationDate2) {
         this.id = id2;
         this.userId = id3;
         this.username = username2;
@@ -91,6 +98,7 @@ public class FeedPostResponse {
         this.w7Time = w7Time2.toString();
         this.w8Time = w8Time2.toString();
         this.totalTime = totalTime2.toString();
+        this.description = description2;
         this.creationDate = creationDate2;
     }
 
@@ -156,6 +164,9 @@ public class FeedPostResponse {
 
     public String getTotalTime() { return totalTime; }
     public void setTotalTime(String totalTime) { this.totalTime = totalTime; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }

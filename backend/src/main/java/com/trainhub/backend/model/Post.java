@@ -70,6 +70,9 @@ public class Post {
     @Column(name = "total_time", nullable = false)
     private Integer totalTime;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
@@ -246,6 +249,9 @@ public class Post {
 
     public Integer getTotalTime() { return totalTime; }
     public void setTotalTime(Integer totalTime) { this.totalTime = totalTime; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
