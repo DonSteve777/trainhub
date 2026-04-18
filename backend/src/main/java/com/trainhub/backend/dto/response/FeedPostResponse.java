@@ -35,9 +35,8 @@ public class FeedPostResponse {
     private LocalDateTime creationDate;
 
     private Integer commentsCount;
-    private List<String> comments;
- //TODO likes a comentarios
- // likes a posts 
+    private Integer likesCount;
+    
 
 
     public FeedPostResponse() {}
@@ -170,4 +169,10 @@ public class FeedPostResponse {
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
+
+    public Integer getCommentsCount() { return commentsCount; }
+    public void setCommentsCount(Integer commentsCount) { this.commentsCount = commentsCount; }
+
+    public Integer getLikesCount() { return likesCount; }
+    public void setLikesCount(Integer likesCount) { this.likesCount = likesCount; }
 }

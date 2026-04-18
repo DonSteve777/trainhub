@@ -2,12 +2,15 @@ package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.model.Post;
+import com.trainhub.backend.repository.CommentRepository;
+import com.trainhub.backend.repository.PostLikeRepository;
 import com.trainhub.backend.repository.PostRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -17,19 +20,53 @@ import java.util.stream.Collectors;
 public class FeedService {
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
 
-    public FeedService(PostRepository postRepository) {
+    public FeedService(PostRepository postRepository, PostLikeRepository postLikeRepository,
+                       CommentRepository commentRepository) {
         this.postRepository = postRepository;
+        this.postLikeRepository = postLikeRepository;
+        this.commentRepository = commentRepository;
     }
 
     public List<FeedPostResponse> getFirstPage(Integer userId, int size) {
         List<Post> posts = postRepository.findFeedFirstPage(userId, PageRequest.of(0, size));
-        return posts.stream().map(this::toResponse).collect(Collectors.toList());
+        return toResponseList(posts);
     }
 
     public List<FeedPostResponse> getNextPage(Integer userId, LocalDateTime cursorDate, Integer cursorId, int size) {
         List<Post> posts = postRepository.findFeedWithCursor(userId, cursorDate, cursorId, PageRequest.of(0, size));
-        return posts.stream().map(this::toResponse).collect(Collectors.toList());
+        return toResponseList(posts);
+    }
+
+    private List<FeedPostResponse> toResponseList(List<Post> posts) {
+        if (posts.isEmpty()) return List.of();
+
+        List<Integer> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+
+        Map<Integer, Integer> likeCountByPostId = postLikeRepository.countByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
+
+        Map<Integer, Integer> commentCountByPostId = commentRepository.countByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
+
+        return posts.stream()
+                .map(post -> {
+                    FeedPostResponse response = toResponse(post);
+                    response.setLikesCount(likeCountByPostId.getOrDefault(post.getId(), 0));
+                    response.setCommentsCount(commentCountByPostId.getOrDefault(post.getId(), 0));
+                    return response;
+                })
+                .collect(Collectors.toList());
     }
 
     private FeedPostResponse toResponse(Post post) {

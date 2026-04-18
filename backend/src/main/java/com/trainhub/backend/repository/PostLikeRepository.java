@@ -1,0 +1,31 @@
+package com.trainhub.backend.repository;
+
+import com.trainhub.backend.model.PostLike;
+import com.trainhub.backend.model.PostLikeId;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * Repositorio para la entidad PostLike.
+ */
+@Repository
+public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> {
+
+    /**
+     * Devuelve el número de likes por post para un conjunto de post IDs.
+     * Cada elemento del resultado es un Object[] con [postId (Integer), count (Long)].
+     * Se usa para rellenar likesCount en el feed sin hacer N consultas.
+     */
+    @Query("""
+            SELECT pl.id.postId, COUNT(pl)
+            FROM PostLike pl
+            WHERE pl.id.postId IN :postIds
+            GROUP BY pl.id.postId
+            """)
+    List<Object[]> countByPostIds(@Param("postIds") List<Integer> postIds);
+}
