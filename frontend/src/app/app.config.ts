@@ -2,6 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { unauthorizedInterceptor } from './core/interceptors/unauthorized.interceptor';
@@ -15,5 +16,6 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor, unauthorizedInterceptor]),
       withInterceptorsFromDi(),
     ),
+    provideCharts(withDefaultRegisterables()),
   ],
 };
