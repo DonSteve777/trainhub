@@ -19,27 +19,44 @@
           class="carousel-arrow carousel-arrow--prev"
           [class.carousel-arrow--hidden]="post.currentSlide === 0"
           (click)="prevSlide(i, post)"
-          aria-label="Imagen anterior"
+          aria-label="Gráfico anterior"
         >
           <mat-icon>chevron_left</mat-icon>
         </button>
 
         <div class="post-carousel" #carousel>
           <div class="carousel-track">
-            @for (slide of post.slides; track $index) {
-              <div class="carousel-slide">
-                <img [src]="slide.url" [alt]="slide.alt" />
-              </div>
-            }
+            <div class="carousel-slide carousel-slide--stats">
+              <app-race-distribution-chart
+                [allTimes]="post.stats.allTotalTimes"
+                [athleteTime]="post.stats.athleteTotal"
+                label="Total Time"
+                color="#FFC107"
+              />
+              <div class="stats-divider"></div>
+              <app-race-distribution-chart
+                [allTimes]="post.stats.allWorkoutTimes"
+                [athleteTime]="post.stats.athleteWorkout"
+                label="Workouts"
+                color="#8B9FFF"
+              />
+              <div class="stats-divider"></div>
+              <app-race-distribution-chart
+                [allTimes]="post.stats.allRunTimes"
+                [athleteTime]="post.stats.athleteRun"
+                label="Runs"
+                color="#FF6B8A"
+              />
+            </div>
           </div>
         </div>
 
         <button
           class="carousel-arrow carousel-arrow--next"
-          [class.carousel-arrow--hidden]="post.currentSlide === post.slides.length - 1"
+          [class.carousel-arrow--hidden]="post.currentSlide === slides.length - 1"
           (click)="nextSlide(i, post)"
-          aria-label="Imagen siguiente"
-        >
+          aria-label="Gráfico siguiente"
+          >
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>

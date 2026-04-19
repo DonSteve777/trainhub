@@ -124,12 +124,25 @@ $card-height: calc((100dvh - var(--header-height)) * 0.9);
   flex: 0 0 100%;
   height: 100%;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  &--stats {
+    display: flex;
+    flex-direction: column;
+    background: var(--trainhub-surface-dark, #1a1412);
+    border-radius: 12px;
+    overflow: hidden;
+
+    app-race-distribution-chart {
+      flex: 1;
+      min-height: 0;
+    }
   }
+}
+
+.stats-divider {
+  flex-shrink: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 0.9rem;
 }
 
 // Flechas de navegación del carrusel

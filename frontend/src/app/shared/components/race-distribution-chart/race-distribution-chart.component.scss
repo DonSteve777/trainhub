@@ -1,0 +1,52 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chart-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0.6rem 0.9rem 0.4rem;
+  box-sizing: border-box;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.3rem;
+  flex-shrink: 0;
+}
+
+.chart-label {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+}
+
+.chart-stats {
+  text-align: right;
+}
+
+.chart-time {
+  display: block;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.chart-percentile {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 0.1rem;
+}
+
+.chart-canvas-wrapper {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
