@@ -1,0 +1,72 @@
+<div class="feed">
+  @for (post of posts; track post.id; let i = $index) {
+    <article class="post-card">
+
+      <!-- Bloque 1: Avatar + Usuario / Descripción -->
+      <div class="post-header">
+        <div class="post-avatar">
+          <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
+        </div>
+        <div class="post-meta">
+          <span class="post-username">{{ post.username }}</span>
+          <p class="post-description">{{ post.description }}</p>
+        </div>
+      </div>
+
+      <!-- Bloque 2: Carrusel -->
+      <div class="post-carousel-wrapper">
+        <button
+          class="carousel-arrow carousel-arrow--prev"
+          [class.carousel-arrow--hidden]="post.currentSlide === 0"
+          (click)="prevSlide(i, post)"
+          aria-label="Imagen anterior"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="post-carousel" #carousel>
+          <div class="carousel-track">
+            @for (slide of post.slides; track $index) {
+              <div class="carousel-slide">
+                <img [src]="slide.url" [alt]="slide.alt" />
+              </div>
+            }
+          </div>
+        </div>
+
+        <button
+          class="carousel-arrow carousel-arrow--next"
+          [class.carousel-arrow--hidden]="post.currentSlide === post.slides.length - 1"
+          (click)="nextSlide(i, post)"
+          aria-label="Imagen siguiente"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- Bloque 3: Acciones -->
+      <div class="post-actions">
+        <button
+          class="action-btn"
+          (click)="toggleLike(post)"
+          [attr.aria-label]="'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')"
+        >
+          <mat-icon [class.action-btn__icon--liked]="post.liked">
+            {{ post.liked ? 'favorite' : 'favorite_border' }}
+          </mat-icon>
+          <span class="action-count" aria-hidden="true">{{ post.likes }}</span>
+        </button>
+
+        <button
+          class="action-btn"
+          (click)="openComments(post)"
+          [attr.aria-label]="'Comentarios, ' + post.commentsCount + (post.commentsCount === 1 ? ' comentario' : ' comentarios')"
+        >
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
+        </button>
+      </div>
+
+    </article>
+  }
+</div>

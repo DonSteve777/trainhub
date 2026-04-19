@@ -1,0 +1,222 @@
+// ============================================================
+// Variables locales derivadas del token global
+// ============================================================
+$feed-height: calc(100dvh - var(--header-height));
+$card-height: calc((100dvh - var(--header-height)) * 0.9);
+
+// ============================================================
+// Contenedor de scroll principal (sin barra visible)
+// ============================================================
+.feed {
+  height: $feed-height;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none; // Firefox
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome / Safari
+  }
+}
+
+// ============================================================
+// Tarjeta de publicación
+// ============================================================
+.post-card {
+  scroll-snap-align: start;
+
+  // Centrado horizontal + ancho 1/3 en desktop
+  width: 33.333%;
+  margin-inline: auto;
+
+  // Altura dominante: 90 % del espacio bajo el header
+  height: $card-height;
+
+  // Layout interno en tres franjas verticales
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  box-sizing: border-box;
+
+  // Responsive: tablet → 60 %, móvil → casi 100 %
+  @media (max-width: 1280px) {
+    width: 50%;
+  }
+
+  @media (max-width: 768px) {
+    width: 92%;
+  }
+}
+
+// ============================================================
+// Bloque 1 – Avatar + Meta
+// ============================================================
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.post-avatar {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--trainhub-accent);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.post-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0; // permite que el texto haga ellipsis
+}
+
+.post-username {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.post-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ============================================================
+// Bloque 2 – Carrusel
+// ============================================================
+.post-carousel-wrapper {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.post-carousel {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  height: 100%;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// Flechas de navegación del carrusel
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.75);
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  &--prev {
+    left: 8px;
+  }
+
+  &--next {
+    right: 8px;
+  }
+
+  &--hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+// ============================================================
+// Bloque 3 – Acciones (like + comentar)
+// ============================================================
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--mat-sys-on-surface);
+  }
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    transition: color 0.2s ease, transform 0.2s ease;
+
+    &.action-btn__icon--liked {
+      color: var(--trainhub-accent);
+      transform: scale(1.15);
+    }
+  }
+}
+
+.action-count {
+  font-weight: 600;
+  min-width: 1.5ch;
+}

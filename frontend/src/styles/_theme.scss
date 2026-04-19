@@ -135,6 +135,9 @@ $trainhub-neutral-variant-palette: (
 // Variables CSS personalizadas de Trainhub
 // ========================================
 :root {
+  // Layout
+  --header-height: 64px;
+
   // Colores de marca
   --trainhub-accent: #FF5722;
   --trainhub-accent-light: #FF8A65;
