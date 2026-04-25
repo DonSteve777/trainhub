@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, ViewChildren, ElementRef } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChildren, ElementRef, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -39,7 +39,7 @@ export class FeedComponent implements OnInit {
 
   readonly slides = ['total', 'workouts', 'runs'] as const;
 
-  posts: FeedPost[] = [];
+  posts = signal<FeedPost[]>([]);
 
   constructor(
     private readonly dialog: MatDialog,
@@ -47,26 +47,42 @@ export class FeedComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.feedService.getFeed().subscribe((dtos) => {
-      this.posts = dtos.map((dto) => this.mapDto(dto));
+    this.feedService.getFeed().subscribe({
+      next: (dtos) => {
+        this.posts.set(dtos.map((dto) => this.mapDto(dto)));
+      },
+      error: (err) => {
+        console.error('Feed HTTP error', err);
+      },
     });
   }
 
   prevSlide(index: number, post: FeedPost): void {
     if (post.currentSlide <= 0) return;
-    post.currentSlide--;
-    this.moveCarousel(index, post.currentSlide);
+    const newSlide = post.currentSlide - 1;
+    this.posts.update(posts =>
+      posts.map(p => p.id === post.id ? { ...p, currentSlide: newSlide } : p),
+    );
+    this.moveCarousel(index, newSlide);
   }
 
   nextSlide(index: number, post: FeedPost): void {
     if (post.currentSlide >= this.slides.length - 1) return;
-    post.currentSlide++;
-    this.moveCarousel(index, post.currentSlide);
+    const newSlide = post.currentSlide + 1;
+    this.posts.update(posts =>
+      posts.map(p => p.id === post.id ? { ...p, currentSlide: newSlide } : p),
+    );
+    this.moveCarousel(index, newSlide);
   }
 
   toggleLike(post: FeedPost): void {
-    post.liked = !post.liked;
-    post.likes += post.liked ? 1 : -1;
+    this.posts.update(posts =>
+      posts.map(p =>
+        p.id === post.id
+          ? { ...p, liked: !p.liked, likes: p.likes + (p.liked ? -1 : 1) }
+          : p,
+      ),
+    );
   }
 
   openComments(post: FeedPost): void {
@@ -74,18 +90,32 @@ export class FeedComponent implements OnInit {
   }
 
   private mapDto(dto: FeedPostDto): FeedPost {
+    const runTimes = [
+      dto.r1Time, dto.r2Time, dto.r3Time, dto.r4Time,
+      dto.r5Time, dto.r6Time, dto.r7Time, dto.r8Time,
+    ].map(Number);
+
+    const workoutTimes = [
+      dto.w1Time, dto.w2Time, dto.w3Time, dto.w4Time,
+      dto.w5Time, dto.w6Time, dto.w7Time, dto.w8Time,
+    ].map(Number);
+
+    const athleteRun = runTimes.reduce((a, b) => a + b, 0);
+    const athleteWorkout = workoutTimes.reduce((a, b) => a + b, 0);
+    const athleteTotal = Number(dto.totalTime);
+
     return {
       id: dto.id,
       username: dto.username,
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',
       stats: {
-        allTotalTimes: dto.allTotalTimes,
-        allRunTimes: dto.allRunTimes,
-        allWorkoutTimes: dto.allWorkoutTimes,
-        athleteTotal: dto.totalTime,
-        athleteRun: dto.athleteRunTime,
-        athleteWorkout: dto.athleteWorkoutTime,
+        allTotalTimes: [athleteTotal],
+        allRunTimes: [athleteRun],
+        allWorkoutTimes: [athleteWorkout],
+        athleteTotal,
+        athleteRun,
+        athleteWorkout,
       },
       currentSlide: 0,
       likes: dto.likesCount ?? 0,

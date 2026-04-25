@@ -1,5 +1,5 @@
 <div class="feed">
-  @for (post of posts; track post.id; let i = $index) {
+  @for (post of posts(); track post.id; let i = $index) {
     <article class="post-card">
 
       <!-- Bloque 1: Avatar + Usuario / Descripción -->

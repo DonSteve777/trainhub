@@ -6,17 +6,28 @@ export interface FeedPostDto {
   id: number;
   userId: number;
   username: string;
-  photoUrl: string;
-  description: string;
-  totalTime: number;
-  athleteRunTime: number;
-  athleteWorkoutTime: number;
-  allTotalTimes: number[];
-  allRunTimes: number[];
-  allWorkoutTimes: number[];
+  photoUrl: string | null;
+  r1Time: string;
+  r2Time: string;
+  r3Time: string;
+  r4Time: string;
+  r5Time: string;
+  r6Time: string;
+  r7Time: string;
+  r8Time: string;
+  w1Time: string;
+  w2Time: string;
+  w3Time: string;
+  w4Time: string;
+  w5Time: string;
+  w6Time: string;
+  w7Time: string;
+  w8Time: string;
+  totalTime: string;
+  description: string | null;
+  creationDate: string;
   commentsCount: number;
   likesCount: number;
-  creationDate: string;
 }
 
 @Injectable({ providedIn: 'root' })
