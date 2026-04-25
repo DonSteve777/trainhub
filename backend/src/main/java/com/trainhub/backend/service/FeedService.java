@@ -1,5 +1,6 @@
 package com.trainhub.backend.service;
 
+import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.repository.CommentRepository;
@@ -38,6 +39,24 @@ public class FeedService {
     public List<FeedPostResponse> getNextPage(Integer userId, LocalDateTime cursorDate, Integer cursorId, int size) {
         List<Post> posts = postRepository.findFeedWithCursor(userId, cursorDate, cursorId, PageRequest.of(0, size));
         return toResponseList(posts);
+    }
+
+    public FeedHistoryResponse getHistory(Integer userId) {
+        List<Object[]> rows = postRepository.findFriendPostTimes(userId);
+
+        List<Integer> totalsHistory = rows.stream()
+                .map(r -> ((Number) r[0]).intValue())
+                .collect(Collectors.toList());
+
+        List<Integer> runHistory = rows.stream()
+                .map(r -> ((Number) r[1]).intValue())
+                .collect(Collectors.toList());
+
+        List<Integer> workoutHistory = rows.stream()
+                .map(r -> ((Number) r[2]).intValue())
+                .collect(Collectors.toList());
+
+        return new FeedHistoryResponse(totalsHistory, runHistory, workoutHistory);
     }
 
     private List<FeedPostResponse> toResponseList(List<Post> posts) {

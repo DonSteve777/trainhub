@@ -3,7 +3,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RaceDistributionChartComponent } from '../../shared/components/race-distribution-chart/race-distribution-chart.component';
-import { FeedService, FeedPostDto } from '../../core/services/feed.service';
+import { forkJoin } from 'rxjs';
+import { FeedService, FeedPostDto, FeedHistoryDto } from '../../core/services/feed.service';
 
 interface RaceStats {
   allTotalTimes: number[];
@@ -47,9 +48,12 @@ export class FeedComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.feedService.getFeed().subscribe({
-      next: (dtos) => {
-        this.posts.set(dtos.map((dto) => this.mapDto(dto)));
+    forkJoin({
+      feed: this.feedService.getFeed(),
+      history: this.feedService.getHistory(),
+    }).subscribe({
+      next: ({ feed, history }) => {
+        this.posts.set(feed.map((dto) => this.mapDto(dto, history)));
       },
       error: (err) => {
         console.error('Feed HTTP error', err);
@@ -89,7 +93,7 @@ export class FeedComponent implements OnInit {
     console.log("Implementar más tarde...");
   }
 
-  private mapDto(dto: FeedPostDto): FeedPost {
+  private mapDto(dto: FeedPostDto, history: FeedHistoryDto): FeedPost {
     const runTimes = [
       dto.r1Time, dto.r2Time, dto.r3Time, dto.r4Time,
       dto.r5Time, dto.r6Time, dto.r7Time, dto.r8Time,
@@ -110,9 +114,9 @@ export class FeedComponent implements OnInit {
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',
       stats: {
-        allTotalTimes: [athleteTotal],
-        allRunTimes: [athleteRun],
-        allWorkoutTimes: [athleteWorkout],
+        allTotalTimes: history.totalsHistory,
+        allRunTimes: history.runHistory,
+        allWorkoutTimes: history.workoutHistory,
         athleteTotal,
         athleteRun,
         athleteWorkout,

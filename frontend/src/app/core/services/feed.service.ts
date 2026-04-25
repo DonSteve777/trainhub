@@ -30,6 +30,12 @@ export interface FeedPostDto {
   likesCount: number;
 }
 
+export interface FeedHistoryDto {
+  totalsHistory: number[];
+  runHistory: number[];
+  workoutHistory: number[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class FeedService {
   private readonly api = inject(ApiService);
@@ -42,5 +48,9 @@ export class FeedService {
     return this.api.get<FeedPostDto[]>(
       `/feed?cursorDate=${encodeURIComponent(cursorDate)}&cursorId=${cursorId}&size=${size}`,
     );
+  }
+
+  getHistory(): Observable<FeedHistoryDto> {
+    return this.api.get<FeedHistoryDto>('/feed/history');
   }
 }

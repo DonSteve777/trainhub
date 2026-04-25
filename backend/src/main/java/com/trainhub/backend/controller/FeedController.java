@@ -1,5 +1,6 @@
 package com.trainhub.backend.controller;
 
+import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
@@ -51,5 +52,16 @@ public class FeedController {
                 : feedService.getFirstPage(userId, size);
 
         return ResponseEntity.ok(posts);
+    }
+
+    /**
+     * Devuelve los históricos de tiempos de todos los posts de los amigos
+     * del usuario autenticado, para construir las distribuciones de los gráficos.
+     */
+    @GetMapping("/history")
+    public ResponseEntity<FeedHistoryResponse> getHistory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(feedService.getHistory(userId));
     }
 }

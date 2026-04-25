@@ -39,6 +39,30 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             Pageable pageable);
 
     /**
+     * Devuelve los tiempos (total, suma de runnings, suma de workouts) de todos los posts
+     * de los amigos del usuario, sin paginación, para construir las distribuciones.
+     * Cada fila: [totalTime, sumRunnings, sumWorkouts]
+     */
+    @Query("""
+            SELECT p.totalTime,
+                   p.running1 + p.running2 + p.running3 + p.running4
+                   + p.running5 + p.running6 + p.running7 + p.running8,
+                   p.skiErg + p.sledPush + p.sledPull + p.burpeeBroadJump
+                   + p.row + p.farmersCarry + p.sandbagLunges + p.wallBalls
+            FROM Post p
+            WHERE EXISTS (
+                SELECT f FROM Friendship f
+                WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
+                AND (
+                    (f.id.userAId = :userId AND f.id.userBId = p.user.id)
+                    OR
+                    (f.id.userBId = :userId AND f.id.userAId = p.user.id)
+                )
+            )
+            """)
+    List<Object[]> findFriendPostTimes(@Param("userId") Integer userId);
+
+    /**
      * Devuelve los posts de amigos del usuario después del cursor dado (paginación keyset).
      * El cursor es (creationDate, id): se traen posts anteriores en el tiempo al cursor.
      */
