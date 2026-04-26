@@ -3,6 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RaceDistributionChartComponent } from '../../shared/components/race-distribution-chart/race-distribution-chart.component';
+import { PerformanceRadarChartComponent, RadarSegment } from '../../shared/components/performance-radar-chart/performance-radar-chart.component';
 import { forkJoin } from 'rxjs';
 import { FeedService, FeedPostDto, FeedHistoryDto } from '../../core/services/feed.service';
 
@@ -20,6 +21,7 @@ interface RaceStats {
   athleteWorkout: number;
   runSegments: SegmentStat[];
   workoutSegments: SegmentStat[];
+  radarSegments: RadarSegment[];
 }
 
 interface FeedPost {
@@ -40,7 +42,7 @@ const PAGE_SIZE = 5;
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatDialogModule, RaceDistributionChartComponent],
+  imports: [MatIconModule, MatButtonModule, MatDialogModule, RaceDistributionChartComponent, PerformanceRadarChartComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
@@ -49,7 +51,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('feedContainer') feedContainerRef!: ElementRef<HTMLElement>;
   @ViewChild('sentinel') sentinelRef!: ElementRef<HTMLElement>;
 
-  readonly slides = ['total', 'workouts', 'runs', 'runSegments', 'workoutSegments'] as const;
+  readonly slides = ['total', 'workouts', 'runs', 'runSegments', 'workoutSegments', 'radar'] as const;
 
   posts = signal<FeedPost[]>([]);
   hasMore = signal(true);
@@ -208,6 +210,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
           { allTimes: history.w7History, athleteTime: Number(dto.w7Time) },
           { allTimes: history.w8History, athleteTime: Number(dto.w8Time) },
         ],
+        radarSegments: this.buildRadarSegments(dto, history),
       },
       currentSlide: 0,
       likes: dto.likesCount ?? 0,
@@ -215,6 +218,28 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       commentsCount: dto.commentsCount ?? 0,
       creationDate: dto.creationDate,
     };
+  }
+
+  private buildRadarSegments(dto: FeedPostDto, history: FeedHistoryDto): RadarSegment[] {
+    const allRunTimes = history.r1History.map((_, i) =>
+      history.r1History[i] + history.r2History[i] + history.r3History[i] + history.r4History[i] +
+      history.r5History[i] + history.r6History[i] + history.r7History[i] + history.r8History[i],
+    );
+    const athleteRun =
+      Number(dto.r1Time) + Number(dto.r2Time) + Number(dto.r3Time) + Number(dto.r4Time) +
+      Number(dto.r5Time) + Number(dto.r6Time) + Number(dto.r7Time) + Number(dto.r8Time);
+
+    return [
+      { label: 'Running',    allTimes: allRunTimes,       athleteTime: athleteRun },
+      { label: 'SkiErg',     allTimes: history.w1History, athleteTime: Number(dto.w1Time) },
+      { label: 'Sled Push',  allTimes: history.w2History, athleteTime: Number(dto.w2Time) },
+      { label: 'Sled Pull',  allTimes: history.w3History, athleteTime: Number(dto.w3Time) },
+      { label: 'Burpee BJ',  allTimes: history.w4History, athleteTime: Number(dto.w4Time) },
+      { label: 'Row',        allTimes: history.w5History, athleteTime: Number(dto.w5Time) },
+      { label: 'Farmers C.', allTimes: history.w6History, athleteTime: Number(dto.w6Time) },
+      { label: 'S. Lunges',  allTimes: history.w7History, athleteTime: Number(dto.w7Time) },
+      { label: 'Wall Balls', allTimes: history.w8History, athleteTime: Number(dto.w8Time) },
+    ];
   }
 
   private moveCarousel(carouselIndex: number, slideIndex: number): void {
