@@ -8,6 +8,7 @@ import { forkJoin } from 'rxjs';
 import { FeedService, FeedPostDto, FeedHistoryDto } from '../../core/services/feed.service';
 
 interface SegmentStat {
+  label: string;
   allTimes: number[];
   athleteTime: number;
 }
@@ -164,8 +165,8 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     ].map(Number);
 
     const workoutTimes = [
-      dto.w1Time, dto.w2Time, dto.w3Time, dto.w4Time,
-      dto.w5Time, dto.w6Time, dto.w7Time, dto.w8Time,
+      dto.skiErgTime, dto.sledPushTime, dto.sledPullTime, dto.burpeeBjTime,
+      dto.rowTime, dto.farmersCarryTime, dto.sandbagLungesTime, dto.wallBallsTime,
     ].map(Number);
 
     const athleteRun = runTimes.reduce((a, b) => a + b, 0);
@@ -191,24 +192,24 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         athleteRun,
         athleteWorkout,
         runSegments: [
-          { allTimes: history.r1History, athleteTime: Number(dto.r1Time) },
-          { allTimes: history.r2History, athleteTime: Number(dto.r2Time) },
-          { allTimes: history.r3History, athleteTime: Number(dto.r3Time) },
-          { allTimes: history.r4History, athleteTime: Number(dto.r4Time) },
-          { allTimes: history.r5History, athleteTime: Number(dto.r5Time) },
-          { allTimes: history.r6History, athleteTime: Number(dto.r6Time) },
-          { allTimes: history.r7History, athleteTime: Number(dto.r7Time) },
-          { allTimes: history.r8History, athleteTime: Number(dto.r8Time) },
+          { label: 'Running 1', allTimes: history.r1History, athleteTime: Number(dto.r1Time) },
+          { label: 'Running 2', allTimes: history.r2History, athleteTime: Number(dto.r2Time) },
+          { label: 'Running 3', allTimes: history.r3History, athleteTime: Number(dto.r3Time) },
+          { label: 'Running 4', allTimes: history.r4History, athleteTime: Number(dto.r4Time) },
+          { label: 'Running 5', allTimes: history.r5History, athleteTime: Number(dto.r5Time) },
+          { label: 'Running 6', allTimes: history.r6History, athleteTime: Number(dto.r6Time) },
+          { label: 'Running 7', allTimes: history.r7History, athleteTime: Number(dto.r7Time) },
+          { label: 'Running 8', allTimes: history.r8History, athleteTime: Number(dto.r8Time) },
         ],
         workoutSegments: [
-          { allTimes: history.w1History, athleteTime: Number(dto.w1Time) },
-          { allTimes: history.w2History, athleteTime: Number(dto.w2Time) },
-          { allTimes: history.w3History, athleteTime: Number(dto.w3Time) },
-          { allTimes: history.w4History, athleteTime: Number(dto.w4Time) },
-          { allTimes: history.w5History, athleteTime: Number(dto.w5Time) },
-          { allTimes: history.w6History, athleteTime: Number(dto.w6Time) },
-          { allTimes: history.w7History, athleteTime: Number(dto.w7Time) },
-          { allTimes: history.w8History, athleteTime: Number(dto.w8Time) },
+          { label: 'SkiErg',      allTimes: history.w1History, athleteTime: Number(dto.skiErgTime) },
+          { label: 'Sled Push',   allTimes: history.w2History, athleteTime: Number(dto.sledPushTime) },
+          { label: 'Sled Pull',   allTimes: history.w3History, athleteTime: Number(dto.sledPullTime) },
+          { label: 'Burpee BJ',   allTimes: history.w4History, athleteTime: Number(dto.burpeeBjTime) },
+          { label: 'Row',         allTimes: history.w5History, athleteTime: Number(dto.rowTime) },
+          { label: 'Farmers C.',  allTimes: history.w6History, athleteTime: Number(dto.farmersCarryTime) },
+          { label: 'S. Lunges',   allTimes: history.w7History, athleteTime: Number(dto.sandbagLungesTime) },
+          { label: 'Wall Balls',  allTimes: history.w8History, athleteTime: Number(dto.wallBallsTime) },
         ],
         radarSegments: this.buildRadarSegments(dto, history),
       },
@@ -231,14 +232,14 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return [
       { label: 'Running',    allTimes: allRunTimes,       athleteTime: athleteRun },
-      { label: 'SkiErg',     allTimes: history.w1History, athleteTime: Number(dto.w1Time) },
-      { label: 'Sled Push',  allTimes: history.w2History, athleteTime: Number(dto.w2Time) },
-      { label: 'Sled Pull',  allTimes: history.w3History, athleteTime: Number(dto.w3Time) },
-      { label: 'Burpee BJ',  allTimes: history.w4History, athleteTime: Number(dto.w4Time) },
-      { label: 'Row',        allTimes: history.w5History, athleteTime: Number(dto.w5Time) },
-      { label: 'Farmers C.', allTimes: history.w6History, athleteTime: Number(dto.w6Time) },
-      { label: 'S. Lunges',  allTimes: history.w7History, athleteTime: Number(dto.w7Time) },
-      { label: 'Wall Balls', allTimes: history.w8History, athleteTime: Number(dto.w8Time) },
+      { label: 'SkiErg',     allTimes: history.w1History, athleteTime: Number(dto.skiErgTime) },
+      { label: 'Sled Push',  allTimes: history.w2History, athleteTime: Number(dto.sledPushTime) },
+      { label: 'Sled Pull',  allTimes: history.w3History, athleteTime: Number(dto.sledPullTime) },
+      { label: 'Burpee BJ',  allTimes: history.w4History, athleteTime: Number(dto.burpeeBjTime) },
+      { label: 'Row',        allTimes: history.w5History, athleteTime: Number(dto.rowTime) },
+      { label: 'Farmers C.', allTimes: history.w6History, athleteTime: Number(dto.farmersCarryTime) },
+      { label: 'S. Lunges',  allTimes: history.w7History, athleteTime: Number(dto.sandbagLungesTime) },
+      { label: 'Wall Balls', allTimes: history.w8History, athleteTime: Number(dto.wallBallsTime) },
     ];
   }
 

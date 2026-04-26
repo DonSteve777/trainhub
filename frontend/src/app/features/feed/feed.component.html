@@ -50,22 +50,22 @@
             </div>
 
             <div class="carousel-slide carousel-slide--segment-grid">
-              @for (seg of post.stats.runSegments; track $index) {
+              @for (seg of post.stats.runSegments; track seg.label) {
                 <app-race-distribution-chart
                   [allTimes]="seg.allTimes"
                   [athleteTime]="seg.athleteTime"
-                  [label]="'Running ' + ($index + 1)"
+                  [label]="seg.label"
                   color="#FF6B8A"
                 />
               }
             </div>
 
             <div class="carousel-slide carousel-slide--segment-grid">
-              @for (seg of post.stats.workoutSegments; track $index) {
+              @for (seg of post.stats.workoutSegments; track seg.label) {
                 <app-race-distribution-chart
                   [allTimes]="seg.allTimes"
                   [athleteTime]="seg.athleteTime"
-                  [label]="'Workout ' + ($index + 1)"
+                  [label]="seg.label"
                   color="#8B9FFF"
                 />
               }

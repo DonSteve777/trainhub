@@ -89,30 +89,30 @@ public class FeedService {
     }
 
     private FeedPostResponse toResponse(Post post) {
-        return new FeedPostResponse(
-                post.getId(),
-                post.getUser().getId(),
-                post.getUser().getUsername(),
-                post.getUser().getPhotoUrl(),
-                post.getRunning1(),
-                post.getRunning2(),
-                post.getRunning3(),
-                post.getRunning4(),
-                post.getRunning5(),
-                post.getRunning6(),
-                post.getRunning7(),
-                post.getRunning8(),
-                post.getSkiErg(),
-                post.getSledPush(),
-                post.getSledPull(),
-                post.getBurpeeBroadJump(),
-                post.getRow(),
-                post.getFarmersCarry(),
-                post.getSandbagLunges(),
-                post.getWallBalls(),
-                post.getTotalTime(),
-                post.getDescription(),
-                post.getCreationDate()
-        );
+        return FeedPostResponse.builder()
+                .id(post.getId())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .photoUrl(post.getUser().getPhotoUrl())
+                .r1Time(post.getRunning1())
+                .r2Time(post.getRunning2())
+                .r3Time(post.getRunning3())
+                .r4Time(post.getRunning4())
+                .r5Time(post.getRunning5())
+                .r6Time(post.getRunning6())
+                .r7Time(post.getRunning7())
+                .r8Time(post.getRunning8())
+                .skiErgTime(post.getSkiErg())
+                .sledPushTime(post.getSledPush())
+                .sledPullTime(post.getSledPull())
+                .burpeeBjTime(post.getBurpeeBroadJump())
+                .rowTime(post.getRow())
+                .farmersCarryTime(post.getFarmersCarry())
+                .sandbagLungesTime(post.getSandbagLunges())
+                .wallBallsTime(post.getWallBalls())
+                .totalTime(post.getTotalTime())
+                .description(post.getDescription())
+                .creationDate(post.getCreationDate())
+                .build();
     }
 }
