@@ -39,16 +39,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             Pageable pageable);
 
     /**
-     * Devuelve los tiempos (total, suma de runnings, suma de workouts) de todos los posts
-     * de los amigos del usuario, sin paginación, para construir las distribuciones.
-     * Cada fila: [totalTime, sumRunnings, sumWorkouts]
+     * Devuelve los tiempos individuales de cada post de los amigos del usuario,
+     * sin paginación, para construir las distribuciones en el frontend.
+     * Cada fila: [totalTime, r1..r8, w1..w8] (17 columnas, índice i = mismo post)
      */
     @Query("""
             SELECT p.totalTime,
-                   p.running1 + p.running2 + p.running3 + p.running4
-                   + p.running5 + p.running6 + p.running7 + p.running8,
-                   p.skiErg + p.sledPush + p.sledPull + p.burpeeBroadJump
-                   + p.row + p.farmersCarry + p.sandbagLunges + p.wallBalls
+                   p.running1, p.running2, p.running3, p.running4,
+                   p.running5, p.running6, p.running7, p.running8,
+                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
+                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls
             FROM Post p
             WHERE EXISTS (
                 SELECT f FROM Friendship f

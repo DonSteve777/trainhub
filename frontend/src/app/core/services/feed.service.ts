@@ -32,8 +32,10 @@ export interface FeedPostDto {
 
 export interface FeedHistoryDto {
   totalsHistory: number[];
-  runHistory: number[];
-  workoutHistory: number[];
+  r1History: number[]; r2History: number[]; r3History: number[]; r4History: number[];
+  r5History: number[]; r6History: number[]; r7History: number[]; r8History: number[];
+  w1History: number[]; w2History: number[]; w3History: number[]; w4History: number[];
+  w5History: number[]; w6History: number[]; w7History: number[]; w8History: number[];
 }
 
 @Injectable({ providedIn: 'root' })

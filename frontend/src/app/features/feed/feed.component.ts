@@ -6,6 +6,11 @@ import { RaceDistributionChartComponent } from '../../shared/components/race-dis
 import { forkJoin } from 'rxjs';
 import { FeedService, FeedPostDto, FeedHistoryDto } from '../../core/services/feed.service';
 
+interface SegmentStat {
+  allTimes: number[];
+  athleteTime: number;
+}
+
 interface RaceStats {
   allTotalTimes: number[];
   allRunTimes: number[];
@@ -13,6 +18,8 @@ interface RaceStats {
   athleteTotal: number;
   athleteRun: number;
   athleteWorkout: number;
+  runSegments: SegmentStat[];
+  workoutSegments: SegmentStat[];
 }
 
 interface FeedPost {
@@ -42,7 +49,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('feedContainer') feedContainerRef!: ElementRef<HTMLElement>;
   @ViewChild('sentinel') sentinelRef!: ElementRef<HTMLElement>;
 
-  readonly slides = ['total', 'workouts', 'runs'] as const;
+  readonly slides = ['total', 'workouts', 'runs', 'runSegments', 'workoutSegments'] as const;
 
   posts = signal<FeedPost[]>([]);
   hasMore = signal(true);
@@ -170,11 +177,37 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       description: dto.description ?? '',
       stats: {
         allTotalTimes: history.totalsHistory,
-        allRunTimes: history.runHistory,
-        allWorkoutTimes: history.workoutHistory,
+        allRunTimes: history.r1History.map((_, i) =>
+          history.r1History[i] + history.r2History[i] + history.r3History[i] + history.r4History[i] +
+          history.r5History[i] + history.r6History[i] + history.r7History[i] + history.r8History[i],
+        ),
+        allWorkoutTimes: history.w1History.map((_, i) =>
+          history.w1History[i] + history.w2History[i] + history.w3History[i] + history.w4History[i] +
+          history.w5History[i] + history.w6History[i] + history.w7History[i] + history.w8History[i],
+        ),
         athleteTotal,
         athleteRun,
         athleteWorkout,
+        runSegments: [
+          { allTimes: history.r1History, athleteTime: Number(dto.r1Time) },
+          { allTimes: history.r2History, athleteTime: Number(dto.r2Time) },
+          { allTimes: history.r3History, athleteTime: Number(dto.r3Time) },
+          { allTimes: history.r4History, athleteTime: Number(dto.r4Time) },
+          { allTimes: history.r5History, athleteTime: Number(dto.r5Time) },
+          { allTimes: history.r6History, athleteTime: Number(dto.r6Time) },
+          { allTimes: history.r7History, athleteTime: Number(dto.r7Time) },
+          { allTimes: history.r8History, athleteTime: Number(dto.r8Time) },
+        ],
+        workoutSegments: [
+          { allTimes: history.w1History, athleteTime: Number(dto.w1Time) },
+          { allTimes: history.w2History, athleteTime: Number(dto.w2Time) },
+          { allTimes: history.w3History, athleteTime: Number(dto.w3Time) },
+          { allTimes: history.w4History, athleteTime: Number(dto.w4Time) },
+          { allTimes: history.w5History, athleteTime: Number(dto.w5Time) },
+          { allTimes: history.w6History, athleteTime: Number(dto.w6Time) },
+          { allTimes: history.w7History, athleteTime: Number(dto.w7Time) },
+          { allTimes: history.w8History, athleteTime: Number(dto.w8Time) },
+        ],
       },
       currentSlide: 0,
       likes: dto.likesCount ?? 0,

@@ -44,19 +44,19 @@ public class FeedService {
     public FeedHistoryResponse getHistory(Integer userId) {
         List<Object[]> rows = postRepository.findFriendPostTimes(userId);
 
-        List<Integer> totalsHistory = rows.stream()
-                .map(r -> ((Number) r[0]).intValue())
-                .collect(Collectors.toList());
+        return new FeedHistoryResponse(
+                col(rows, 0),
+                col(rows, 1),  col(rows, 2),  col(rows, 3),  col(rows, 4),
+                col(rows, 5),  col(rows, 6),  col(rows, 7),  col(rows, 8),
+                col(rows, 9),  col(rows, 10), col(rows, 11), col(rows, 12),
+                col(rows, 13), col(rows, 14), col(rows, 15), col(rows, 16)
+        );
+    }
 
-        List<Integer> runHistory = rows.stream()
-                .map(r -> ((Number) r[1]).intValue())
+    private List<Integer> col(List<Object[]> rows, int index) {
+        return rows.stream()
+                .map(r -> ((Number) r[index]).intValue())
                 .collect(Collectors.toList());
-
-        List<Integer> workoutHistory = rows.stream()
-                .map(r -> ((Number) r[2]).intValue())
-                .collect(Collectors.toList());
-
-        return new FeedHistoryResponse(totalsHistory, runHistory, workoutHistory);
     }
 
     private List<FeedPostResponse> toResponseList(List<Post> posts) {

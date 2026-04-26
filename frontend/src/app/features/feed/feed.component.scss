@@ -136,6 +136,21 @@ $card-height: calc((100dvh - var(--header-height)) * 0.9);
       min-height: 0;
     }
   }
+
+  &--segment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+
+    app-race-distribution-chart {
+      min-height: 0;
+      background: var(--trainhub-surface-dark, #1a1412);
+    }
+  }
 }
 
 .stats-divider {

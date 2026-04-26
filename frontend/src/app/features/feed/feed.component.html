@@ -48,6 +48,28 @@
                 color="#FF6B8A"
               />
             </div>
+
+            <div class="carousel-slide carousel-slide--segment-grid">
+              @for (seg of post.stats.runSegments; track $index) {
+                <app-race-distribution-chart
+                  [allTimes]="seg.allTimes"
+                  [athleteTime]="seg.athleteTime"
+                  [label]="'Running ' + ($index + 1)"
+                  color="#FF6B8A"
+                />
+              }
+            </div>
+
+            <div class="carousel-slide carousel-slide--segment-grid">
+              @for (seg of post.stats.workoutSegments; track $index) {
+                <app-race-distribution-chart
+                  [allTimes]="seg.allTimes"
+                  [athleteTime]="seg.athleteTime"
+                  [label]="'Workout ' + ($index + 1)"
+                  color="#8B9FFF"
+                />
+              }
+            </div>
           </div>
         </div>
 
