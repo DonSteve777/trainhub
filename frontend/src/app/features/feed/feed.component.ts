@@ -52,7 +52,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('feedContainer') feedContainerRef!: ElementRef<HTMLElement>;
   @ViewChild('sentinel') sentinelRef!: ElementRef<HTMLElement>;
 
-  readonly slides = ['total', 'workouts', 'runs', 'runSegments', 'workoutSegments', 'radar'] as const;
+  readonly slides = ['total', 'runSegments', 'workoutSegments', 'radar'] as const;
 
   posts = signal<FeedPost[]>([]);
   hasMore = signal(true);
