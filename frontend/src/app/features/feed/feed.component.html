@@ -1,4 +1,4 @@
-<div class="feed">
+<div class="feed" #feedContainer>
   @for (post of posts(); track post.id; let i = $index) {
     <article class="post-card">
 
@@ -86,4 +86,14 @@
 
     </article>
   }
+
+  @if (loading()) {
+    <div class="feed-loading" aria-live="polite" aria-label="Cargando más publicaciones">
+      <span class="feed-loading__dot"></span>
+      <span class="feed-loading__dot"></span>
+      <span class="feed-loading__dot"></span>
+    </div>
+  }
+
+  <div #sentinel class="feed-sentinel"></div>
 </div>
