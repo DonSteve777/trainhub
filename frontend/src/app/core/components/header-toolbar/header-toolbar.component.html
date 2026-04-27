@@ -1,5 +1,5 @@
 <mat-toolbar color="primary" class="header-toolbar">
-  <div class="logo-container">
+  <div class="logo-container" routerLink="/feed">
     <img src="images/logotipo.png" alt="Logo" class="logo" />
   </div>
 
@@ -13,7 +13,7 @@
   <span class="spacer"></span>
 
   <div class="actions">
-    <button type="button" class="create-button" mat-raised-button color="tertiary">
+    <button type="button" class="create-button" mat-raised-button color="tertiary" (click)="goToCreatePost()" [disabled]="isOnCreatePost()">
       <mat-icon>add</mat-icon>
       <span>Crear</span>
     </button>
