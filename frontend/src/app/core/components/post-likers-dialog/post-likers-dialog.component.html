@@ -1,0 +1,61 @@
+<div class="likers-dialog">
+
+  <!-- Header -->
+  <div class="likers-header">
+    <div class="likers-header__info">
+      <mat-icon class="likers-header__icon">favorite</mat-icon>
+      <div>
+        <span class="likers-header__title">A quién le gustó</span>
+        <span class="likers-header__subtitle">
+          Post del {{ data.postCreationDate | date:'d MMM y, HH:mm' }}
+        </span>
+      </div>
+    </div>
+    <button class="likers-header__close" (click)="close()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Lista de likers -->
+  <div class="likers-body">
+
+    @if (loading()) {
+      <div class="likers-state">
+        <div class="likers-loading">
+          <span class="likers-loading__dot"></span>
+          <span class="likers-loading__dot"></span>
+          <span class="likers-loading__dot"></span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="likers-state">
+        <mat-icon class="likers-state__icon">error_outline</mat-icon>
+        <p>No se pudieron cargar los datos.</p>
+      </div>
+    } @else if (likers().length === 0) {
+      <div class="likers-state">
+        <mat-icon class="likers-state__icon">favorite_border</mat-icon>
+        <p>Nadie ha dado like todavía.</p>
+      </div>
+    } @else {
+      <ul class="likers-list">
+        @for (liker of likers(); track liker.userId) {
+          <li class="liker-item">
+            <img
+              class="liker-item__avatar"
+              [src]="liker.photoUrl ?? 'https://i.pravatar.cc/40?u=' + liker.username"
+              [alt]="liker.username"
+            />
+            <div class="liker-item__info">
+              <span class="liker-item__username">{{ liker.username }}</span>
+              <span class="liker-item__date">{{ liker.likedAt | date:'d MMM y, HH:mm' }}</span>
+            </div>
+            <mat-icon class="liker-item__heart">favorite</mat-icon>
+          </li>
+        }
+      </ul>
+    }
+
+  </div>
+
+</div>

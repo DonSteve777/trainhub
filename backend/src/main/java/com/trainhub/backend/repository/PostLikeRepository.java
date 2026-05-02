@@ -47,4 +47,38 @@ public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> 
      */
     @Query("SELECT COUNT(pl) FROM PostLike pl WHERE pl.id.postId = :postId")
     long countByPostId(@Param("postId") Integer postId);
+
+    /**
+     * Devuelve todos los likes sobre posts del usuario dado (excluyendo auto-likes),
+     * ordenados por fecha descendente. Cada fila es:
+     * [postId, postCreationDate, likerId, likerUsername, likerPhotoUrl, createdAt]
+     */
+    @Query("""
+            SELECT pl.post.id,
+                   pl.post.creationDate,
+                   pl.user.id,
+                   pl.user.username,
+                   pl.user.photoUrl,
+                   pl.createdAt
+            FROM PostLike pl
+            WHERE pl.post.user.id = :ownerId
+              AND pl.id.userId <> :ownerId
+            ORDER BY pl.createdAt DESC
+            """)
+    List<Object[]> findLikesOnUserPosts(@Param("ownerId") Integer ownerId);
+
+    /**
+     * Devuelve los likers de un post concreto ordenados por fecha descendente.
+     * Cada fila es: [userId, username, photoUrl, createdAt]
+     */
+    @Query("""
+            SELECT pl.user.id,
+                   pl.user.username,
+                   pl.user.photoUrl,
+                   pl.createdAt
+            FROM PostLike pl
+            WHERE pl.id.postId = :postId
+            ORDER BY pl.createdAt DESC
+            """)
+    List<Object[]> findLikersByPostId(@Param("postId") Integer postId);
 }

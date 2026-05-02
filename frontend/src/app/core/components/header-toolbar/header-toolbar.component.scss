@@ -107,6 +107,29 @@
   cursor: default;
 }
 
+.notif-button {
+  position: relative;
+}
+
+.notif-badge {
+  position: absolute;
+  bottom: 4px;
+  right: -7px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--trainhub-accent, #e64a19);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 0 0 2px var(--mat-sys-primary, #1e1e2e);
+}
+
 .profile-button {
   display: inline-flex;
   align-items: center;

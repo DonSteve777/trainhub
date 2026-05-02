@@ -1,0 +1,52 @@
+<div class="likers-dialog">
+
+  <div class="likers-header">
+    <div class="likers-header__info">
+      <mat-icon class="likers-header__icon">favorite</mat-icon>
+      <span class="likers-header__title">Likes · {{ formatDate(data.postCreationDate) }}</span>
+    </div>
+    <button class="likers-header__close" (click)="close()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="likers-list">
+
+    @if (loading()) {
+      <div class="likers-empty">
+        <div class="likers-loading">
+          <span class="likers-loading__dot"></span>
+          <span class="likers-loading__dot"></span>
+          <span class="likers-loading__dot"></span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="likers-empty">
+        <mat-icon class="likers-empty__icon">error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (likers().length === 0) {
+      <div class="likers-empty">
+        <mat-icon class="likers-empty__icon">favorite_border</mat-icon>
+        <p>Sin likes todavía.</p>
+      </div>
+    } @else {
+      @for (liker of likers(); track liker.userId) {
+        <div class="liker-item">
+          <img
+            class="liker-item__avatar"
+            [src]="avatarUrl(liker.photoUrl, liker.username)"
+            [alt]="liker.username"
+          />
+          <div class="liker-item__body">
+            <span class="liker-item__username">{{ liker.username }}</span>
+            <span class="liker-item__date">{{ formatDate(liker.likedAt) }}</span>
+          </div>
+          <mat-icon class="liker-item__heart">favorite</mat-icon>
+        </div>
+      }
+    }
+
+  </div>
+
+</div>

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 import com.trainhub.backend.enums.AccountStatus;
@@ -54,6 +55,9 @@ public class User {
 
     @Column(name = "password_reset_expires_at")
     private OffsetDateTime passwordResetExpiresAt;
+
+    @Column(name = "notifications_last_seen_at")
+    private LocalDateTime notificationsLastSeenAt;
 
     // Constructores
     public User() {
@@ -154,6 +158,14 @@ public class User {
 
     public void setPasswordResetExpiresAt(OffsetDateTime passwordResetExpiresAt) {
         this.passwordResetExpiresAt = passwordResetExpiresAt;
+    }
+
+    public LocalDateTime getNotificationsLastSeenAt() {
+        return notificationsLastSeenAt;
+    }
+
+    public void setNotificationsLastSeenAt(LocalDateTime notificationsLastSeenAt) {
+        this.notificationsLastSeenAt = notificationsLastSeenAt;
     }
 
 }

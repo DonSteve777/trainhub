@@ -1,0 +1,54 @@
+<div class="notif-dialog">
+
+  <div class="notif-header">
+    <span class="notif-header__title">Notificaciones</span>
+    <button class="notif-header__close" (click)="close()" aria-label="Cerrar notificaciones">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="notif-list">
+
+    @if (loading()) {
+      <div class="notif-empty">
+        <div class="notif-loading">
+          <span class="notif-loading__dot"></span>
+          <span class="notif-loading__dot"></span>
+          <span class="notif-loading__dot"></span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="notif-empty">
+        <mat-icon class="notif-empty__icon">error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (notifications().length === 0) {
+      <div class="notif-empty">
+        <mat-icon class="notif-empty__icon">notifications_none</mat-icon>
+        <p>No tienes notificaciones todavía.</p>
+      </div>
+    } @else {
+      @for (n of notifications(); track n.postId) {
+        <button class="notif-item" [class.notif-item--unread]="n.unread" (click)="openLikers(n)">
+          <img
+            class="notif-item__avatar"
+            [src]="avatarUrl(n.lastLikerPhotoUrl, n.lastLikerUsername)"
+            [alt]="n.lastLikerUsername"
+          />
+          <div class="notif-item__body">
+            <p class="notif-item__text">
+              <strong>{{ n.lastLikerUsername }}</strong>
+              {{ buildText(n) }}
+            </p>
+            <span class="notif-item__time">{{ formatDate(n.lastLikedAt) }}</span>
+          </div>
+          @if (n.unread) {
+            <span class="notif-item__dot" aria-hidden="true"></span>
+          }
+        </button>
+      }
+    }
+
+  </div>
+
+</div>

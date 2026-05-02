@@ -14,7 +14,8 @@ CREATE TABLE "users" (
   "email_verified" boolean DEFAULT false,
   "email_confirmation_token" varchar(255),
   "password_reset_token" varchar(255),
-  "password_reset_expires_at" TIMESTAMP WITH TIME ZONE
+  "password_reset_expires_at" TIMESTAMP WITH TIME ZONE,
+  "notifications_last_seen_at" TIMESTAMP
 );
 
 

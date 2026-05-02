@@ -1,0 +1,184 @@
+.notif-dialog {
+  display: flex;
+  flex-direction: column;
+  background: var(--trainhub-surface-dark, #1a1412);
+  min-width: 360px;
+  max-width: 420px;
+}
+
+// ============================================================
+// Header
+// ============================================================
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--mat-sys-on-surface);
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--mat-sys-on-surface-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+    border-radius: 50%;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--mat-sys-on-surface);
+    }
+  }
+}
+
+// ============================================================
+// Lista
+// ============================================================
+.notif-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 480px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+}
+
+// ============================================================
+// Estado vacío / error / cargando
+// ============================================================
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  gap: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  &__icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.35;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.65;
+  }
+}
+
+.notif-loading {
+  display: flex;
+  gap: 0.4rem;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--trainhub-accent);
+    animation: notif-bounce 1.2s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+@keyframes notif-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%            { transform: scale(1);   opacity: 1;   }
+}
+
+// ============================================================
+// Ítem de notificación
+// ============================================================
+.notif-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &--unread {
+    background: rgba(var(--trainhub-accent-rgb, 230, 74, 25), 0.08);
+
+    &:hover {
+      background: rgba(var(--trainhub-accent-rgb, 230, 74, 25), 0.13);
+    }
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--mat-sys-on-surface);
+    line-height: 1.4;
+    word-break: break-word;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  &__time {
+    font-size: 0.75rem;
+    color: var(--mat-sys-on-surface-variant);
+    opacity: 0.75;
+  }
+
+  &__dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--trainhub-accent, #e64a19);
+    align-self: center;
+  }
+}
