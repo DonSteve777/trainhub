@@ -74,5 +74,17 @@ public class AuthController {
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok(new MessageResponse("Contraseña actualizada correctamente"));
     }
+
+    /**
+     * Endpoint de logout. La sesión es stateless (JWT), por lo que la invalidación
+     * real ocurre en el cliente al borrar el token. Este endpoint existe para
+     * mantener una interfaz REST uniforme.
+     *
+     * @return 204 No Content
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.noContent().build();
+    }
 }
 

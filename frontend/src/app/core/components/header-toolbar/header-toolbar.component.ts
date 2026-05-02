@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header-toolbar',
@@ -23,6 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class HeaderToolbarComponent {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   private readonly navigationEnd = toSignal(
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
@@ -35,5 +37,9 @@ export class HeaderToolbarComponent {
 
   goToCreatePost(): void {
     this.router.navigate(['/create-post']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

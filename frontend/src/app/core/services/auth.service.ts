@@ -1,9 +1,12 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 const TOKEN_STORAGE_KEY = 'trainhub_jwt';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly router = inject(Router);
+
   setToken(token: string): void {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
   }
@@ -18,5 +21,10 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  logout(): void {
+    this.clearToken();
+    void this.router.navigate(['/'], { replaceUrl: true });
   }
 }
