@@ -74,6 +74,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     System.out.println("Usuario autenticado: " + user.getEmail() + " (ID: " + userId + ")");
                 } else {
                     System.out.println("Usuario no encontrado con ID: " + userId);
+                    writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                            "El usuario asociado al token ya no existe.");
+                    return;
                 }
             }
         } catch (ExpiredJwtException e) {
