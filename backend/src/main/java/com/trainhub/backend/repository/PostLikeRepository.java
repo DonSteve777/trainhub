@@ -28,4 +28,23 @@ public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> 
             GROUP BY pl.id.postId
             """)
     List<Object[]> countByPostIds(@Param("postIds") List<Integer> postIds);
+
+    /**
+     * Devuelve los IDs de posts (del conjunto dado) a los que el usuario ya ha dado like.
+     * Se usa para rellenar likedByCurrentUser en el feed sin hacer N consultas.
+     */
+    @Query("""
+            SELECT pl.id.postId
+            FROM PostLike pl
+            WHERE pl.id.postId IN :postIds
+            AND pl.id.userId = :userId
+            """)
+    List<Integer> findLikedPostIds(@Param("postIds") List<Integer> postIds,
+                                   @Param("userId") Integer userId);
+
+    /**
+     * Cuenta el número de likes de un post concreto.
+     */
+    @Query("SELECT COUNT(pl) FROM PostLike pl WHERE pl.id.postId = :postId")
+    long countByPostId(@Param("postId") Integer postId);
 }

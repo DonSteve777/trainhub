@@ -6,6 +6,7 @@ import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.CommentRepository;
 import com.trainhub.backend.repository.PostLikeRepository;
 import com.trainhub.backend.repository.PostRepository;
+import com.trainhub.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,7 @@ class FeedServiceTest {
     @Mock private PostRepository postRepository;
     @Mock private PostLikeRepository postLikeRepository;
     @Mock private CommentRepository commentRepository;
+    @Mock private UserRepository userRepository;
 
     @InjectMocks
     private FeedService feedService;
@@ -72,6 +74,8 @@ class FeedServiceTest {
                 .thenReturn(List.of(post1));
         when(postLikeRepository.countByPostIds(List.of(10)))
                 .thenReturn(List.<Object[]>of(likeRow(10, 5L)));
+        when(postLikeRepository.findLikedPostIds(List.of(10), 1))
+                .thenReturn(List.of());
         when(commentRepository.countByPostIds(List.of(10)))
                 .thenReturn(List.<Object[]>of(commentRow(10, 3L)));
 
@@ -95,6 +99,8 @@ class FeedServiceTest {
                 .thenReturn(List.of(post1));
         when(postLikeRepository.countByPostIds(List.of(10)))
                 .thenReturn(List.of());
+        when(postLikeRepository.findLikedPostIds(List.of(10), 1))
+                .thenReturn(List.of());
         when(commentRepository.countByPostIds(List.of(10)))
                 .thenReturn(List.of());
 
@@ -115,6 +121,8 @@ class FeedServiceTest {
                 .thenReturn(List.of(post1, post2));
         when(postLikeRepository.countByPostIds(List.of(10, 20)))
                 .thenReturn(List.<Object[]>of(likeRow(10, 4L), likeRow(20, 1L)));
+        when(postLikeRepository.findLikedPostIds(List.of(10, 20), 1))
+                .thenReturn(List.of());
         when(commentRepository.countByPostIds(List.of(10, 20)))
                 .thenReturn(List.<Object[]>of(commentRow(10, 2L)));  // post2 no tiene comentarios
 
@@ -142,6 +150,8 @@ class FeedServiceTest {
                 .thenReturn(List.of(post2));
         when(postLikeRepository.countByPostIds(List.of(20)))
                 .thenReturn(List.<Object[]>of(likeRow(20, 7L)));
+        when(postLikeRepository.findLikedPostIds(List.of(20), 1))
+                .thenReturn(List.of());
         when(commentRepository.countByPostIds(List.of(20)))
                 .thenReturn(List.<Object[]>of(commentRow(20, 0L)));
 

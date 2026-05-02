@@ -5,7 +5,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RaceDistributionChartComponent } from '../../shared/components/race-distribution-chart/race-distribution-chart.component';
 import { PerformanceRadarChartComponent, RadarSegment } from '../../shared/components/performance-radar-chart/performance-radar-chart.component';
 import { forkJoin } from 'rxjs';
-import { FeedService, FeedPostDto, FeedHistoryDto } from '../../core/services/feed.service';
+import { FeedService, FeedPostDto, FeedHistoryDto, LikeToggleDto } from '../../core/services/feed.service';
 
 interface SegmentStat {
   label: string;
@@ -145,13 +145,37 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleLike(post: FeedPost): void {
+    const optimisticLiked = !post.liked;
+    const optimisticCount = post.likes + (post.liked ? -1 : 1);
+
     this.posts.update(posts =>
       posts.map(p =>
         p.id === post.id
-          ? { ...p, liked: !p.liked, likes: p.likes + (p.liked ? -1 : 1) }
+          ? { ...p, liked: optimisticLiked, likes: optimisticCount }
           : p,
       ),
     );
+
+    this.feedService.toggleLike(post.id).subscribe({
+      next: (res: LikeToggleDto) => {
+        this.posts.update(posts =>
+          posts.map(p =>
+            p.id === post.id
+              ? { ...p, liked: res.liked, likes: res.likesCount }
+              : p,
+          ),
+        );
+      },
+      error: () => {
+        this.posts.update(posts =>
+          posts.map(p =>
+            p.id === post.id
+              ? { ...p, liked: post.liked, likes: post.likes }
+              : p,
+          ),
+        );
+      },
+    });
   }
 
   openComments(post: FeedPost): void {
@@ -215,7 +239,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       currentSlide: 0,
       likes: dto.likesCount ?? 0,
-      liked: false,
+      liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
       creationDate: dto.creationDate,
     };

@@ -36,6 +36,7 @@ public class FeedPostResponse {
 
     private Integer commentsCount;
     private Integer likesCount;
+    private boolean likedByCurrentUser;
 
     public FeedPostResponse() {}
 
@@ -144,6 +145,9 @@ public class FeedPostResponse {
 
     public Integer getLikesCount() { return likesCount; }
     public void setLikesCount(Integer likesCount) { this.likesCount = likesCount; }
+
+    public boolean isLikedByCurrentUser() { return likedByCurrentUser; }
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) { this.likedByCurrentUser = likedByCurrentUser; }
 
     public static Builder builder() { return new Builder(); }
 

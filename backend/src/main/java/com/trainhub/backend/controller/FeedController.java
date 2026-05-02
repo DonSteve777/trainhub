@@ -2,6 +2,7 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
+import com.trainhub.backend.dto.response.LikeToggleResponse;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -63,5 +64,21 @@ public class FeedController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Integer userId = userPrincipal.getUser().getId();
         return ResponseEntity.ok(feedService.getHistory(userId));
+    }
+
+    /**
+     * Da o quita like al post indicado para el usuario autenticado (toggle).
+     * Si el usuario aún no había dado like, lo crea. Si ya lo había dado, lo elimina.
+     *
+     * @return nuevo estado del like y conteo actualizado
+     */
+    @PostMapping("/posts/{postId}/like")
+    public ResponseEntity<LikeToggleResponse> toggleLike(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer postId) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        LikeToggleResponse response = feedService.toggleLike(postId, userId);
+        return ResponseEntity.ok(response);
     }
 }

@@ -28,6 +28,12 @@ export interface FeedPostDto {
   creationDate: string;
   commentsCount: number;
   likesCount: number;
+  likedByCurrentUser: boolean;
+}
+
+export interface LikeToggleDto {
+  liked: boolean;
+  likesCount: number;
 }
 
 export interface FeedHistoryDto {
@@ -54,5 +60,9 @@ export class FeedService {
 
   getHistory(): Observable<FeedHistoryDto> {
     return this.api.get<FeedHistoryDto>('/feed/history');
+  }
+
+  toggleLike(postId: number): Observable<LikeToggleDto> {
+    return this.api.post<LikeToggleDto>(`/feed/posts/${postId}/like`, {});
   }
 }
