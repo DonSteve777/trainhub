@@ -1,5 +1,6 @@
 package com.trainhub.backend.controller;
 
+import com.trainhub.backend.dto.request.BulkRegisterRequest;
 import com.trainhub.backend.dto.request.LoginRequest;
 import com.trainhub.backend.dto.request.RegisterRequest;
 import com.trainhub.backend.dto.request.ForgotPasswordRequest;
@@ -73,6 +74,12 @@ public class AuthController {
     public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok(new MessageResponse("Contraseña actualizada correctamente"));
+    }
+
+    @PostMapping("/dev/register-bulk")
+    public ResponseEntity<MessageResponse> devRegisterBulk(@Valid @RequestBody BulkRegisterRequest request) {
+        MessageResponse response = authService.registerBulk(request);
+        return ResponseEntity.ok(response);
     }
 
     /**

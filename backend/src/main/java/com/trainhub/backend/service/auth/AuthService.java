@@ -10,10 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trainhub.backend.dto.request.BulkRegisterRequest;
 import com.trainhub.backend.dto.request.LoginRequest;
 import com.trainhub.backend.dto.request.RegisterRequest;
 import com.trainhub.backend.dto.response.LoginResponse;
+import com.trainhub.backend.dto.response.MessageResponse;
 import com.trainhub.backend.dto.response.RegisterResponse;
+
+import java.util.List;
 import com.trainhub.backend.enums.AccountStatus;
 import com.trainhub.backend.exception.AccountNotActiveException;
 import com.trainhub.backend.exception.BadCredentialsException;
@@ -173,6 +177,30 @@ public class AuthService {
         userRepository.save(user);
 
         emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+    }
+
+    @Transactional
+    public MessageResponse registerBulk(BulkRegisterRequest request) {
+        int created = 0;
+        int skipped = 0;
+        for (RegisterRequest user : request.getUsers()) {
+            boolean emailExists = userRepository.findByEmail(user.getEmail()).isPresent();
+            boolean usernameExists = userRepository.findByUsername(user.getUsername()).isPresent();
+            if (emailExists || usernameExists) {
+                skipped++;
+                continue;
+            }
+            User newUser = new User(
+                    user.getEmail(),
+                    user.getUsername(),
+                    passwordEncoder.encode(user.getPassword()),
+                    AccountStatus.ACTIVE
+            );
+            newUser.setEmailVerified(true);
+            userRepository.save(newUser);
+            created++;
+        }
+        return new MessageResponse(created + " usuario(s) creados, " + skipped + " omitidos (ya existían).");
     }
 
     @Transactional

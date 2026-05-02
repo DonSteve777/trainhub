@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/api/auth/confirm-email/**",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
+                                "/api/auth/dev/register-bulk",
                                 "/uploads/**"
                         ).permitAll()
                         .anyRequest().authenticated()
