@@ -2,6 +2,8 @@ package com.trainhub.backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entidad que representa un comentario sobre una publicación.
@@ -29,6 +31,14 @@ public class Comment {
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "comment_likes",
+            joinColumns = @JoinColumn(name = "comment_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> likedBy = new HashSet<>();
+
     public Comment() {}
 
     public Comment(Post post, User user, String content, LocalDateTime creationDate) {
@@ -52,4 +62,7 @@ public class Comment {
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
+
+    public Set<User> getLikedBy() { return likedBy; }
+    public void setLikedBy(Set<User> likedBy) { this.likedBy = likedBy; }
 }

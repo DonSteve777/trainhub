@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angul
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { CommentService, CommentDto } from '../../../core/services/comment.service';
+import { CommentService, CommentDto, CommentLikeToggleDto } from '../../../core/services/comment.service';
 
 export interface CommentsDialogData {
   postId: number;
@@ -64,6 +64,40 @@ export class CommentsDialogComponent implements OnInit {
       error: () => {
         this.submitting.set(false);
         this.errorMessage.set('No se pudo publicar el comentario.');
+      },
+    });
+  }
+
+  toggleLike(comment: CommentDto): void {
+    const optimisticLiked = !comment.likedByCurrentUser;
+    const optimisticCount = comment.likesCount + (comment.likedByCurrentUser ? -1 : 1);
+
+    this.comments.update(list =>
+      list.map(c =>
+        c.id === comment.id
+          ? { ...c, likedByCurrentUser: optimisticLiked, likesCount: optimisticCount }
+          : c,
+      ),
+    );
+
+    this.commentService.toggleCommentLike(this.data.postId, comment.id).subscribe({
+      next: (res: CommentLikeToggleDto) => {
+        this.comments.update(list =>
+          list.map(c =>
+            c.id === comment.id
+              ? { ...c, likedByCurrentUser: res.liked, likesCount: res.likesCount }
+              : c,
+          ),
+        );
+      },
+      error: () => {
+        this.comments.update(list =>
+          list.map(c =>
+            c.id === comment.id
+              ? { ...c, likedByCurrentUser: comment.likedByCurrentUser, likesCount: comment.likesCount }
+              : c,
+          ),
+        );
       },
     });
   }

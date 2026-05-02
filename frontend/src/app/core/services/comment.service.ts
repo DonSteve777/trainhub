@@ -8,6 +8,13 @@ export interface CommentDto {
   avatarUrl: string | null;
   content: string;
   creationDate: string;
+  likesCount: number;
+  likedByCurrentUser: boolean;
+}
+
+export interface CommentLikeToggleDto {
+  liked: boolean;
+  likesCount: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,5 +27,9 @@ export class CommentService {
 
   addComment(postId: number, content: string): Observable<CommentDto> {
     return this.api.post<CommentDto>(`/posts/${postId}/comments`, { content });
+  }
+
+  toggleCommentLike(postId: number, commentId: number): Observable<CommentLikeToggleDto> {
+    return this.api.post<CommentLikeToggleDto>(`/posts/${postId}/comments/${commentId}/likes`, {});
   }
 }

@@ -37,4 +37,27 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
             GROUP BY c.post.id
             """)
     List<Object[]> countByPostIds(@Param("postIds") List<Integer> postIds);
+
+    /**
+     * Devuelve el número de likes agrupado por comentario para un conjunto de IDs.
+     * Cada elemento es un Object[] con [commentId (Integer), count (Long)].
+     */
+    @Query("""
+            SELECT c.id, COUNT(u)
+            FROM Comment c JOIN c.likedBy u
+            WHERE c.id IN :commentIds
+            GROUP BY c.id
+            """)
+    List<Object[]> countLikesByCommentIds(@Param("commentIds") List<Integer> commentIds);
+
+    /**
+     * Devuelve los IDs de comentarios (del conjunto dado) a los que el usuario ya ha dado like.
+     */
+    @Query("""
+            SELECT c.id
+            FROM Comment c JOIN c.likedBy u
+            WHERE c.id IN :commentIds AND u.id = :userId
+            """)
+    List<Integer> findLikedCommentIds(@Param("commentIds") List<Integer> commentIds,
+                                      @Param("userId") Integer userId);
 }

@@ -44,6 +44,20 @@
             <span class="comment__username">{{ comment.username }}</span>
             <p class="comment__text">{{ comment.content }}</p>
           </div>
+          <div class="comment__actions">
+            <button
+              class="comment-like-btn"
+              (click)="toggleLike(comment)"
+              [attr.aria-label]="(comment.likedByCurrentUser ? 'Quitar like' : 'Dar like') + ', ' + comment.likesCount + (comment.likesCount === 1 ? ' voto' : ' votos')"
+            >
+              <mat-icon [class.comment-like-btn__icon--liked]="comment.likedByCurrentUser">
+                {{ comment.likedByCurrentUser ? 'favorite' : 'favorite_border' }}
+              </mat-icon>
+              @if (comment.likesCount > 0) {
+                <span class="comment-like-count">{{ comment.likesCount }}</span>
+              }
+            </button>
+          </div>
         </div>
       }
     }
