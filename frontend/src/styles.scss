@@ -58,6 +58,23 @@ app-root {
 /* You can add global styles to this file, and also import other style files */
 
 // ========================================
+// Comments Dialog Panel
+// ========================================
+.th-comments-panel {
+  .mat-mdc-dialog-surface {
+    padding: 0 !important;
+    background: var(--trainhub-surface-dark, #1a1412) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .mat-mdc-dialog-container {
+    height: 100%;
+  }
+}
+
+// ========================================
 // TrainHub - Utilidades reutilizables (layout/forms)
 // ========================================
 

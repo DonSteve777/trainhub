@@ -1,0 +1,80 @@
+<div class="comments-dialog">
+
+  <!-- Header -->
+  <div class="comments-header">
+    <div class="comments-header__post">
+      <img [src]="data.avatarUrl" [alt]="data.username" class="comments-header__avatar" />
+      <span class="comments-header__username">{{ data.username }}</span>
+    </div>
+    <button class="comments-header__close" (click)="close()" aria-label="Cerrar comentarios">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Lista de comentarios -->
+  <div class="comments-list" #commentsList>
+
+    @if (loading()) {
+      <div class="comments-empty">
+        <div class="comments-loading">
+          <span class="comments-loading__dot"></span>
+          <span class="comments-loading__dot"></span>
+          <span class="comments-loading__dot"></span>
+        </div>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="comments-empty">
+        <mat-icon class="comments-empty__icon">error_outline</mat-icon>
+        <p>{{ errorMessage() }}</p>
+      </div>
+    } @else if (comments().length === 0) {
+      <div class="comments-empty">
+        <mat-icon class="comments-empty__icon">chat_bubble_outline</mat-icon>
+        <p>Sin comentarios todavía. ¡Sé el primero!</p>
+      </div>
+    } @else {
+      @for (comment of comments(); track comment.id) {
+        <div class="comment">
+          <img
+            [src]="comment.avatarUrl ?? 'https://i.pravatar.cc/36?u=' + comment.username"
+            [alt]="comment.username"
+            class="comment__avatar"
+          />
+          <div class="comment__body">
+            <span class="comment__username">{{ comment.username }}</span>
+            <p class="comment__text">{{ comment.content }}</p>
+          </div>
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- Error al enviar -->
+  @if (errorMessage() && !loading()) {
+    <p class="comments-error">{{ errorMessage() }}</p>
+  }
+
+  <!-- Input para nuevo comentario -->
+  <div class="comments-input-bar">
+    <input
+      class="comments-input"
+      type="text"
+      placeholder="Añade un comentario..."
+      [(ngModel)]="newCommentText"
+      (keydown.enter)="submit()"
+      [disabled]="submitting()"
+      maxlength="500"
+      aria-label="Escribe un comentario"
+    />
+    <button
+      class="comments-submit"
+      (click)="submit()"
+      [disabled]="!newCommentText.trim() || submitting()"
+      aria-label="Publicar comentario"
+    >
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+
+</div>

@@ -6,6 +6,7 @@ import { RaceDistributionChartComponent } from '../../shared/components/race-dis
 import { PerformanceRadarChartComponent, RadarSegment } from '../../shared/components/performance-radar-chart/performance-radar-chart.component';
 import { forkJoin } from 'rxjs';
 import { FeedService, FeedPostDto, FeedHistoryDto, LikeToggleDto } from '../../core/services/feed.service';
+import { CommentsDialogComponent, CommentsDialogResult } from './comments-dialog/comments-dialog.component';
 
 interface SegmentStat {
   label: string;
@@ -179,7 +180,21 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openComments(post: FeedPost): void {
-    console.log("Implementar más tarde...");
+    const ref = this.dialog.open(CommentsDialogComponent, {
+      data: { postId: post.id, username: post.username, avatarUrl: post.avatarUrl },
+      width: '500px',
+      maxWidth: '95vw',
+      height: '70vh',
+      panelClass: 'th-comments-panel',
+    });
+
+    ref.afterClosed().subscribe((result?: CommentsDialogResult) => {
+      if (result?.newCommentsCount !== undefined) {
+        this.posts.update(posts =>
+          posts.map(p => p.id === post.id ? { ...p, commentsCount: result.newCommentsCount } : p),
+        );
+      }
+    });
   }
 
   private mapDto(dto: FeedPostDto, history: FeedHistoryDto): FeedPost {
