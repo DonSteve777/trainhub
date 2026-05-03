@@ -24,7 +24,12 @@
             <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
           </div>
           <div class="post-meta">
-            <span class="post-username">{{ post.username }}</span>
+            <span class="post-username">
+              {{ post.username }}
+              <time class="post-username__date" [attr.datetime]="post.creationDate">{{
+                formatPostDate(post.creationDate)
+              }}</time>
+            </span>
             <p class="post-description">{{ post.description }}</p>
           </div>
         </div>

@@ -282,6 +282,11 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     ];
   }
 
+  formatPostDate(creationDate: string): string {
+    const d = new Date(creationDate);
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
   private moveCarousel(carouselIndex: number, slideIndex: number): void {
     const carousel = this.carouselRefs.get(carouselIndex)?.nativeElement;
     const track = carousel?.querySelector<HTMLElement>('.carousel-track');
