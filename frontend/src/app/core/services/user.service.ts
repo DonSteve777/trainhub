@@ -20,6 +20,7 @@ export interface UserProfileDto {
   name: string;
   accountStatus: string;
   emailVerified: boolean;
+  gender: 'MALE' | 'FEMALE' | null;
 }
 
 @Injectable({ providedIn: 'root' })

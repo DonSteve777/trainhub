@@ -1,5 +1,6 @@
 package com.trainhub.backend.model;
 
+import com.trainhub.backend.enums.PostCategory;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -72,6 +73,10 @@ public class Post {
 
     @Column(name = "description")
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false)
+    private PostCategory category;
 
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
@@ -252,6 +257,9 @@ public class Post {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public PostCategory getCategory() { return category; }
+    public void setCategory(PostCategory category) { this.category = category; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }

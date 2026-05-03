@@ -1,5 +1,6 @@
 package com.trainhub.backend.dto.request;
 
+import com.trainhub.backend.enums.PostCategory;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -26,6 +27,8 @@ public class NewPostRequest {
     @NotNull @Min(0) private Integer farmersCarry;
     @NotNull @Min(0) private Integer sandbagLunges;
     @NotNull @Min(0) private Integer wallBalls;
+
+    @NotNull private PostCategory category;
 
     public NewPostRequest() {}
 
@@ -117,4 +120,7 @@ public class NewPostRequest {
     public void setWallBalls(Integer wallBalls) {
         this.wallBalls = wallBalls;
     }
+
+    public PostCategory getCategory() { return category; }
+    public void setCategory(PostCategory category) { this.category = category; }
 }

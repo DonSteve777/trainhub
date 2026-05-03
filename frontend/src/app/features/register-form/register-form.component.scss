@@ -139,6 +139,26 @@
         }
       }
 
+      select.form-control {
+        background: var(--trainhub-surface-medium);
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+
+        &:focus {
+          background: var(--trainhub-surface-light);
+        }
+
+        option {
+          background: var(--trainhub-surface-dark);
+          color: #f0dfdb;
+
+          &:disabled {
+            color: rgba(240, 223, 219, 0.4);
+          }
+        }
+      }
+
       .error {
         display: block;
         margin-top: 0.35rem;

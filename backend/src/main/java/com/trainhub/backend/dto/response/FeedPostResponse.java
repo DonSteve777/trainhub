@@ -1,5 +1,6 @@
 package com.trainhub.backend.dto.response;
 
+import com.trainhub.backend.enums.PostCategory;
 import java.time.LocalDateTime;
 
 /**
@@ -32,6 +33,7 @@ public class FeedPostResponse {
 
     private String totalTime;
     private String description;
+    private PostCategory category;
     private LocalDateTime creationDate;
 
     private Integer commentsCount;
@@ -137,6 +139,9 @@ public class FeedPostResponse {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public PostCategory getCategory() { return category; }
+    public void setCategory(PostCategory category) { this.category = category; }
+
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
 
@@ -179,6 +184,7 @@ public class FeedPostResponse {
 
         public Builder totalTime(Integer v)        { r.totalTime = v.toString(); return this; }
         public Builder description(String v)       { r.description = v;          return this; }
+        public Builder category(PostCategory v)    { r.category = v;             return this; }
         public Builder creationDate(java.time.LocalDateTime v) { r.creationDate = v; return this; }
 
         public FeedPostResponse build() { return r; }

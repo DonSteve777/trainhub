@@ -153,6 +153,7 @@ public class FeedService {
                 .wallBallsTime(post.getWallBalls())
                 .totalTime(post.getTotalTime())
                 .description(post.getDescription())
+                .category(post.getCategory())
                 .creationDate(post.getCreationDate())
                 .build();
     }

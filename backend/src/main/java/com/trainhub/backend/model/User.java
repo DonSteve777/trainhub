@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 import com.trainhub.backend.enums.AccountStatus;
+import com.trainhub.backend.enums.Gender;
 
 /**
  * Entidad que representa un usuario en el sistema.
@@ -58,6 +59,10 @@ public class User {
 
     @Column(name = "notifications_last_seen_at")
     private LocalDateTime notificationsLastSeenAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 10)
+    private Gender gender;
 
     // Constructores
     public User() {
@@ -166,6 +171,14 @@ public class User {
 
     public void setNotificationsLastSeenAt(LocalDateTime notificationsLastSeenAt) {
         this.notificationsLastSeenAt = notificationsLastSeenAt;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
 }

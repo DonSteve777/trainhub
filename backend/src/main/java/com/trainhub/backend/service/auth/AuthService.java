@@ -83,6 +83,7 @@ public class AuthService {
         );
         user.setEmailVerified(false);
         user.setEmailConfirmationToken(confirmationToken);
+        user.setGender(request.getGender());
 
         // 5. Guardar en BD
         userRepository.save(user);

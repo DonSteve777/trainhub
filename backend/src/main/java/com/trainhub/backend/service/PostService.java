@@ -65,6 +65,7 @@ public class PostService {
                 totalTime,
                 LocalDateTime.now()
         );
+        post.setCategory(request.getCategory());
 
         return postRepository.save(post);
     }

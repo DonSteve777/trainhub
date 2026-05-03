@@ -15,7 +15,8 @@ CREATE TABLE "users" (
   "email_confirmation_token" varchar(255),
   "password_reset_token" varchar(255),
   "password_reset_expires_at" TIMESTAMP WITH TIME ZONE,
-  "notifications_last_seen_at" TIMESTAMP
+  "notifications_last_seen_at" TIMESTAMP,
+  "gender" varchar(10) CHECK (gender IN ('MALE', 'FEMALE'))
 );
 
 
@@ -40,8 +41,10 @@ CREATE TABLE "posts" (
   "wall_balls" int NOT NULL,
   "total_time" int NOT NULL,
   "description" text,
+  "category" varchar(20) NOT NULL DEFAULT 'INDIVIDUAL_MALE'
   "creation_date" timestamp NOT NULL DEFAULT (now()),
   CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+  CONSTRAINT "chk_posts_category" CHECK ("category" IN ('INDIVIDUAL_MALE', 'INDIVIDUAL_FEMALE', 'DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE'))
 );
 
 
@@ -175,6 +178,8 @@ CREATE TABLE "comment_likes" (
 );
 
 ALTER TABLE "posts" ADD COLUMN "description" text;
+ALTER TABLE "posts" ADD COLUMN "category" varchar(20) NOT NULL DEFAULT 'INDIVIDUAL_MALE'
+  CHECK (category IN ('INDIVIDUAL_MALE', 'INDIVIDUAL_FEMALE', 'DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE'));
 --CREATE INDEX "idx_comment_likes_comment_id" ON "comment_likes" ("comment_id");
   
 

@@ -1,11 +1,22 @@
 <div class="create-post-page">
   <div class="create-post-content">
     <h1 class="th-title-gradient">Nuevo entrenamiento</h1>
-    <p class="th-lead">
-      Anota tus tiempos (<strong>mm:ss</strong>)
-    </p>
 
     <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="create-post-form">
+
+      <div class="form-field category-field">
+        <label class="th-label" for="category">Categoría</label>
+        <select id="category" formControlName="category" class="th-input th-select">
+          <option value="" disabled>Selecciona una categoría</option>
+          @for (cat of categories(); track cat.value) {
+            <option [value]="cat.value">{{ cat.label }}</option>
+          }
+        </select>
+        @if (postForm.get('category')?.invalid && postForm.get('category')?.touched) {
+          <span class="field-error">Debes seleccionar una categoría</span>
+        }
+      </div>
+
       <fieldset class="time-fieldset hyrox-fieldset">
         <legend>Prueba HYROX</legend>
         <div class="hyrox-table" role="group" aria-label="Tiempos por tramo de carrera y prueba">

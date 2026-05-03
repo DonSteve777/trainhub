@@ -61,7 +61,8 @@ public class UserController {
                 user.getPhotoUrl(),
                 user.getUsername(),
                 user.getAccountStatus(),
-                user.getEmailVerified()
+                user.getEmailVerified(),
+                user.getGender()
         );
         
         return ResponseEntity.ok(response);
@@ -96,6 +97,7 @@ public class UserController {
         user.setEmail(request.getEmail());
         user.setPhotoUrl(request.getPhotoUrl());
         user.setUsername(request.getName());
+        user.setGender(request.getGender());
 
         // Guardar cambios
         User updatedUser = userRepository.save(user);
@@ -107,7 +109,8 @@ public class UserController {
                 updatedUser.getPhotoUrl(),
                 updatedUser.getUsername(),
                 updatedUser.getAccountStatus(),
-                updatedUser.getEmailVerified()
+                updatedUser.getEmailVerified(),
+                updatedUser.getGender()
         );
 
         return ResponseEntity.ok(response);

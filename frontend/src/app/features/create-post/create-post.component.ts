@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
+import { UserService } from '../../core/services/user.service';
 
 /** Parsea "m:ss" o "mm:ss" (segundos 0–59). Devuelve null si no es válido. */
 export function parseMmSsToSeconds(value: string): number | null {
@@ -71,7 +72,10 @@ export class CreatePostComponent implements OnInit {
   postForm!: FormGroup;
   private readonly fb = inject(FormBuilder);
   private readonly apiService = inject(ApiService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+
+  private readonly userGender = signal<'MALE' | 'FEMALE' | null>(null);
 
   /** Orden oficial HYROX: Running + estación por fila. */
   readonly hyroxRows: readonly HyroxFormRow[] = [
@@ -125,12 +129,31 @@ export class CreatePostComponent implements OnInit {
     },
   ];
 
+  private readonly allCategories: { value: string; label: string; allowedGenders: ('MALE' | 'FEMALE')[] }[] = [
+    { value: 'INDIVIDUAL_MALE',   label: 'Masculina',        allowedGenders: ['MALE']            },
+    { value: 'INDIVIDUAL_FEMALE', label: 'Femenina',         allowedGenders: ['FEMALE']          },
+    { value: 'DOUBLES_MIXED',     label: 'Pareja mixta',     allowedGenders: ['MALE', 'FEMALE']  },
+    { value: 'DOUBLES_MALE',      label: 'Pareja masculina', allowedGenders: ['MALE']            },
+    { value: 'DOUBLES_FEMALE',    label: 'Pareja femenina',  allowedGenders: ['FEMALE']          },
+  ];
+
+  readonly categories = computed(() => {
+    const gender = this.userGender();
+    if (!gender) return this.allCategories;
+    return this.allCategories.filter(c => c.allowedGenders.includes(gender));
+  });
+
   readonly backendMessage = signal<string | null>(null);
   readonly submitting = signal(false);
 
   ngOnInit(): void {
     this.postForm = this.fb.group({
+      category: ['', Validators.required],
       segments: this.fb.array(this.hyroxRows.map(() => this.createSegmentGroup())),
+    });
+
+    this.userService.getProfile().subscribe({
+      next: (profile) => this.userGender.set(profile.gender),
     });
   }
 
@@ -164,12 +187,12 @@ export class CreatePostComponent implements OnInit {
     });
   }
 
-  private buildPayload(): Record<string, number> {
-    const rows = this.postForm.getRawValue().segments as Array<{
-      running: string;
-      station: string;
-    }>;
-    const payload: Record<string, number> = {};
+  private buildPayload(): Record<string, number | string> {
+    const formValue = this.postForm.getRawValue();
+    const rows = formValue.segments as Array<{ running: string; station: string }>;
+    const payload: Record<string, number | string> = {
+      category: formValue.category as string,
+    };
     this.hyroxRows.forEach((row, i) => {
       const seg = rows[i];
       const r = parseMmSsToSeconds(seg.running);
@@ -187,7 +210,7 @@ export class CreatePostComponent implements OnInit {
     if (this.postForm.invalid || this.submitting()) return;
     this.backendMessage.set(null);
     this.submitting.set(true);
-    let body: Record<string, number>;
+    let body: Record<string, number | string>;
     try {
       body = this.buildPayload();
     } catch {

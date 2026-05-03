@@ -1,6 +1,7 @@
 package com.trainhub.backend.dto.response;
 
 import com.trainhub.backend.enums.AccountStatus;
+import com.trainhub.backend.enums.Gender;
 
 /**
  * DTO de respuesta para el perfil del usuario.
@@ -13,18 +14,19 @@ public class UserProfileResponse {
     private String name;
     private AccountStatus accountStatus;
     private Boolean emailVerified;
+    private Gender gender;
 
     public UserProfileResponse() {
     }
 
-    public UserProfileResponse(Integer id, String email, String photoUrl, String name, AccountStatus accountStatus, Boolean emailVerified) {
+    public UserProfileResponse(Integer id, String email, String photoUrl, String name, AccountStatus accountStatus, Boolean emailVerified, Gender gender) {
         this.id = id;
         this.email = email;
         this.photoUrl = photoUrl;
         this.name = name;
         this.accountStatus = accountStatus;
         this.emailVerified = emailVerified;
-
+        this.gender = gender;
     }
 
     // Getters y Setters
@@ -74,5 +76,13 @@ public class UserProfileResponse {
 
     public void setEmailVerified(Boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

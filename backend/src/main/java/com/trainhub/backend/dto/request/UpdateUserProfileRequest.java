@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import com.trainhub.backend.enums.Gender;
+
 /**
  * DTO de petición para actualizar el perfil del usuario.
  */
@@ -20,6 +22,8 @@ public class UpdateUserProfileRequest {
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 60, message = "El nombre no puede tener más de 60 caracteres")
     private String name;
+
+    private Gender gender;
 
     public UpdateUserProfileRequest() {
     }
@@ -47,5 +51,13 @@ public class UpdateUserProfileRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

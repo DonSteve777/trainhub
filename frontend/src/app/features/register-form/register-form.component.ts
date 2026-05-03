@@ -44,6 +44,7 @@ export class RegisterFormComponent implements OnInit {
         username: ['', [Validators.required, Validators.maxLength(50)]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required, passwordMatchValidator()]],
+        gender: ['', [Validators.required]],
       },
       { updateOn: 'blur' }
     );
@@ -55,12 +56,13 @@ export class RegisterFormComponent implements OnInit {
   onSubmit(): void {
     if (this.registerForm.invalid) return;
     this.backendMessage.set(null);
-    const { email, username, password } = this.registerForm.value;
+    const { email, username, password, gender } = this.registerForm.value;
     this.apiService
       .post<{ message: string; email: string }>('/auth/register', {
         email,
         username,
         password,
+        gender,
       })
       .subscribe({
         next: () => this.router.navigate(['/verify-email']),

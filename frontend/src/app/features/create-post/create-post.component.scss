@@ -77,6 +77,38 @@
   margin-right: auto;
 }
 
+.category-field {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+
+  .th-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--trainhub-info);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+.th-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f0dfdb' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+
+  option {
+    background: var(--trainhub-surface-dark, #1a1a2e);
+    color: #f0dfdb;
+  }
+}
+
 .create-post-submit {
   width: 100%;
   max-width: 720px;
