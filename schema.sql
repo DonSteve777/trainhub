@@ -41,11 +41,12 @@ CREATE TABLE "posts" (
   "wall_balls" int NOT NULL,
   "total_time" int NOT NULL,
   "description" text,
-  "category" varchar(20) NOT NULL DEFAULT 'INDIVIDUAL_MALE'
+  "category" varchar(20) NOT NULL DEFAULT 'INDIVIDUAL_MALE',
   "creation_date" timestamp NOT NULL DEFAULT (now()),
-  CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+  CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id"),
   CONSTRAINT "chk_posts_category" CHECK ("category" IN ('INDIVIDUAL_MALE', 'INDIVIDUAL_FEMALE', 'DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE'))
 );
+
 
 
 CREATE TABLE "comments" (
@@ -165,7 +166,8 @@ INSERT INTO posts (
   "content" text NOT NULL,
   "creation_date" timestamp NOT NULL DEFAULT (now()),
   CONSTRAINT "fk_comments_posts" FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
-  CONSTRAINT "fk_comments_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE
+  CONSTRAINT "fk_comments_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
+  CONSTRAINT "fk_comments_mate" FOREIGN KEY ("mate") REFERENCES "users" ("id") ON DELETE SET NULL
 );
 
 CREATE TABLE "comment_likes" (
@@ -177,9 +179,7 @@ CREATE TABLE "comment_likes" (
   CONSTRAINT "fk_comment_likes_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE
 );
 
-ALTER TABLE "posts" ADD COLUMN "description" text;
-ALTER TABLE "posts" ADD COLUMN "category" varchar(20) NOT NULL DEFAULT 'INDIVIDUAL_MALE'
-  CHECK (category IN ('INDIVIDUAL_MALE', 'INDIVIDUAL_FEMALE', 'DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE'));
+
 --CREATE INDEX "idx_comment_likes_comment_id" ON "comment_likes" ("comment_id");
   
 

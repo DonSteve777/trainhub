@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
-import { UserService } from '../../core/services/user.service';
+import { UserService, UserSearchResultDto } from '../../core/services/user.service';
 
 /** Parsea "m:ss" o "mm:ss" (segundos 0–59). Devuelve null si no es válido. */
 export function parseMmSsToSeconds(value: string): number | null {
@@ -76,6 +76,18 @@ export class CreatePostComponent implements OnInit {
   private readonly router = inject(Router);
 
   private readonly userGender = signal<'MALE' | 'FEMALE' | null>(null);
+
+  // --- Mate search ---
+  private readonly DOUBLES = new Set(['DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE']);
+  readonly selectedCategory = signal<string>('');
+  readonly isDoubles = computed(() => this.DOUBLES.has(this.selectedCategory()));
+
+  readonly mateQuery = signal('');
+  readonly mateResults = signal<UserSearchResultDto[]>([]);
+  readonly selectedMate = signal<UserSearchResultDto | null>(null);
+  readonly mateSearching = signal(false);
+
+  private mateSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Orden oficial HYROX: Running + estación por fila. */
   readonly hyroxRows: readonly HyroxFormRow[] = [
@@ -155,6 +167,13 @@ export class CreatePostComponent implements OnInit {
     this.userService.getProfile().subscribe({
       next: (profile) => this.userGender.set(profile.gender),
     });
+
+    this.postForm.get('category')!.valueChanges.subscribe((val: string) => {
+      this.selectedCategory.set(val ?? '');
+      if (!this.DOUBLES.has(val)) {
+        this.clearMate();
+      }
+    });
   }
 
   get segments(): FormArray {
@@ -187,12 +206,48 @@ export class CreatePostComponent implements OnInit {
     });
   }
 
+  onMateInput(query: string): void {
+    this.mateQuery.set(query);
+    this.selectedMate.set(null);
+    if (this.mateSearchTimer) clearTimeout(this.mateSearchTimer);
+    if (!query.trim()) {
+      this.mateResults.set([]);
+      this.mateSearching.set(false);
+      return;
+    }
+    this.mateSearching.set(true);
+    this.mateSearchTimer = setTimeout(() => {
+      this.userService.searchUsers(query.trim(), 5).subscribe({
+        next: (results) => {
+          this.mateResults.set(results);
+          this.mateSearching.set(false);
+        },
+        error: () => this.mateSearching.set(false),
+      });
+    }, 300);
+  }
+
+  selectMate(user: UserSearchResultDto): void {
+    this.selectedMate.set(user);
+    this.mateResults.set([]);
+    this.mateQuery.set('');
+  }
+
+  clearMate(): void {
+    this.selectedMate.set(null);
+    this.mateResults.set([]);
+    this.mateQuery.set('');
+    this.mateSearching.set(false);
+  }
+
   private buildPayload(): Record<string, number | string> {
     const formValue = this.postForm.getRawValue();
     const rows = formValue.segments as Array<{ running: string; station: string }>;
     const payload: Record<string, number | string> = {
       category: formValue.category as string,
     };
+    const mate = this.selectedMate();
+    if (mate) payload['mateUsername'] = mate.username;
     this.hyroxRows.forEach((row, i) => {
       const seg = rows[i];
       const r = parseMmSsToSeconds(seg.running);

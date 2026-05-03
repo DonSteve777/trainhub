@@ -23,6 +23,12 @@ export interface UserProfileDto {
   gender: 'MALE' | 'FEMALE' | null;
 }
 
+export interface UserSearchResultDto {
+  id: number;
+  username: string;
+  photoUrl: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly api = inject(ApiService);
@@ -33,5 +39,11 @@ export class UserService {
 
   getProfile(): Observable<UserProfileDto> {
     return this.api.get<UserProfileDto>('/user/me');
+  }
+
+  searchUsers(q: string, limit = 5): Observable<UserSearchResultDto[]> {
+    return this.api.get<UserSearchResultDto[]>(
+      `/user/search?q=${encodeURIComponent(q)}&limit=${limit}`
+    );
   }
 }

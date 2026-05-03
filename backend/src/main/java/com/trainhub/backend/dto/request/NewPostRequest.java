@@ -30,6 +30,8 @@ public class NewPostRequest {
 
     @NotNull private PostCategory category;
 
+    private String mateUsername;
+
     public NewPostRequest() {}
 
     // Getters y Setters
@@ -123,4 +125,7 @@ public class NewPostRequest {
 
     public PostCategory getCategory() { return category; }
     public void setCategory(PostCategory category) { this.category = category; }
+
+    public String getMateUsername() { return mateUsername; }
+    public void setMateUsername(String mateUsername) { this.mateUsername = mateUsername; }
 }

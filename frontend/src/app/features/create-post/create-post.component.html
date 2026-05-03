@@ -17,6 +17,56 @@
         }
       </div>
 
+      @if (isDoubles()) {
+        <div class="form-field category-field mate-field">
+          <label class="th-label" for="mateSearch">
+            Compañero/a <span class="optional-hint">(opcional)</span>
+          </label>
+
+          @if (selectedMate(); as mate) {
+            <div class="mate-chip">
+              @if (mate.photoUrl) {
+                <img [src]="mate.photoUrl" class="mate-avatar" alt="" />
+              } @else {
+                <span class="mate-avatar mate-avatar-placeholder">{{ mate.username.charAt(0).toUpperCase() }}</span>
+              }
+              <span class="mate-chip-name">{{ mate.username }}</span>
+              <button type="button" class="mate-chip-clear" (click)="clearMate()" aria-label="Quitar compañero">×</button>
+            </div>
+          } @else {
+            <div class="mate-search-wrapper">
+              <input
+                id="mateSearch"
+                type="text"
+                class="th-input"
+                placeholder="Buscar por nombre de usuario…"
+                [value]="mateQuery()"
+                (input)="onMateInput($any($event.target).value)"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              @if (mateSearching()) {
+                <span class="mate-searching-hint">Buscando…</span>
+              }
+              @if (mateResults().length > 0) {
+                <ul class="mate-results" role="listbox">
+                  @for (user of mateResults(); track user.id) {
+                    <li class="mate-result-item" role="option" (click)="selectMate(user)">
+                      @if (user.photoUrl) {
+                        <img [src]="user.photoUrl" class="mate-avatar" alt="" />
+                      } @else {
+                        <span class="mate-avatar mate-avatar-placeholder">{{ user.username.charAt(0).toUpperCase() }}</span>
+                      }
+                      <span>{{ user.username }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
+      }
+
       <fieldset class="time-fieldset hyrox-fieldset">
         <legend>Prueba HYROX</legend>
         <div class="hyrox-table" role="group" aria-label="Tiempos por tramo de carrera y prueba">

@@ -1,9 +1,13 @@
 package com.trainhub.backend.repository;
 
 import com.trainhub.backend.model.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,5 +48,21 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @return Optional con el usuario si existe, vacío si no
      */
     Optional<User> findByPasswordResetToken(String token);
+
+    /**
+     * Busca usuarios cuyo username empieza por el prefijo dado (case-insensitive),
+     * excluyendo al propio usuario y los no activos.
+     */
+    @Query("""
+            SELECT u FROM User u
+            WHERE LOWER(u.username) LIKE LOWER(CONCAT(:prefix, '%'))
+            AND u.id <> :excludeId
+            AND u.accountStatus = com.trainhub.backend.enums.AccountStatus.ACTIVE
+            ORDER BY u.username ASC
+            """)
+    List<User> findByUsernamePrefix(
+            @Param("prefix") String prefix,
+            @Param("excludeId") Integer excludeId,
+            Pageable pageable);
 }
 

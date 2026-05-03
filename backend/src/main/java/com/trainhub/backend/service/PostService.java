@@ -67,6 +67,11 @@ public class PostService {
         );
         post.setCategory(request.getCategory());
 
+        if (request.getMateUsername() != null && !request.getMateUsername().isBlank()) {
+            userRepository.findByUsername(request.getMateUsername())
+                    .ifPresent(post::setMate);
+        }
+
         return postRepository.save(post);
     }
 

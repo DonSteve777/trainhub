@@ -22,7 +22,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
      * El orden es creation_date DESC, id DESC para un cursor estable.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u
+            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate
             WHERE EXISTS (
                 SELECT f FROM Friendship f
                 WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
@@ -84,7 +84,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
      * El cursor es (creationDate, id): se traen posts anteriores en el tiempo al cursor.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u
+            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate
             WHERE EXISTS (
                 SELECT f FROM Friendship f
                 WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND

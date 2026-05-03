@@ -9,7 +9,13 @@
             <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
           </div>
           <div class="post-meta">
-            <span class="post-username">{{ post.username }}</span>
+            <div class="post-username-row">
+              <span class="post-username">{{ post.username }}</span>
+              @if (post.mateUsername) {
+                <span class="post-mate-separator">&amp;</span>
+                <span class="post-username post-username--mate">{{ post.mateUsername }}</span>
+              }
+            </div>
             <p class="post-description">{{ post.description }}</p>
           </div>
         </div>

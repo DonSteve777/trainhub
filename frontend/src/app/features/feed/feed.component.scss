@@ -90,10 +90,27 @@ $card-height: calc(100dvh * 0.9);
   min-width: 0; // permite que el texto haga ellipsis
 }
 
+.post-username-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
 .post-username {
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--mat-sys-on-surface);
+
+  &--mate {
+    color: var(--trainhub-info);
+  }
+}
+
+.post-mate-separator {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(240, 223, 219, 0.45);
 }
 
 .post-description {

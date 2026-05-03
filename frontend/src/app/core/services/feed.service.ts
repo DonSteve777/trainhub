@@ -25,6 +25,8 @@ export interface FeedPostDto {
   wallBallsTime: string;
   totalTime: string;
   description: string | null;
+  category: string | null;
+  mateUsername: string | null;
   creationDate: string;
   commentsCount: number;
   likesCount: number;

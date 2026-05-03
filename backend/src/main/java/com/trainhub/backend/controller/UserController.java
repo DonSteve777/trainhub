@@ -2,6 +2,7 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
 import com.trainhub.backend.dto.response.UserProfileResponse;
+import com.trainhub.backend.dto.response.UserSearchResult;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.UserRepository;
@@ -10,6 +11,7 @@ import com.trainhub.backend.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +24,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Controlador REST para operaciones de usuario.
@@ -114,6 +118,32 @@ public class UserController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Busca usuarios por prefijo de username (autocomplete).
+     * Excluye al propio usuario y devuelve máximo {@code limit} resultados.
+     *
+     * @param userPrincipal El usuario autenticado actual
+     * @param q             Prefijo a buscar (mínimo 1 carácter)
+     * @param limit         Número máximo de resultados (máx. 10)
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<UserSearchResult>> searchUsers(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam String q,
+            @RequestParam(defaultValue = "5") int limit) {
+
+        if (q == null || q.isBlank()) return ResponseEntity.ok(List.of());
+
+        int safeLimit = Math.min(Math.max(limit, 1), 10);
+        List<UserSearchResult> results = userRepository
+                .findByUsernamePrefix(q.trim(), userPrincipal.getUser().getId(), PageRequest.of(0, safeLimit))
+                .stream()
+                .map(u -> new UserSearchResult(u.getId(), u.getUsername(), u.getPhotoUrl()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(results);
     }
 
     /**

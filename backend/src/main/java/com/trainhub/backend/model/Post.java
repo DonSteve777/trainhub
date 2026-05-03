@@ -78,6 +78,10 @@ public class Post {
     @Column(name = "category", nullable = false)
     private PostCategory category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mate")
+    private User mate;
+
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
@@ -260,6 +264,9 @@ public class Post {
 
     public PostCategory getCategory() { return category; }
     public void setCategory(PostCategory category) { this.category = category; }
+
+    public User getMate() { return mate; }
+    public void setMate(User mate) { this.mate = mate; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }

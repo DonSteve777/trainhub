@@ -154,6 +154,8 @@ public class FeedService {
                 .totalTime(post.getTotalTime())
                 .description(post.getDescription())
                 .category(post.getCategory())
+                .mateId(post.getMate() != null ? post.getMate().getId() : null)
+                .mateUsername(post.getMate() != null ? post.getMate().getUsername() : null)
                 .creationDate(post.getCreationDate())
                 .build();
     }
