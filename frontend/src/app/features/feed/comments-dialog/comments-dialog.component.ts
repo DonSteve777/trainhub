@@ -35,6 +35,8 @@ export class CommentsDialogComponent implements OnInit {
   newCommentText = '';
 
   ngOnInit(): void {
+    this.dialogRef.backdropClick().subscribe(() => this.close());
+
     this.commentService.getComments(this.data.postId).subscribe({
       next: (comments) => {
         this.comments.set(comments);
