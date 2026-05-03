@@ -2,9 +2,11 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
 import com.trainhub.backend.dto.response.UserProfileResponse;
+import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.UserPrincipal;
+import com.trainhub.backend.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PostService postService;
 
     @Value("${app.upload.dir}")
     private String uploadDir;
@@ -106,6 +111,20 @@ public class UserController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Devuelve el histórico de tiempos del usuario autenticado agrupado en tres colecciones:
+     * total, workouts y runs, cada una con pares (tiempo, fecha) ordenados cronológicamente.
+     *
+     * @param userPrincipal El usuario autenticado actual
+     * @return Histórico de tiempos del usuario
+     */
+    @GetMapping("/time-history")
+    public ResponseEntity<UserTimeHistoryResponse> getTimeHistory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(postService.getUserTimeHistory(userId));
     }
 
     /**

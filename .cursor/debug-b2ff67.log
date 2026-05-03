@@ -1,0 +1,2 @@
+{"sessionId":"b2ff67","hypothesisId":"C","location":"time-history.component.ts:ngOnInit-error","message":"HTTP error from backend","data":{"status":0,"statusText":"Unknown Error","error":{"isTrusted":true}},"timestamp":1777810054403}
+{"sessionId":"b2ff67","hypothesisId":"C","location":"time-history.component.ts:ngOnInit-error","message":"HTTP error from backend","data":{"status":0,"statusText":"Unknown Error","error":{"isTrusted":true}},"timestamp":1777810129599}

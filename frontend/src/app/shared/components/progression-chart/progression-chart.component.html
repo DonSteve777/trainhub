@@ -1,0 +1,14 @@
+<div class="chart-wrapper">
+  <div class="chart-header">
+    <span class="chart-label" [style.color]="color">{{ label }}</span>
+    @if (entries.length > 0) {
+      <span class="chart-last" [style.color]="color">
+        {{ formatTime(entries[entries.length - 1].time) }}
+      </span>
+      <span class="chart-count">{{ entries.length }} entrenos</span>
+    }
+  </div>
+  <div class="chart-canvas-wrapper">
+    <canvas baseChart [data]="chartData" [options]="chartOptions" type="line"></canvas>
+  </div>
+</div>

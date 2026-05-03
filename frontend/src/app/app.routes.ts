@@ -9,6 +9,7 @@ import { FeedComponent } from './features/feed/feed.component';
 import { CreatePostComponent } from './features/create-post/create-post.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
+import { TimeHistoryComponent } from './features/time-history/time-history.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'user-profile', component: UserProfileComponent, canActivate: [authGuard] },
+  { path: 'time-history', component: TimeHistoryComponent, canActivate: [authGuard] },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'register-form', component: RegisterFormComponent },
   { path: '**', redirectTo: '' },

@@ -1,0 +1,65 @@
+@if (error()) {
+  <p class="th-error">{{ error() }}</p>
+} @else if (!history() || !profile()) {
+  <p class="th-loading">Cargando...</p>
+} @else {
+  <div class="th-header">
+
+    <div class="th-profile">
+      <img class="th-avatar" [src]="avatarUrl()" [alt]="profile()!.name" />
+      <span class="th-username">{{ profile()!.name }}</span>
+    </div>
+
+    <div class="th-card th-card--weeks">
+      <span class="th-card-title">Últimas 4 semanas</span>
+      <span class="th-card-value">{{ lastFourWeeksCount() }}</span>
+      <span class="th-card-sub">Actividades en total</span>
+    </div>
+
+    <div class="th-card th-card--records">
+      <span class="th-card-title">Record Personal</span>
+      <div class="th-records">
+        @if (totalRecord()) {
+          <div class="th-record-row">
+            <span class="th-record-label" style="color: #FFC107">Total time</span>
+            <span class="th-record-time" style="color: #FFC107">{{ formatTime(totalRecord()!.time) }}</span>
+            <span class="th-record-date">{{ formatDate(totalRecord()!.date) }}</span>
+          </div>
+        }
+        @if (workoutsRecord()) {
+          <div class="th-record-row">
+            <span class="th-record-label" style="color: #8B9FFF">Workout</span>
+            <span class="th-record-time" style="color: #8B9FFF">{{ formatTime(workoutsRecord()!.time) }}</span>
+            <span class="th-record-date">{{ formatDate(workoutsRecord()!.date) }}</span>
+          </div>
+        }
+        @if (runsRecord()) {
+          <div class="th-record-row">
+            <span class="th-record-label" style="color: #FF6B8A">Runs</span>
+            <span class="th-record-time" style="color: #FF6B8A">{{ formatTime(runsRecord()!.time) }}</span>
+            <span class="th-record-date">{{ formatDate(runsRecord()!.date) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <div class="th-charts">
+    <app-progression-chart
+      [entries]="history()!.totalHistory"
+      label="Total Time"
+      color="#FFC107"
+    />
+    <app-progression-chart
+      [entries]="history()!.workoutsHistory"
+      label="Workouts"
+      color="#8B9FFF"
+    />
+    <app-progression-chart
+      [entries]="history()!.runsHistory"
+      label="Runs"
+      color="#FF6B8A"
+    />
+  </div>
+}

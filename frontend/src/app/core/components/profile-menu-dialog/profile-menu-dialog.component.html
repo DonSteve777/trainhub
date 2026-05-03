@@ -1,0 +1,38 @@
+<div class="profile-menu">
+
+  <div class="profile-menu__header">
+    <span class="profile-menu__title">Mi cuenta</span>
+    <button class="profile-menu__close" (click)="close()" aria-label="Cerrar menú de perfil">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="profile-menu__list">
+
+    <button class="profile-menu__item" (click)="goToEditProfile()">
+      <span class="profile-menu__item-icon">
+        <mat-icon>manage_accounts</mat-icon>
+      </span>
+      <span class="profile-menu__item-label">Editar perfil</span>
+      <mat-icon class="profile-menu__item-arrow">chevron_right</mat-icon>
+    </button>
+
+    <button class="profile-menu__item" (click)="goToStats()">
+      <span class="profile-menu__item-icon">
+        <mat-icon>bar_chart</mat-icon>
+      </span>
+      <span class="profile-menu__item-label">Ver estadísticas</span>
+      <mat-icon class="profile-menu__item-arrow">chevron_right</mat-icon>
+    </button>
+
+    <button class="profile-menu__item" (click)="goToPosts()">
+      <span class="profile-menu__item-icon">
+        <mat-icon>grid_on</mat-icon>
+      </span>
+      <span class="profile-menu__item-label">Ver posts</span>
+      <mat-icon class="profile-menu__item-arrow">chevron_right</mat-icon>
+    </button>
+
+  </div>
+
+</div>

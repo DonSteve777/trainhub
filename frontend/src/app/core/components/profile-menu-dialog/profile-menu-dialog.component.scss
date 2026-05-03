@@ -1,0 +1,108 @@
+.profile-menu {
+  display: flex;
+  flex-direction: column;
+  background: var(--trainhub-surface-dark, #1a1412);
+  min-width: 340px;
+  max-width: 420px;
+}
+
+// ============================================================
+// Header
+// ============================================================
+.profile-menu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.profile-menu__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.profile-menu__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+// ============================================================
+// Lista de opciones
+// ============================================================
+.profile-menu__list {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0;
+}
+
+.profile-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--mat-sys-on-surface);
+  transition: background 0.15s ease;
+  border-radius: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.profile-menu__item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.profile-menu__item-label {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.profile-menu__item-arrow {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.5;
+  flex-shrink: 0;
+}

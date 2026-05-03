@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
+import { ProfileMenuDialogComponent } from '../profile-menu-dialog/profile-menu-dialog.component';
 
 @Component({
   selector: 'app-header-toolbar',
@@ -67,6 +68,13 @@ export class HeaderToolbarComponent implements OnInit {
 
     ref.afterClosed().subscribe(() => {
       this.unreadCount.set(0);
+    });
+  }
+
+  openProfileMenu(): void {
+    this.dialog.open(ProfileMenuDialogComponent, {
+      width: '380px',
+      panelClass: 'trainhub-dialog',
     });
   }
 

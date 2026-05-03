@@ -1,6 +1,8 @@
 package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.request.NewPostRequest;
+import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
+import com.trainhub.backend.dto.response.UserTimeHistoryResponse.TimeEntry;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.PostRepository;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Servicio para la gestión de posts (entrenamientos).
@@ -63,5 +67,37 @@ public class PostService {
         );
 
         return postRepository.save(post);
+    }
+
+    /**
+     * Devuelve el histórico de tiempos del usuario agrupado en tres colecciones:
+     * total, workouts (suma de las 8 estaciones) y runs (suma de las 8 carreras).
+     * Cada entrada incluye el tiempo en segundos y la fecha del entrenamiento.
+     *
+     * @param userId id del usuario autenticado
+     * @return histórico de tiempos del usuario
+     */
+    public UserTimeHistoryResponse getUserTimeHistory(Integer userId) {
+        List<Object[]> rows = postRepository.findUserPostTimes(userId);
+
+        List<TimeEntry> totalHistory    = new ArrayList<>();
+        List<TimeEntry> runsHistory     = new ArrayList<>();
+        List<TimeEntry> workoutsHistory = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            LocalDateTime date = (LocalDateTime) row[17];
+
+            totalHistory.add(new TimeEntry((Integer) row[0], date));
+
+            int runsSum = 0;
+            for (int i = 1; i <= 8; i++) runsSum += (Integer) row[i];
+            runsHistory.add(new TimeEntry(runsSum, date));
+
+            int workoutsSum = 0;
+            for (int i = 9; i <= 16; i++) workoutsSum += (Integer) row[i];
+            workoutsHistory.add(new TimeEntry(workoutsSum, date));
+        }
+
+        return new UserTimeHistoryResponse(totalHistory, workoutsHistory, runsHistory);
     }
 }
