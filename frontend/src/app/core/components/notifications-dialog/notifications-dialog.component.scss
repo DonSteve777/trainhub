@@ -138,13 +138,44 @@
     }
   }
 
-  &__avatar {
+  &__avatar-wrap {
     flex-shrink: 0;
+    position: relative;
+    width: 42px;
+    height: 42px;
+  }
+
+  &__avatar {
     width: 42px;
     height: 42px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255, 255, 255, 0.12);
+  }
+
+  &__type-icon {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--trainhub-accent, #e64a19);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--trainhub-surface-dark, #1a1412);
+
+    mat-icon {
+      font-size: 11px;
+      width: 11px;
+      height: 11px;
+      color: #fff;
+    }
+
+    &--comment {
+      background: #3a8fd6;
+    }
   }
 
   &__body {

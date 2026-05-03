@@ -60,4 +60,23 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
             """)
     List<Integer> findLikedCommentIds(@Param("commentIds") List<Integer> commentIds,
                                       @Param("userId") Integer userId);
+
+    /**
+     * Devuelve todos los comentarios sobre posts del usuario dado (excluyendo auto-comentarios),
+     * ordenados por fecha descendente. Cada fila es:
+     * [postId, postCreationDate, commenterId, commenterUsername, commenterPhotoUrl, commentCreatedAt]
+     */
+    @Query("""
+            SELECT c.post.id,
+                   c.post.creationDate,
+                   c.user.id,
+                   c.user.username,
+                   c.user.photoUrl,
+                   c.creationDate
+            FROM Comment c
+            WHERE c.post.user.id = :ownerId
+              AND c.user.id <> :ownerId
+            ORDER BY c.creationDate DESC
+            """)
+    List<Object[]> findCommentsOnUserPosts(@Param("ownerId") Integer ownerId);
 }

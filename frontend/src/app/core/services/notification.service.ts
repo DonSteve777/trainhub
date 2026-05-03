@@ -3,12 +3,13 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 export interface NotificationDto {
+  type: 'LIKE' | 'COMMENT';
   postId: number;
   postCreationDate: string;
-  lastLikerUsername: string;
-  lastLikerPhotoUrl: string | null;
-  lastLikedAt: string;
-  totalLikers: number;
+  lastActorUsername: string;
+  lastActorPhotoUrl: string | null;
+  lastActionAt: string;
+  totalCount: number;
   unread: boolean;
 }
 

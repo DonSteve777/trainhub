@@ -28,19 +28,28 @@
         <p>No tienes notificaciones todavía.</p>
       </div>
     } @else {
-      @for (n of notifications(); track n.postId) {
-        <button class="notif-item" [class.notif-item--unread]="n.unread" (click)="openLikers(n)">
-          <img
-            class="notif-item__avatar"
-            [src]="avatarUrl(n.lastLikerPhotoUrl, n.lastLikerUsername)"
-            [alt]="n.lastLikerUsername"
-          />
+      @for (n of notifications(); track n.type + '-' + n.postId) {
+        <button
+          class="notif-item"
+          [class.notif-item--unread]="n.unread"
+          (click)="onItemClick(n)"
+        >
+          <div class="notif-item__avatar-wrap">
+            <img
+              class="notif-item__avatar"
+              [src]="avatarUrl(n.lastActorPhotoUrl, n.lastActorUsername)"
+              [alt]="n.lastActorUsername"
+            />
+            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'">
+              <mat-icon>{{ iconForType(n.type) }}</mat-icon>
+            </span>
+          </div>
           <div class="notif-item__body">
             <p class="notif-item__text">
-              <strong>{{ n.lastLikerUsername }}</strong>
+              <strong>{{ n.lastActorUsername }}</strong>
               {{ buildText(n) }}
             </p>
-            <span class="notif-item__time">{{ formatDate(n.lastLikedAt) }}</span>
+            <span class="notif-item__time">{{ formatDate(n.lastActionAt) }}</span>
           </div>
           @if (n.unread) {
             <span class="notif-item__dot" aria-hidden="true"></span>

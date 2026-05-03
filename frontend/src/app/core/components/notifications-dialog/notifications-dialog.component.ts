@@ -1,8 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { NotificationService, NotificationDto, LikerDto } from '../../services/notification.service';
+import { NotificationService, NotificationDto } from '../../services/notification.service';
 import { LikersDialogComponent, LikersDialogData } from '../likers-dialog/likers-dialog.component';
+import { CommentsDialogComponent } from '../../../features/feed/comments-dialog/comments-dialog.component';
 
 @Component({
   selector: 'app-notifications-dialog',
@@ -34,10 +35,18 @@ export class NotificationsDialogComponent implements OnInit {
     });
   }
 
-  openLikers(notification: NotificationDto): void {
+  onItemClick(n: NotificationDto): void {
+    if (n.type === 'LIKE') {
+      this.openLikers(n);
+    } else {
+      this.openComments(n);
+    }
+  }
+
+  private openLikers(n: NotificationDto): void {
     const data: LikersDialogData = {
-      postId: notification.postId,
-      postCreationDate: notification.postCreationDate,
+      postId: n.postId,
+      postCreationDate: n.postCreationDate,
     };
     this.dialog.open(LikersDialogComponent, {
       data,
@@ -47,13 +56,39 @@ export class NotificationsDialogComponent implements OnInit {
     });
   }
 
+  private openComments(n: NotificationDto): void {
+    this.dialog.open(CommentsDialogComponent, {
+      data: {
+        postId: n.postId,
+        username: n.lastActorUsername,
+        avatarUrl: this.avatarUrl(n.lastActorPhotoUrl, n.lastActorUsername),
+      },
+      width: '500px',
+      maxWidth: '95vw',
+      height: '70vh',
+      panelClass: 'th-comments-panel',
+    });
+  }
+
   buildText(n: NotificationDto): string {
     const date = this.formatDate(n.postCreationDate);
-    if (n.totalLikers === 1) {
-      return `ha dado like a tu publicación del ${date}`;
+    if (n.type === 'LIKE') {
+      if (n.totalCount === 1) {
+        return `ha dado like a tu publicación del ${date}`;
+      }
+      const others = n.totalCount - 1;
+      return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} dado like a tu publicación del ${date}`;
+    } else {
+      if (n.totalCount === 1) {
+        return `ha comentado en tu publicación del ${date}`;
+      }
+      const others = n.totalCount - 1;
+      return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} comentado en tu publicación del ${date}`;
     }
-    const others = n.totalLikers - 1;
-    return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} dado like a tu publicación del ${date}`;
+  }
+
+  iconForType(type: 'LIKE' | 'COMMENT'): string {
+    return type === 'LIKE' ? 'favorite' : 'chat_bubble';
   }
 
   formatDate(dateStr: string): string {
