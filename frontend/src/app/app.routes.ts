@@ -10,10 +10,12 @@ import { CreatePostComponent } from './features/create-post/create-post.componen
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
 import { TimeHistoryComponent } from './features/time-history/time-history.component';
+import { MyPostsComponent } from './features/my-posts/my-posts.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'feed', component: FeedComponent, canActivate: [authGuard] },
+  { path: 'my-posts', component: MyPostsComponent, canActivate: [authGuard] },
   { path: 'create-post', component: CreatePostComponent, canActivate: [authGuard] },
   { path: 'confirm-email/:token', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },

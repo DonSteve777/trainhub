@@ -65,4 +65,12 @@ export class FeedService {
   toggleLike(postId: number): Observable<LikeToggleDto> {
     return this.api.post<LikeToggleDto>(`/feed/posts/${postId}/like`, {});
   }
+
+  getMyPosts(): Observable<FeedPostDto[]> {
+    return this.api.get<FeedPostDto[]>('/posts/mine');
+  }
+
+  getMyHistory(): Observable<FeedHistoryDto> {
+    return this.api.get<FeedHistoryDto>('/posts/mine/history');
+  }
 }

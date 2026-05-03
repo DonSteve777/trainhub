@@ -103,4 +103,30 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Integer cursorId,
             Pageable pageable);
+
+    /**
+     * Devuelve todos los posts del propio usuario, ordenados por fecha descendente.
+     */
+    @Query("""
+            SELECT p FROM Post p JOIN FETCH p.user u
+            WHERE p.user.id = :userId
+            ORDER BY p.creationDate DESC, p.id DESC
+            """)
+    List<Post> findOwnPosts(@Param("userId") Integer userId);
+
+    /**
+     * Devuelve los tiempos de todos los posts propios del usuario,
+     * para construir las distribuciones de los gráficos.
+     * Cada fila: [totalTime, r1..r8, w1..w8] (17 columnas)
+     */
+    @Query("""
+            SELECT p.totalTime,
+                   p.running1, p.running2, p.running3, p.running4,
+                   p.running5, p.running6, p.running7, p.running8,
+                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
+                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls
+            FROM Post p
+            WHERE p.user.id = :userId
+            """)
+    List<Object[]> findOwnPostTimes(@Param("userId") Integer userId);
 }
