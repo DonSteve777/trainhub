@@ -2,14 +2,38 @@
   @for (post of posts(); track post.id; let i = $index) {
     <article class="post-card">
 
-      <!-- Bloque 1: Avatar + Usuario / Descripción -->
-      <div class="post-header">
-        <div class="post-avatar">
-          <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
+      <!-- Bloque 1: Header + Acciones en la misma fila -->
+      <div class="post-top-bar">
+        <div class="post-header">
+          <div class="post-avatar">
+            <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
+          </div>
+          <div class="post-meta">
+            <span class="post-username">{{ post.username }}</span>
+            <p class="post-description">{{ post.description }}</p>
+          </div>
         </div>
-        <div class="post-meta">
-          <span class="post-username">{{ post.username }}</span>
-          <p class="post-description">{{ post.description }}</p>
+
+        <div class="post-actions">
+          <button
+            class="action-btn"
+            (click)="toggleLike(post)"
+            [attr.aria-label]="'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')"
+          >
+            <mat-icon [class.action-btn__icon--liked]="post.liked">
+              {{ post.liked ? 'favorite' : 'favorite_border' }}
+            </mat-icon>
+            <span class="action-count" aria-hidden="true">{{ post.likes }}</span>
+          </button>
+
+          <button
+            class="action-btn"
+            (click)="openComments(post)"
+            [attr.aria-label]="'Comentarios, ' + post.commentsCount + (post.commentsCount === 1 ? ' comentario' : ' comentarios')"
+          >
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
+          </button>
         </div>
       </div>
 
@@ -87,28 +111,6 @@
         </button>
       </div>
 
-      <!-- Bloque 3: Acciones -->
-      <div class="post-actions">
-        <button
-          class="action-btn"
-          (click)="toggleLike(post)"
-          [attr.aria-label]="'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')"
-        >
-          <mat-icon [class.action-btn__icon--liked]="post.liked">
-            {{ post.liked ? 'favorite' : 'favorite_border' }}
-          </mat-icon>
-          <span class="action-count" aria-hidden="true">{{ post.likes }}</span>
-        </button>
-
-        <button
-          class="action-btn"
-          (click)="openComments(post)"
-          [attr.aria-label]="'Comentarios, ' + post.commentsCount + (post.commentsCount === 1 ? ' comentario' : ' comentarios')"
-        >
-          <mat-icon>chat_bubble_outline</mat-icon>
-          <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
-        </button>
-      </div>
 
     </article>
   }
