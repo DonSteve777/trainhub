@@ -94,6 +94,22 @@ $card-height: calc(100dvh * 0.9);
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--mat-sys-on-surface);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+}
+
+.post-username__date {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  &::before {
+    content: '·';
+    margin-right: 0.35rem;
+    font-weight: 500;
+  }
 }
 
 .post-description {
