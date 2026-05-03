@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, Input, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -27,6 +27,8 @@ import { NotificationsDialogComponent } from '../notifications-dialog/notificati
   styleUrl: './header-toolbar.component.scss',
 })
 export class HeaderToolbarComponent implements OnInit {
+  @Input() panel: 'left' | 'right' = 'left';
+
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
@@ -44,7 +46,9 @@ export class HeaderToolbarComponent implements OnInit {
   unreadCount = signal(0);
 
   ngOnInit(): void {
-    this.loadUnreadCount();
+    if (this.panel === 'right') {
+      this.loadUnreadCount();
+    }
   }
 
   private loadUnreadCount(): void {

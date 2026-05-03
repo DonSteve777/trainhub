@@ -1,21 +1,23 @@
-<mat-toolbar color="primary" class="header-toolbar">
-  <div class="logo-container" routerLink="/feed">
-    <img src="images/logotipo.png" alt="Logo" class="logo" />
+@if (panel === 'left') {
+  <div class="sidebar-panel sidebar-panel--left">
+    <div class="logo-container" routerLink="/feed">
+      <img src="images/logotipo.png" alt="Logo" class="logo" />
+    </div>
   </div>
+}
 
-  <div class="search-container">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput type="text" placeholder="Buscar..." />
-    </mat-form-field>
-  </div>
-
-  <span class="spacer"></span>
-
-  <div class="actions">
-    <button type="button" class="create-button" mat-raised-button color="tertiary" (click)="goToCreatePost()" [disabled]="isOnCreatePost()">
+@if (panel === 'right') {
+  <div class="sidebar-panel sidebar-panel--right">
+    <button
+      type="button"
+      class="create-button"
+      mat-raised-button
+      color="tertiary"
+      (click)="goToCreatePost()"
+      [disabled]="isOnCreatePost()"
+      aria-label="Crear publicación"
+    >
       <mat-icon>add</mat-icon>
-      <span>Crear</span>
     </button>
     <button
       type="button"
@@ -39,4 +41,4 @@
       <mat-icon>logout</mat-icon>
     </button>
   </div>
-</mat-toolbar>
+}

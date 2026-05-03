@@ -1,97 +1,77 @@
-.header-toolbar {
+:host {
   display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 0.5rem 2rem;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--mat-sys-surface-container, #1e1e2e);
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
   z-index: 100;
 }
 
-.spacer {
-  flex: 1 1 auto;
+// ============================================================
+// Panel genérico (izquierdo y derecho)
+// ============================================================
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 80px;
+  padding: 1.25rem 0;
+  gap: 0.75rem;
+  box-sizing: border-box;
+}
+
+// ============================================================
+// Panel izquierdo: logo
+// ============================================================
+.sidebar-panel--left {
+  justify-content: flex-start;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .logo-container {
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
+  padding: 0.25rem;
 
   .logo {
-    height: 56px;
+    height: 48px;
     width: auto;
     object-fit: contain;
   }
 }
 
-.search-container {
-  flex: 0 1 500px;
-  background: #2D3038;
-  border-radius: 8px;
-
-  .search-field {
-    width: 100%;
-    font-size: 14px;
-
-    ::ng-deep {
-
-      .mat-mdc-text-field-wrapper {
-        padding-bottom: 0;
-      }
-
-      // Ocultar todos los bordes del outline
-      .mdc-notched-outline__leading,
-      .mdc-notched-outline__notch,
-      .mdc-notched-outline__trailing {
-        border-color: transparent !important;
-      }
-
-      .mat-mdc-form-field-infix {
-        padding: 8px 0;
-        min-height: auto;
-      }
-
-      .mat-mdc-form-field-subscript-wrapper {
-        display: none;
-      }
-
-      input {
-        color: white;
-        caret-color: white;
-
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.7);
-        }
-      }
-
-      .mat-icon {
-        color: rgba(255, 255, 255, 0.7);
-      }
-    }
-  }
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+// ============================================================
+// Panel derecho: acciones
+// ============================================================
+.sidebar-panel--right {
+  justify-content: flex-start;
+  padding-top: 1.25rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .create-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  min-width: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
   font-weight: 600;
-  // Fondo un poco más claro que el tono 'tertiary'
-  background-color: var(--mat-sys-tertiary); // fallback
+  background-color: var(--mat-sys-tertiary);
   background-color: color-mix(in srgb, var(--mat-sys-tertiary) 85%, white 15%);
   color: var(--mat-sys-on-tertiary);
-  // Contorno claro permanente
   border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow: none;
-}
 
+  mat-icon {
+    margin: 0;
+  }
+}
 
 .create-button:active {
   background-color: color-mix(in srgb, var(--mat-sys-tertiary) 90%, white 10%);

@@ -1,6 +1,8 @@
-// Estilos del componente raíz
+// Contenedor principal del contenido (ocupa el espacio entre los dos sidebars)
 .container {
   flex: 1;
+  min-width: 0;
   min-height: 0;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
 }

@@ -1,8 +1,8 @@
 // ============================================================
 // Variables locales derivadas del token global
 // ============================================================
-$feed-height: calc(100dvh - var(--header-height));
-$card-height: calc((100dvh - var(--header-height)) * 0.9);
+$feed-height: 100dvh;
+$card-height: calc(100dvh * 0.9);
 
 // ============================================================
 // Contenedor de scroll principal (sin barra visible)
@@ -37,6 +37,9 @@ $card-height: calc((100dvh - var(--header-height)) * 0.9);
   gap: 0.75rem;
   padding: 1rem 0;
   box-sizing: border-box;
+
+  // Separador visual entre posts (acento tenue, distinto del stats-divider interno)
+  border-bottom: 1px solid color-mix(in srgb, var(--trainhub-accent) 30%, transparent);
 
   // Responsive: tablet → 60 %, móvil → casi 100 %
   @media (max-width: 1280px) {

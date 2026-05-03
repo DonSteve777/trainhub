@@ -1,6 +1,11 @@
 @if (showHeader()) {
-  <app-header-toolbar />
+  <app-header-toolbar panel="left" />
+  <main class="container">
+    <router-outlet />
+  </main>
+  <app-header-toolbar panel="right" />
+} @else {
+  <main class="container">
+    <router-outlet />
+  </main>
 }
-<main [class.container]="showHeader()">
-  <router-outlet />
-</main>
