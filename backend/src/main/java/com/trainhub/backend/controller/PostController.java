@@ -1,13 +1,18 @@
 package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.NewPostRequest;
+import com.trainhub.backend.dto.response.FeedHistoryResponse;
+import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.security.UserPrincipal;
+import com.trainhub.backend.service.FeedService;
 import com.trainhub.backend.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Controlador REST para la gestión de posts (entrenamientos).
@@ -17,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final FeedService feedService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, FeedService feedService) {
         this.postService = postService;
+        this.feedService = feedService;
     }
 
     /**
@@ -37,5 +44,27 @@ public class PostController {
         Integer userId = userPrincipal.getUser().getId();
         postService.createPost(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Devuelve todos los posts del usuario autenticado, sin paginación.
+     */
+    @GetMapping("/mine")
+    public ResponseEntity<List<FeedPostResponse>> getMyPosts(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(feedService.getOwnPosts(userId));
+    }
+
+    /**
+     * Devuelve el histórico de tiempos propios para construir las distribuciones.
+     */
+    @GetMapping("/mine/history")
+    public ResponseEntity<FeedHistoryResponse> getMyHistory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(feedService.getOwnHistory(userId));
     }
 }
