@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { TrainhubLogoComponent } from '../../shared/components/trainhub-logo/trainhub-logo.component';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TrainhubLogoComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TrainhubLogoComponent],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })

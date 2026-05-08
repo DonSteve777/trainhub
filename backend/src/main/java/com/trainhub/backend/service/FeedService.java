@@ -3,6 +3,7 @@ package com.trainhub.backend.service;
 import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
+import com.trainhub.backend.enums.PostCategory;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.PostLike;
 import com.trainhub.backend.model.PostLikeId;
@@ -42,18 +43,24 @@ public class FeedService {
         this.userRepository = userRepository;
     }
 
+    private static final int FEED_WEEKS = 4;
+
+    private LocalDateTime since() {
+        return LocalDateTime.now().minusWeeks(FEED_WEEKS);
+    }
+
     public List<FeedPostResponse> getFirstPage(Integer userId, int size) {
-        List<Post> posts = postRepository.findFeedFirstPage(userId, PageRequest.of(0, size));
+        List<Post> posts = postRepository.findFeedFirstPage(userId, since(), PageRequest.of(0, size));
         return toResponseList(posts, userId);
     }
 
     public List<FeedPostResponse> getNextPage(Integer userId, LocalDateTime cursorDate, Integer cursorId, int size) {
-        List<Post> posts = postRepository.findFeedWithCursor(userId, cursorDate, cursorId, PageRequest.of(0, size));
+        List<Post> posts = postRepository.findFeedWithCursor(userId, since(), cursorDate, cursorId, PageRequest.of(0, size));
         return toResponseList(posts, userId);
     }
 
-    public FeedHistoryResponse getHistory(Integer userId) {
-        List<Object[]> rows = postRepository.findFriendPostTimes(userId);
+    public FeedHistoryResponse getHistory(Integer userId, PostCategory category) {
+        List<Object[]> rows = postRepository.findFriendPostTimes(userId, since(), category);
 
         return new FeedHistoryResponse(
                 col(rows, 0),

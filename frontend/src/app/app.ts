@@ -18,7 +18,7 @@ export class App {
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
       map((event) => {
-        const url = (event as NavigationEnd).url;
+        const url = (event as NavigationEnd).urlAfterRedirects;
         // Ocultar header en confirmación de email, verify-email y home
         return !url.includes('/confirm-email') && url !== '/' && !url.includes('/home') && !url.includes('/verify-email') && !url.includes('/register-form')
         && !url.includes('/forgot-password') && !url.includes('/reset-password');

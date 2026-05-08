@@ -19,6 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     /**
      * Devuelve los posts de amigos del usuario (primera página, sin cursor).
+     * Solo se incluyen posts de las últimas 4 semanas.
      * El orden es creation_date DESC, id DESC para un cursor estable.
      */
     @Query("""
@@ -32,15 +33,18 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     (f.id.userBId = :userId AND f.id.userAId = p.user.id)
                 )
             )
+            AND p.creationDate >= :since
             ORDER BY p.creationDate DESC, p.id DESC
             """)
     List<Post> findFeedFirstPage(
             @Param("userId") Integer userId,
+            @Param("since") LocalDateTime since,
             Pageable pageable);
 
     /**
      * Devuelve los tiempos individuales de cada post de los amigos del usuario,
      * sin paginación, para construir las distribuciones en el frontend.
+     * Solo se incluyen posts de las últimas 4 semanas y de la categoría indicada.
      * Cada fila: [totalTime, r1..r8, w1..w8] (17 columnas, índice i = mismo post)
      */
     @Query("""
@@ -59,11 +63,17 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     (f.id.userBId = :userId AND f.id.userAId = p.user.id)
                 )
             )
+            AND p.creationDate >= :since
+            AND p.category = :category
             """)
-    List<Object[]> findFriendPostTimes(@Param("userId") Integer userId);
+    List<Object[]> findFriendPostTimes(
+            @Param("userId") Integer userId,
+            @Param("since") LocalDateTime since,
+            @Param("category") com.trainhub.backend.enums.PostCategory category);
 
     /**
-     * Devuelve los tiempos de cada post del propio usuario, ordenados por fecha ascendente.
+     * Devuelve los tiempos de cada post del propio usuario de las últimas 4 semanas,
+     * ordenados por fecha ascendente.
      * Cada fila: [totalTime, r1..r8, w1..w8, creationDate] (18 columnas).
      */
     @Query("""
@@ -75,12 +85,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                    p.creationDate
             FROM Post p
             WHERE p.user.id = :userId
+            AND p.creationDate >= :since
             ORDER BY p.creationDate ASC
             """)
-    List<Object[]> findUserPostTimes(@Param("userId") Integer userId);
+    List<Object[]> findUserPostTimes(
+            @Param("userId") Integer userId,
+            @Param("since") LocalDateTime since);
 
     /**
      * Devuelve los posts de amigos del usuario después del cursor dado (paginación keyset).
+     * Solo se incluyen posts de las últimas 4 semanas.
      * El cursor es (creationDate, id): se traen posts anteriores en el tiempo al cursor.
      */
     @Query("""
@@ -94,12 +108,14 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     (f.id.userBId = :userId AND f.id.userAId = p.user.id)
                 )
             )
+            AND p.creationDate >= :since
             AND (p.creationDate < :cursorDate
                 OR (p.creationDate = :cursorDate AND p.id < :cursorId))
             ORDER BY p.creationDate DESC, p.id DESC
             """)
     List<Post> findFeedWithCursor(
             @Param("userId") Integer userId,
+            @Param("since") LocalDateTime since,
             @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Integer cursorId,
             Pageable pageable);

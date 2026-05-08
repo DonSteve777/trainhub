@@ -3,6 +3,7 @@ package com.trainhub.backend.controller;
 import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
+import com.trainhub.backend.enums.PostCategory;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -56,14 +57,17 @@ public class FeedController {
     }
 
     /**
-     * Devuelve los históricos de tiempos de todos los posts de los amigos
-     * del usuario autenticado, para construir las distribuciones de los gráficos.
+     * Devuelve los históricos de tiempos de los posts de los amigos del usuario
+     * autenticado en las últimas 4 semanas, filtrados por categoría.
+     *
+     * @param category categoría del post (INDIVIDUAL_MALE, INDIVIDUAL_FEMALE, etc.)
      */
     @GetMapping("/history")
     public ResponseEntity<FeedHistoryResponse> getHistory(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam PostCategory category) {
         Integer userId = userPrincipal.getUser().getId();
-        return ResponseEntity.ok(feedService.getHistory(userId));
+        return ResponseEntity.ok(feedService.getHistory(userId, category));
     }
 
     /**

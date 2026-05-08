@@ -84,7 +84,7 @@ public class PostService {
      * @return histórico de tiempos del usuario
      */
     public UserTimeHistoryResponse getUserTimeHistory(Integer userId) {
-        List<Object[]> rows = postRepository.findUserPostTimes(userId);
+        List<Object[]> rows = postRepository.findUserPostTimes(userId, LocalDateTime.now().minusWeeks(4));
 
         List<TimeEntry> totalHistory    = new ArrayList<>();
         List<TimeEntry> runsHistory     = new ArrayList<>();

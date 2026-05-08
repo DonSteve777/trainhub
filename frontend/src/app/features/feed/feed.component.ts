@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RaceDistributionChartComponent } from '../../shared/components/race-distribution-chart/race-distribution-chart.component';
 import { PerformanceRadarChartComponent, RadarSegment } from '../../shared/components/performance-radar-chart/performance-radar-chart.component';
-import { forkJoin } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 import { FeedService, FeedPostDto, FeedHistoryDto, LikeToggleDto } from '../../core/services/feed.service';
 import { CommentsDialogComponent, CommentsDialogResult } from './comments-dialog/comments-dialog.component';
 
@@ -72,11 +72,22 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    forkJoin({
-      feed: this.feedService.getFeed(PAGE_SIZE),
-      history: this.feedService.getHistory(),
-    }).subscribe({
+    this.feedService.getFeed(PAGE_SIZE).pipe(
+      switchMap((feed) => {
+        if (feed.length === 0) {
+          return of({ feed, history: null as FeedHistoryDto | null });
+        }
+        const category = feed[0].category ?? 'INDIVIDUAL_MALE';
+        return this.feedService.getHistory(category).pipe(
+          switchMap((history) => of({ feed, history })),
+        );
+      }),
+    ).subscribe({
       next: ({ feed, history }) => {
+        if (feed.length === 0 || !history) {
+          this.hasMore.set(false);
+          return;
+        }
         this.cachedHistory = history;
         this.posts.set(feed.map((dto) => this.mapDto(dto, history)));
         this.updateCursor(feed);
