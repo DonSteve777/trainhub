@@ -84,7 +84,12 @@
       @if (searchResults().length > 0) {
         <ul class="search-suggestions" role="listbox" aria-label="Sugerencias de usuarios">
           @for (user of searchResults(); track user.id) {
-            <li class="search-suggestion-item" role="option">
+            <li
+              class="search-suggestion-item"
+              role="option"
+              [class.search-suggestion-item--clickable]="user.friendshipStatus === 'FRIEND'"
+              (click)="navigateToUser(user)"
+            >
               <div class="suggestion-avatar">
                 @if (user.photoUrl) {
                   <img [src]="user.photoUrl" [alt]="user.username" />
@@ -93,6 +98,19 @@
                 }
               </div>
               <span class="suggestion-username">{{ user.username }}</span>
+              @if (user.friendshipStatus === 'NONE') {
+                <button
+                  type="button"
+                  class="suggestion-friend-btn"
+                  mat-stroked-button
+                  (click)="requestFriendship(user, $event)"
+                >
+                  Solicitud
+                </button>
+              }
+              @if (user.friendshipStatus === 'PENDING') {
+                <span class="suggestion-pending">Pendiente</span>
+              }
             </li>
           }
         </ul>

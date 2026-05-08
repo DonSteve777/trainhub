@@ -5,7 +5,11 @@ import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
+import com.trainhub.backend.enums.FriendshipStatus;
+import com.trainhub.backend.model.Friendship;
+import com.trainhub.backend.model.FriendshipId;
 import com.trainhub.backend.model.User;
+import com.trainhub.backend.repository.FriendshipRepository;
 import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
@@ -41,6 +45,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FriendshipRepository friendshipRepository;
 
     @Autowired
     private PostService postService;
@@ -142,10 +149,16 @@ public class UserController {
         if (q == null || q.isBlank()) return ResponseEntity.ok(List.of());
 
         int safeLimit = Math.min(Math.max(limit, 1), 10);
+        Integer currentUserId = userPrincipal.getUser().getId();
         List<UserSearchResult> results = userRepository
-                .findByUsernamePrefix(q.trim(), userPrincipal.getUser().getId(), PageRequest.of(0, safeLimit))
+                .findByUsernamePrefix(q.trim(), currentUserId, PageRequest.of(0, safeLimit))
                 .stream()
-                .map(u -> new UserSearchResult(u.getId(), u.getUsername(), u.getPhotoUrl()))
+                .map(u -> {
+                    String status = friendshipRepository.findBetween(currentUserId, u.getId())
+                            .map(f -> f.getStatus().name())
+                            .orElse("NONE");
+                    return new UserSearchResult(u.getId(), u.getUsername(), u.getPhotoUrl(), status);
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(results);
@@ -205,6 +218,53 @@ public class UserController {
 
         String url = baseUrl + "/uploads/avatars/" + filename;
         return ResponseEntity.ok(Map.of("url", url));
+    }
+
+    /**
+     * Devuelve el estado de la relación entre el usuario autenticado y el indicado.
+     *
+     * @param userPrincipal usuario autenticado
+     * @param targetUserId  id del usuario a comprobar
+     * @return {@code {"status": "NONE" | "PENDING" | "FRIEND"}}
+     */
+    @GetMapping("/{targetUserId}/friendship-status")
+    public ResponseEntity<Map<String, String>> friendshipStatus(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer targetUserId) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+        String status = friendshipRepository.findBetween(currentUserId, targetUserId)
+                .map(f -> f.getStatus().name())
+                .orElse("NONE");
+        return ResponseEntity.ok(Map.of("status", status));
+    }
+
+    /**
+     * Envía una solicitud de amistad al usuario indicado (crea fila con status PENDING).
+     * Devuelve 409 si ya existe alguna relación entre ambos.
+     *
+     * @param userPrincipal usuario autenticado (quien envía la solicitud)
+     * @param targetUserId  id del destinatario
+     */
+    @PostMapping("/{targetUserId}/friend-request")
+    public ResponseEntity<Void> sendFriendRequest(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer targetUserId) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+
+        if (currentUserId.equals(targetUserId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes enviarte una solicitud a ti mismo");
+        }
+
+        if (friendshipRepository.findBetween(currentUserId, targetUserId).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe una relación con este usuario");
+        }
+
+        Integer userAId = Math.min(currentUserId, targetUserId);
+        Integer userBId = Math.max(currentUserId, targetUserId);
+        friendshipRepository.save(new Friendship(new FriendshipId(userAId, userBId), FriendshipStatus.PENDING));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**

@@ -20,6 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { UserService, UserSearchResultDto } from '../../services/user.service';
@@ -36,6 +37,7 @@ import { ProfileMenuDialogComponent } from '../profile-menu-dialog/profile-menu-
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './header-toolbar.component.html',
   styleUrl: './header-toolbar.component.scss',
@@ -49,6 +51,7 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
   private readonly notificationService = inject(NotificationService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly navigationEnd = toSignal(
@@ -152,6 +155,29 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
     this.dialog.open(ProfileMenuDialogComponent, {
       width: '380px',
       panelClass: 'trainhub-dialog',
+    });
+  }
+
+  navigateToUser(user: UserSearchResultDto): void {
+    if (user.friendshipStatus !== 'FRIEND') return;
+    this.closeSearch();
+    this.router.navigate(['/user', user.id]);
+  }
+
+  requestFriendship(user: UserSearchResultDto, event: Event): void {
+    event.stopPropagation();
+    // Actualización optimista
+    this.searchResults.update((list) =>
+      list.map((u) => (u.id === user.id ? { ...u, friendshipStatus: 'PENDING' as const } : u))
+    );
+    this.userService.sendFriendRequest(user.id).subscribe({
+      error: () => {
+        // Revertir si falla
+        this.searchResults.update((list) =>
+          list.map((u) => (u.id === user.id ? { ...u, friendshipStatus: 'NONE' as const } : u))
+        );
+        this.snackBar.open('No se pudo enviar la solicitud', 'Cerrar', { duration: 3000 });
+      },
     });
   }
 

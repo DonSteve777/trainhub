@@ -237,12 +237,42 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.55rem 1rem;
-  cursor: pointer;
+  cursor: default;
   transition: background 0.12s;
 
   &:hover {
     background: rgba(255, 255, 255, 0.07);
   }
+
+  &--clickable {
+    cursor: pointer;
+  }
+}
+
+.suggestion-friend-btn {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: var(--mat-sys-primary, #90caf9);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: rgba(144, 202, 249, 0.12);
+    border-color: var(--mat-sys-primary, #90caf9);
+  }
+}
+
+.suggestion-pending {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
 }
 
 .suggestion-avatar {
@@ -271,6 +301,7 @@
 }
 
 .suggestion-username {
+  flex: 1;
   font-size: 0.9rem;
   color: var(--mat-sys-on-surface, #e0e0e0);
   white-space: nowrap;
