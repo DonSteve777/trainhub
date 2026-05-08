@@ -171,6 +171,8 @@ $card-height: calc(100dvh * 0.9);
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid var(--trainhub-accent);
+  cursor: pointer;
+  text-decoration: none;
 
   img {
     width: 100%;
@@ -197,6 +199,12 @@ $card-height: calc(100dvh * 0.9);
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--mat-sys-on-surface);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 
   &--mate {
     color: var(--trainhub-info);

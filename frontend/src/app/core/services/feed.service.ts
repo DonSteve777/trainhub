@@ -26,6 +26,7 @@ export interface FeedPostDto {
   totalTime: string;
   description: string | null;
   category: string | null;
+  mateId: number | null;
   mateUsername: string | null;
   creationDate: string;
   commentsCount: number;

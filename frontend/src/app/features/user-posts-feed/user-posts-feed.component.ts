@@ -30,10 +30,12 @@ interface RaceStats {
 
 interface FeedPost {
   id: number;
+  userId: number;
   username: string;
   avatarUrl: string;
   description: string;
   category: string | null;
+  mateUserId: number | null;
   mateUsername: string | null;
   stats: RaceStats;
   currentSlide: number;
@@ -195,10 +197,12 @@ export class UserPostsFeedComponent implements OnInit {
 
     return {
       id: dto.id,
+      userId: dto.userId,
       username: dto.username,
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',
       category: dto.category ?? null,
+      mateUserId: dto.mateId ?? null,
       mateUsername: dto.mateUsername ?? null,
       stats: {
         allTotalTimes: history.totalsHistory,

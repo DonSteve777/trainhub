@@ -34,6 +34,7 @@ interface FeedPost {
   avatarUrl: string;
   description: string;
   category: string | null;
+  mateUserId: number | null;
   mateUsername: string | null;
   stats: RaceStats;
   currentSlide: number;
@@ -253,6 +254,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',
       category: dto.category ?? null,
+      mateUserId: dto.mateId ?? null,
       mateUsername: dto.mateUsername ?? null,
       stats: {
         allTotalTimes: history.totalsHistory,
