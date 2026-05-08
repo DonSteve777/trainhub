@@ -1,13 +1,14 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, QueryList, ViewChildren, ViewChild, ElementRef, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, QueryList, ViewChildren, ElementRef, signal, computed } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { RouterLink } from '@angular/router';
 import { RaceDistributionChartComponent } from '../../shared/components/race-distribution-chart/race-distribution-chart.component';
 import { PerformanceRadarChartComponent, RadarSegment } from '../../shared/components/performance-radar-chart/performance-radar-chart.component';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { FeedService, FeedPostDto, FeedHistoryDto, LikeToggleDto } from '../../core/services/feed.service';
-import { CommentsDialogComponent, CommentsDialogResult } from './comments-dialog/comments-dialog.component';
+import { CommentsDialogComponent, CommentsDialogResult } from '../feed/comments-dialog/comments-dialog.component';
 
 interface SegmentStat {
   label: string;
@@ -29,7 +30,6 @@ interface RaceStats {
 
 interface FeedPost {
   id: number;
-  userId: number;
   username: string;
   avatarUrl: string;
   description: string;
@@ -43,38 +43,45 @@ interface FeedPost {
   creationDate: string;
 }
 
-const PAGE_SIZE = 5;
-
 @Component({
-  selector: 'app-feed',
+  selector: 'app-user-posts-feed',
   standalone: true,
-  imports: [RouterLink, MatIconModule, MatButtonModule, MatDialogModule, RaceDistributionChartComponent, PerformanceRadarChartComponent],
-  templateUrl: './feed.component.html',
-  styleUrl: './feed.component.scss',
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    RouterLink,
+    RaceDistributionChartComponent,
+    PerformanceRadarChartComponent,
+  ],
+  templateUrl: './user-posts-feed.component.html',
+  styleUrl: './user-posts-feed.component.scss',
 })
-export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
+export class UserPostsFeedComponent implements OnInit {
   @ViewChildren('carousel') carouselRefs!: QueryList<ElementRef<HTMLElement>>;
-  @ViewChild('feedContainer') feedContainerRef!: ElementRef<HTMLElement>;
-  @ViewChild('sentinel') sentinelRef!: ElementRef<HTMLElement>;
 
   readonly slides = ['total', 'runSegments', 'workoutSegments', 'radar'] as const;
 
   posts = signal<FeedPost[]>([]);
-  hasMore = signal(true);
-  loading = signal(false);
+  loading = signal(true);
 
-  private cursorDate: string | null = null;
-  private cursorId: number | null = null;
+  userInfo = computed(() => {
+    const p = this.posts();
+    return p.length > 0 ? { username: p[0].username, avatarUrl: p[0].avatarUrl } : null;
+  });
+
   private historyByCategory = new Map<string, FeedHistoryDto>();
-  private observer: IntersectionObserver | null = null;
 
   constructor(
+    private readonly route: ActivatedRoute,
     private readonly dialog: MatDialog,
     private readonly feedService: FeedService,
   ) {}
 
   ngOnInit(): void {
-    this.feedService.getFeed(PAGE_SIZE).pipe(
+    const userId = Number(this.route.snapshot.paramMap.get('userId'));
+
+    this.feedService.getUserPosts(userId).pipe(
       switchMap((feed) => {
         if (feed.length === 0) {
           return of({ feed, entries: [] as [string, FeedHistoryDto][] });
@@ -89,75 +96,15 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       }),
     ).subscribe({
       next: ({ feed, entries }) => {
-        if (feed.length === 0) {
-          this.hasMore.set(false);
-          return;
-        }
         entries.forEach(([cat, hist]) => this.historyByCategory.set(cat, hist));
         this.posts.set(feed.map((dto) => this.mapDto(dto)));
-        this.updateCursor(feed);
-        if (feed.length < PAGE_SIZE) this.hasMore.set(false);
-      },
-      error: (err) => {
-        console.error('Feed HTTP error', err);
-      },
-    });
-  }
-
-  ngAfterViewInit(): void {
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) this.loadNextPage();
-      },
-      { root: this.feedContainerRef.nativeElement, rootMargin: '200px', threshold: 0 },
-    );
-    this.observer.observe(this.sentinelRef.nativeElement);
-  }
-
-  ngOnDestroy(): void {
-    this.observer?.disconnect();
-  }
-
-  private loadNextPage(): void {
-    if (!this.hasMore() || this.loading() || !this.cursorDate || this.cursorId === null || this.historyByCategory.size === 0) return;
-    this.loading.set(true);
-    this.feedService.getNextPage(this.cursorDate, this.cursorId, PAGE_SIZE).pipe(
-      switchMap((newPosts) => {
-        const missingCats = [...new Set(newPosts.map(d => d.category ?? 'INDIVIDUAL_MALE'))]
-          .filter(cat => !this.historyByCategory.has(cat));
-        if (missingCats.length === 0) {
-          return of({ newPosts, entries: [] as [string, FeedHistoryDto][] });
-        }
-        const requests = Object.fromEntries(
-          missingCats.map(cat => [cat, this.feedService.getHistory(cat)]),
-        );
-        return forkJoin(requests).pipe(
-          switchMap((results) => of({ newPosts, entries: Object.entries(results) as [string, FeedHistoryDto][] })),
-        );
-      }),
-    ).subscribe({
-      next: ({ newPosts, entries }) => {
-        entries.forEach(([cat, hist]) => this.historyByCategory.set(cat, hist));
-        this.posts.update(posts => [
-          ...posts,
-          ...newPosts.map(dto => this.mapDto(dto)),
-        ]);
-        this.updateCursor(newPosts);
-        if (newPosts.length < PAGE_SIZE) this.hasMore.set(false);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Feed pagination error', err);
+        console.error('UserPostsFeed error', err);
         this.loading.set(false);
       },
     });
-  }
-
-  private updateCursor(feed: FeedPostDto[]): void {
-    if (feed.length === 0) return;
-    const last = feed[feed.length - 1];
-    this.cursorDate = last.creationDate;
-    this.cursorId = last.id;
   }
 
   prevSlide(index: number, post: FeedPost): void {
@@ -248,7 +195,6 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return {
       id: dto.id,
-      userId: dto.userId,
       username: dto.username,
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',

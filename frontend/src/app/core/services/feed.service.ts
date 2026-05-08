@@ -64,6 +64,10 @@ export class FeedService {
     return this.api.get<FeedHistoryDto>(`/feed/history?category=${encodeURIComponent(category)}`);
   }
 
+  getUserPosts(userId: number): Observable<FeedPostDto[]> {
+    return this.api.get<FeedPostDto[]>(`/user/${userId}/posts`);
+  }
+
   toggleLike(postId: number): Observable<LikeToggleDto> {
     return this.api.post<LikeToggleDto>(`/feed/posts/${postId}/like`, {});
   }

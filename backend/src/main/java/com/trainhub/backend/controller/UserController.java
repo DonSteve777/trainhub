@@ -1,12 +1,14 @@
 package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
+import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.UserPrincipal;
+import com.trainhub.backend.service.FeedService;
 import com.trainhub.backend.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ public class UserController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private FeedService feedService;
 
     @Value("${app.upload.dir}")
     private String uploadDir;
@@ -200,5 +205,21 @@ public class UserController {
 
         String url = baseUrl + "/uploads/avatars/" + filename;
         return ResponseEntity.ok(Map.of("url", url));
+    }
+
+    /**
+     * Devuelve todos los posts de un usuario concreto, del más reciente al más antiguo.
+     * Sin límite de fecha: se incluye el historial completo del usuario.
+     *
+     * @param userPrincipal usuario autenticado (necesario para saber qué posts ha likeado)
+     * @param targetUserId  id del usuario cuyo perfil se consulta
+     */
+    @GetMapping("/{targetUserId}/posts")
+    public ResponseEntity<List<FeedPostResponse>> getUserPosts(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer targetUserId) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(feedService.getUserPosts(targetUserId, currentUserId));
     }
 }

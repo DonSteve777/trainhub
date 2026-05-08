@@ -59,6 +59,18 @@ public class FeedService {
         return toResponseList(posts, userId);
     }
 
+    /**
+     * Devuelve todos los posts de un usuario concreto (sin límite de fecha),
+     * enriquecidos con likes, comentarios y si el usuario actual los ha likeado.
+     *
+     * @param targetUserId  id del usuario cuyo perfil se consulta
+     * @param currentUserId id del usuario autenticado que hace la petición
+     */
+    public List<FeedPostResponse> getUserPosts(Integer targetUserId, Integer currentUserId) {
+        List<Post> posts = postRepository.findPostsByUserId(targetUserId);
+        return toResponseList(posts, currentUserId);
+    }
+
     public FeedHistoryResponse getHistory(Integer userId, PostCategory category) {
         List<Object[]> rows = postRepository.findFriendPostTimes(userId, since(), category);
 

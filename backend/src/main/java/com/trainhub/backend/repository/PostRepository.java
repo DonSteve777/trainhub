@@ -93,6 +93,17 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("since") LocalDateTime since);
 
     /**
+     * Devuelve todos los posts de un usuario concreto, ordenados del más reciente al más antiguo.
+     * Sin límite de fecha: se devuelve el historial completo.
+     */
+    @Query("""
+            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate
+            WHERE p.user.id = :targetUserId
+            ORDER BY p.creationDate DESC, p.id DESC
+            """)
+    List<Post> findPostsByUserId(@Param("targetUserId") Integer targetUserId);
+
+    /**
      * Devuelve los posts de amigos del usuario después del cursor dado (paginación keyset).
      * Solo se incluyen posts de las últimas 4 semanas.
      * El cursor es (creationDate, id): se traen posts anteriores en el tiempo al cursor.

@@ -1,7 +1,19 @@
-import { Component, OnInit, Input, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Input,
+  computed,
+  inject,
+  signal,
+  DestroyRef,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
+import { filter, debounceTime, switchMap, distinctUntilChanged } from 'rxjs';
+import { Subject } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,6 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { UserService, UserSearchResultDto } from '../../services/user.service';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
 import { ProfileMenuDialogComponent } from '../profile-menu-dialog/profile-menu-dialog.component';
 
@@ -27,13 +40,16 @@ import { ProfileMenuDialogComponent } from '../profile-menu-dialog/profile-menu-
   templateUrl: './header-toolbar.component.html',
   styleUrl: './header-toolbar.component.scss',
 })
-export class HeaderToolbarComponent implements OnInit {
+export class HeaderToolbarComponent implements OnInit, OnDestroy {
   @Input() panel: 'left' | 'right' = 'left';
+  @ViewChild('searchInput') searchInputRef?: ElementRef<HTMLInputElement>;
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly navigationEnd = toSignal(
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
@@ -46,10 +62,22 @@ export class HeaderToolbarComponent implements OnInit {
 
   unreadCount = signal(0);
 
+  readonly searchOpen = signal(false);
+  readonly searchQuery = signal('');
+  readonly searchResults = signal<UserSearchResultDto[]>([]);
+  readonly isSearching = signal(false);
+
+  private readonly searchSubject = new Subject<string>();
+
   ngOnInit(): void {
     if (this.panel === 'right') {
       this.loadUnreadCount();
+      this.initSearch();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubject.complete();
   }
 
   private loadUnreadCount(): void {
@@ -57,6 +85,55 @@ export class HeaderToolbarComponent implements OnInit {
       next: (res) => this.unreadCount.set(Number(res.count)),
       error: () => this.unreadCount.set(0),
     });
+  }
+
+  private initSearch(): void {
+    this.searchSubject
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        switchMap((q) => {
+          if (!q || q.trim().length === 0) {
+            this.searchResults.set([]);
+            this.isSearching.set(false);
+            return [];
+          }
+          this.isSearching.set(true);
+          return this.userService.searchUsers(q.trim(), 3);
+        }),
+      )
+      .subscribe({
+        next: (results) => {
+          this.searchResults.set(results);
+          this.isSearching.set(false);
+        },
+        error: () => {
+          this.searchResults.set([]);
+          this.isSearching.set(false);
+        },
+      });
+  }
+
+  toggleSearch(): void {
+    const isOpen = this.searchOpen();
+    if (isOpen) {
+      this.closeSearch();
+    } else {
+      this.searchOpen.set(true);
+      setTimeout(() => this.searchInputRef?.nativeElement.focus(), 50);
+    }
+  }
+
+  closeSearch(): void {
+    this.searchOpen.set(false);
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.isSearching.set(false);
+  }
+
+  onSearchInput(value: string): void {
+    this.searchQuery.set(value);
+    this.searchSubject.next(value);
   }
 
   openNotifications(): void {

@@ -1,0 +1,150 @@
+<div class="user-feed">
+
+  <!-- Cabecera de usuario -->
+  @if (userInfo()) {
+    <header class="user-feed-header">
+      <a class="user-feed-header__back" routerLink="/feed" aria-label="Volver al feed">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <div class="user-feed-header__avatar">
+        <img [src]="userInfo()!.avatarUrl" [alt]="userInfo()!.username + ' avatar'" />
+      </div>
+      <span class="user-feed-header__username">{{ userInfo()!.username }}</span>
+    </header>
+  }
+
+  @if (loading()) {
+    <div class="user-feed-loading" aria-live="polite" aria-label="Cargando publicaciones">
+      <span class="user-feed-loading__dot"></span>
+      <span class="user-feed-loading__dot"></span>
+      <span class="user-feed-loading__dot"></span>
+    </div>
+  }
+
+  @if (!loading() && posts().length === 0) {
+    <p class="user-feed-empty">Este usuario aún no tiene publicaciones.</p>
+  }
+
+  <div class="feed">
+    @for (post of posts(); track post.id; let i = $index) {
+      <article class="post-card">
+
+        <!-- Bloque 1: Header + Acciones en la misma fila -->
+        <div class="post-top-bar">
+          <div class="post-header">
+            <div class="post-avatar">
+              <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
+            </div>
+            <div class="post-meta">
+              <div class="post-username-row">
+                <span class="post-username">{{ post.username }}</span>
+                @if (post.mateUsername) {
+                  <span class="post-mate-separator">&amp;</span>
+                  <span class="post-username post-username--mate">{{ post.mateUsername }}</span>
+                }
+              </div>
+              <p class="post-description">{{ post.description }}</p>
+            </div>
+          </div>
+
+          <div class="post-actions">
+            <button
+              class="action-btn"
+              (click)="toggleLike(post)"
+              [attr.aria-label]="'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')"
+            >
+              <mat-icon [class.action-btn__icon--liked]="post.liked">
+                {{ post.liked ? 'favorite' : 'favorite_border' }}
+              </mat-icon>
+              <span class="action-count" aria-hidden="true">{{ post.likes }}</span>
+            </button>
+
+            <button
+              class="action-btn"
+              (click)="openComments(post)"
+              [attr.aria-label]="'Comentarios, ' + post.commentsCount + (post.commentsCount === 1 ? ' comentario' : ' comentarios')"
+            >
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloque 2: Carrusel -->
+        <div class="post-carousel-wrapper">
+          <button
+            class="carousel-arrow carousel-arrow--prev"
+            [class.carousel-arrow--hidden]="post.currentSlide === 0"
+            (click)="prevSlide(i, post)"
+            aria-label="Gráfico anterior"
+          >
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <div class="post-carousel" #carousel>
+            <div class="carousel-track">
+              <div class="carousel-slide carousel-slide--stats">
+                <app-race-distribution-chart
+                  [allTimes]="post.stats.allTotalTimes"
+                  [athleteTime]="post.stats.athleteTotal"
+                  label="Total Time"
+                  color="#FFC107"
+                />
+                <div class="stats-divider"></div>
+                <app-race-distribution-chart
+                  [allTimes]="post.stats.allWorkoutTimes"
+                  [athleteTime]="post.stats.athleteWorkout"
+                  label="Workouts"
+                  color="#8B9FFF"
+                />
+                <div class="stats-divider"></div>
+                <app-race-distribution-chart
+                  [allTimes]="post.stats.allRunTimes"
+                  [athleteTime]="post.stats.athleteRun"
+                  label="Runs"
+                  color="#FF6B8A"
+                />
+              </div>
+
+              <div class="carousel-slide carousel-slide--segment-grid">
+                @for (seg of post.stats.runSegments; track seg.label) {
+                  <app-race-distribution-chart
+                    [allTimes]="seg.allTimes"
+                    [athleteTime]="seg.athleteTime"
+                    [label]="seg.label"
+                    color="#FF6B8A"
+                  />
+                }
+              </div>
+
+              <div class="carousel-slide carousel-slide--segment-grid">
+                @for (seg of post.stats.workoutSegments; track seg.label) {
+                  <app-race-distribution-chart
+                    [allTimes]="seg.allTimes"
+                    [athleteTime]="seg.athleteTime"
+                    [label]="seg.label"
+                    color="#8B9FFF"
+                  />
+                }
+              </div>
+
+              <div class="carousel-slide carousel-slide--radar">
+                <app-performance-radar-chart [segments]="post.stats.radarSegments" />
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="carousel-arrow carousel-arrow--next"
+            [class.carousel-arrow--hidden]="post.currentSlide === slides.length - 1"
+            (click)="nextSlide(i, post)"
+            aria-label="Gráfico siguiente"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+      </article>
+    }
+  </div>
+</div>

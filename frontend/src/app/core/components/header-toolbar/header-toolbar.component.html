@@ -21,6 +21,16 @@
     </button>
     <button
       type="button"
+      class="search-button"
+      mat-icon-button
+      [class.search-button--active]="searchOpen()"
+      aria-label="Buscar usuarios"
+      (click)="toggleSearch()"
+    >
+      <mat-icon>search</mat-icon>
+    </button>
+    <button
+      type="button"
       class="notif-button"
       mat-icon-button
       aria-label="Notificaciones"
@@ -41,4 +51,56 @@
       <mat-icon>logout</mat-icon>
     </button>
   </div>
+
+  @if (searchOpen()) {
+    <div class="search-backdrop" (click)="closeSearch()" aria-hidden="true"></div>
+    <div class="search-overlay">
+      <div class="search-bar">
+        <mat-icon class="search-bar__icon">search</mat-icon>
+        <input
+          #searchInput
+          class="search-bar__input"
+          type="text"
+          placeholder="Buscar usuarios..."
+          [value]="searchQuery()"
+          (input)="onSearchInput($any($event.target).value)"
+          autocomplete="off"
+          aria-label="Buscar usuarios"
+        />
+        @if (isSearching()) {
+          <mat-icon class="search-bar__spinner">hourglass_empty</mat-icon>
+        }
+        <button
+          type="button"
+          mat-icon-button
+          class="search-bar__close"
+          aria-label="Cerrar búsqueda"
+          (click)="closeSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (searchResults().length > 0) {
+        <ul class="search-suggestions" role="listbox" aria-label="Sugerencias de usuarios">
+          @for (user of searchResults(); track user.id) {
+            <li class="search-suggestion-item" role="option">
+              <div class="suggestion-avatar">
+                @if (user.photoUrl) {
+                  <img [src]="user.photoUrl" [alt]="user.username" />
+                } @else {
+                  <mat-icon>account_circle</mat-icon>
+                }
+              </div>
+              <span class="suggestion-username">{{ user.username }}</span>
+            </li>
+          }
+        </ul>
+      } @else if (searchQuery().trim().length > 0 && !isSearching()) {
+        <div class="search-no-results">
+          <span>Sin resultados para "<strong>{{ searchQuery() }}</strong>"</span>
+        </div>
+      }
+    </div>
+  }
 }

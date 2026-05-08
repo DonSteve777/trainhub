@@ -5,12 +5,12 @@
       <!-- Bloque 1: Header + Acciones en la misma fila -->
       <div class="post-top-bar">
         <div class="post-header">
-          <div class="post-avatar">
+          <a class="post-avatar" [routerLink]="['/user', post.userId]">
             <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
-          </div>
+          </a>
           <div class="post-meta">
             <div class="post-username-row">
-              <span class="post-username">{{ post.username }}</span>
+              <a class="post-username" [routerLink]="['/user', post.userId]">{{ post.username }}</a>
               @if (post.mateUsername) {
                 <span class="post-mate-separator">&amp;</span>
                 <span class="post-username post-username--mate">{{ post.mateUsername }}</span>

@@ -10,6 +10,7 @@ import { CreatePostComponent } from './features/create-post/create-post.componen
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
 import { TimeHistoryComponent } from './features/time-history/time-history.component';
+import { UserPostsFeedComponent } from './features/user-posts-feed/user-posts-feed.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'user-profile', component: UserProfileComponent, canActivate: [authGuard] },
   { path: 'time-history', component: TimeHistoryComponent, canActivate: [authGuard] },
+  { path: 'user/:userId', component: UserPostsFeedComponent, canActivate: [authGuard] },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'register-form', component: RegisterFormComponent },
   { path: '**', redirectTo: '' },
