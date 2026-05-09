@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 export interface NotificationDto {
-  type: 'LIKE' | 'COMMENT' | 'FRIEND_REQUEST';
+  type: 'LIKE' | 'COMMENT' | 'FRIEND_REQUEST' | 'FRIEND_REQUEST_ACCEPTED';
   postId: number | null;
   postCreationDate: string | null;
   lastActorUsername: string;

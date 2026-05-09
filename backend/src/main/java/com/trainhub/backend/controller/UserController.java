@@ -297,6 +297,7 @@ public class UserController {
         }
 
         friendship.setStatus(FriendshipStatus.FRIEND);
+        friendship.setAcceptedAt(LocalDateTime.now());
         friendshipRepository.save(friendship);
         return ResponseEntity.ok().build();
     }

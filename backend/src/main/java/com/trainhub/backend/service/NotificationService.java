@@ -55,6 +55,7 @@ public class NotificationService {
         result.addAll(buildLikeNotifications(userId, lastSeen));
         result.addAll(buildCommentNotifications(userId, lastSeen));
         result.addAll(buildFriendRequestNotifications(userId, lastSeen));
+        result.addAll(buildFriendAcceptedNotifications(userId, lastSeen));
 
         result.sort(Comparator.comparing(NotificationResponse::getLastActionAt).reversed());
         return result;
@@ -73,8 +74,9 @@ public class NotificationService {
         long unreadComments = countUnreadByType(
                 commentRepository.findCommentsOnUserPosts(userId), lastSeen);
         long unreadFriendRequests = countUnreadFriendRequests(userId, lastSeen);
+        long unreadFriendAccepted = countUnreadFriendAccepted(userId, lastSeen);
 
-        return unreadLikes + unreadComments + unreadFriendRequests;
+        return unreadLikes + unreadComments + unreadFriendRequests + unreadFriendAccepted;
     }
 
     /**
@@ -220,6 +222,44 @@ public class NotificationService {
             result.add(n);
         }
         return result;
+    }
+
+    private List<NotificationResponse> buildFriendAcceptedNotifications(
+            Integer userId, LocalDateTime lastSeen) {
+
+        List<Object[]> rows = friendshipRepository.findAcceptedRequestsForUser(userId);
+        List<NotificationResponse> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            LocalDateTime acceptedAt   = (LocalDateTime) row[0];
+            Integer actorId            = (Integer)       row[1];
+            String actorUsername       = (String)        row[2];
+            String actorPhotoUrl       = (String)        row[3];
+
+            boolean unread = lastSeen == null || acceptedAt.isAfter(lastSeen);
+
+            NotificationResponse n = new NotificationResponse(
+                    "FRIEND_REQUEST_ACCEPTED",
+                    null,
+                    null,
+                    actorUsername,
+                    actorPhotoUrl,
+                    acceptedAt,
+                    1,
+                    unread
+            );
+            n.setActorId(actorId);
+            result.add(n);
+        }
+        return result;
+    }
+
+    private long countUnreadFriendAccepted(Integer userId, LocalDateTime lastSeen) {
+        List<Object[]> rows = friendshipRepository.findAcceptedRequestsForUser(userId);
+        if (lastSeen == null) return rows.size();
+        return rows.stream()
+                .filter(row -> ((LocalDateTime) row[0]).isAfter(lastSeen))
+                .count();
     }
 
     private long countUnreadFriendRequests(Integer userId, LocalDateTime lastSeen) {

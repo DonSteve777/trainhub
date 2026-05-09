@@ -47,4 +47,16 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Friendsh
             ORDER BY f.createdAt DESC
             """)
     List<Object[]> findPendingRequestsForUser(@Param("userId") Integer userId);
+
+    @Query("""
+            SELECT f.acceptedAt, acceptor.id, acceptor.username, acceptor.photoUrl
+            FROM Friendship f, User acceptor
+            WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
+              AND f.requesterId = :userId
+              AND f.acceptedAt IS NOT NULL
+              AND ((f.id.userAId = :userId AND acceptor.id = f.id.userBId)
+                OR (f.id.userBId = :userId AND acceptor.id = f.id.userAId))
+            ORDER BY f.acceptedAt DESC
+            """)
+    List<Object[]> findAcceptedRequestsForUser(@Param("userId") Integer userId);
 }

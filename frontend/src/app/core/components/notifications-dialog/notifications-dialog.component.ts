@@ -102,6 +102,9 @@ export class NotificationsDialogComponent implements OnInit {
     if (n.type === 'FRIEND_REQUEST') {
       return 'te ha enviado una solicitud de amistad';
     }
+    if (n.type === 'FRIEND_REQUEST_ACCEPTED') {
+      return 'ha aceptado tu solicitud de amistad';
+    }
     const date = this.formatDate(n.postCreationDate!);
     if (n.type === 'LIKE') {
       if (n.totalCount === 1) {
@@ -118,9 +121,10 @@ export class NotificationsDialogComponent implements OnInit {
     }
   }
 
-  iconForType(type: 'LIKE' | 'COMMENT' | 'FRIEND_REQUEST'): string {
+  iconForType(type: 'LIKE' | 'COMMENT' | 'FRIEND_REQUEST' | 'FRIEND_REQUEST_ACCEPTED'): string {
     if (type === 'LIKE') return 'favorite';
     if (type === 'FRIEND_REQUEST') return 'person_add';
+    if (type === 'FRIEND_REQUEST_ACCEPTED') return 'people';
     return 'chat_bubble';
   }
 

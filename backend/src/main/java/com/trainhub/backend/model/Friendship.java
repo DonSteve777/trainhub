@@ -27,6 +27,9 @@ public class Friendship {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "accepted_at")
+    private LocalDateTime acceptedAt;
+
     public Friendship() {}
 
     public Friendship(FriendshipId id, FriendshipStatus status, Integer requesterId, LocalDateTime createdAt) {
@@ -47,4 +50,7 @@ public class Friendship {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getAcceptedAt() { return acceptedAt; }
+    public void setAcceptedAt(LocalDateTime acceptedAt) { this.acceptedAt = acceptedAt; }
 }

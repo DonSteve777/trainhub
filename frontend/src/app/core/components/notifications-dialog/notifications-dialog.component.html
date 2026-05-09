@@ -41,7 +41,7 @@
               [src]="avatarUrl(n.lastActorPhotoUrl, n.lastActorUsername)"
               [alt]="n.lastActorUsername"
             />
-            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'" [class.notif-item__type-icon--friend]="n.type === 'FRIEND_REQUEST'">
+            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'" [class.notif-item__type-icon--friend]="n.type === 'FRIEND_REQUEST'" [class.notif-item__type-icon--accepted]="n.type === 'FRIEND_REQUEST_ACCEPTED'">
               <mat-icon>{{ iconForType(n.type) }}</mat-icon>
             </span>
           </div>
