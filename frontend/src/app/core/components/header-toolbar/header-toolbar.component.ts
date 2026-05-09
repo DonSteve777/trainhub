@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, debounceTime, switchMap, distinctUntilChanged } from 'rxjs';
-import { Subject } from 'rxjs';
+import { filter, debounceTime, switchMap, distinctUntilChanged, catchError } from 'rxjs';
+import { Subject, EMPTY } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -99,10 +99,16 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
           if (!q || q.trim().length === 0) {
             this.searchResults.set([]);
             this.isSearching.set(false);
-            return [];
+            return EMPTY;
           }
           this.isSearching.set(true);
-          return this.userService.searchUsers(q.trim(), 3);
+          return this.userService.searchUsers(q.trim(), 3).pipe(
+            catchError(() => {
+              this.isSearching.set(false);
+              this.searchResults.set([]);
+              return EMPTY;
+            }),
+          );
         }),
       )
       .subscribe({

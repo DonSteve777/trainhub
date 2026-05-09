@@ -14,11 +14,11 @@ import java.util.Optional;
 @Repository
 public interface FriendshipRepository extends JpaRepository<Friendship, FriendshipId> {
 
-    @Query("""
-            SELECT f FROM Friendship f
-            WHERE (f.id.userAId = :userAId AND f.id.userBId = :userBId)
-               OR (f.id.userAId = :userBId AND f.id.userBId = :userAId)
-            """)
+    @Query(value = """
+            SELECT * FROM friendships
+            WHERE user_a_id = LEAST(:userAId, :userBId)
+              AND user_b_id = GREATEST(:userAId, :userBId)
+            """, nativeQuery = true)
     Optional<Friendship> findBetween(
             @Param("userAId") Integer userAId,
             @Param("userBId") Integer userBId);
