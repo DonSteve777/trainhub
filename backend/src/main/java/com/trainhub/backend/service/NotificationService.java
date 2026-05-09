@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,7 +46,8 @@ public class NotificationService {
 
     /**
      * Devuelve las notificaciones del usuario: likes y comentarios sobre sus posts,
-     * una entrada por (tipo, post). Ordenadas por fecha de la última acción (más reciente primero).
+     * likes sobre sus comentarios, y solicitudes de amistad.
+     * Una entrada por (tipo, post/comentario). Ordenadas por fecha de la última acción (más reciente primero).
      */
     public List<NotificationResponse> getNotifications(Integer userId) {
         User owner = findUser(userId);
@@ -54,6 +56,7 @@ public class NotificationService {
         List<NotificationResponse> result = new ArrayList<>();
         result.addAll(buildLikeNotifications(userId, lastSeen));
         result.addAll(buildCommentNotifications(userId, lastSeen));
+        result.addAll(buildCommentLikeNotifications(userId, lastSeen));
         result.addAll(buildFriendRequestNotifications(userId, lastSeen));
         result.addAll(buildFriendAcceptedNotifications(userId, lastSeen));
 
@@ -73,10 +76,11 @@ public class NotificationService {
                 postLikeRepository.findLikesOnUserPosts(userId), lastSeen);
         long unreadComments = countUnreadByType(
                 commentRepository.findCommentsOnUserPosts(userId), lastSeen);
+        long unreadCommentLikes = countUnreadCommentLikes(userId, lastSeen);
         long unreadFriendRequests = countUnreadFriendRequests(userId, lastSeen);
         long unreadFriendAccepted = countUnreadFriendAccepted(userId, lastSeen);
 
-        return unreadLikes + unreadComments + unreadFriendRequests + unreadFriendAccepted;
+        return unreadLikes + unreadComments + unreadCommentLikes + unreadFriendRequests + unreadFriendAccepted;
     }
 
     /**
@@ -268,6 +272,69 @@ public class NotificationService {
         return rows.stream()
                 .filter(row -> ((LocalDateTime) row[1]).isAfter(lastSeen))
                 .count();
+    }
+
+    /**
+     * Construye notificaciones de tipo COMMENT_LIKE: likes recibidos en los comentarios
+     * del usuario. Agrupa por comentario; enlaza al post donde vive el comentario.
+     * Usa query nativa (comment_likes.created_at no está expuesto en @ManyToMany).
+     */
+    private List<NotificationResponse> buildCommentLikeNotifications(Integer userId, LocalDateTime lastSeen) {
+        List<Object[]> rows = commentRepository.findLikesOnUserComments(userId);
+
+        Map<Integer, List<Object[]>> byComment = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Integer commentId = ((Number) row[0]).intValue();
+            byComment.computeIfAbsent(commentId, k -> new ArrayList<>()).add(row);
+        }
+
+        List<NotificationResponse> result = new ArrayList<>();
+        for (Map.Entry<Integer, List<Object[]>> entry : byComment.entrySet()) {
+            List<Object[]> likes = entry.getValue();
+            Object[] first = likes.get(0);
+
+            Integer commentId          = ((Number) first[0]).intValue();
+            Integer postId             = ((Number) first[1]).intValue();
+            LocalDateTime postDate     = toLocalDateTime(first[2]);
+            String actorUsername       = (String)  first[3];
+            String actorPhotoUrl       = (String)  first[4];
+            LocalDateTime lastActionAt = toLocalDateTime(first[5]);
+
+            boolean unread = lastSeen == null || lastActionAt.isAfter(lastSeen);
+
+            NotificationResponse n = new NotificationResponse(
+                    "COMMENT_LIKE", postId, postDate, actorUsername, actorPhotoUrl,
+                    lastActionAt, likes.size(), unread
+            );
+            n.setCommentId(commentId);
+            result.add(n);
+        }
+        return result;
+    }
+
+    private long countUnreadCommentLikes(Integer userId, LocalDateTime lastSeen) {
+        List<Object[]> rows = commentRepository.findLikesOnUserComments(userId);
+        if (rows.isEmpty()) return 0;
+
+        Map<Integer, LocalDateTime> latestByComment = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Integer commentId = ((Number) row[0]).intValue();
+            LocalDateTime likedAt = toLocalDateTime(row[5]);
+            latestByComment.merge(commentId, likedAt,
+                    (existing, incoming) -> incoming.isAfter(existing) ? incoming : existing);
+        }
+
+        if (lastSeen == null) return latestByComment.size();
+        return latestByComment.values().stream()
+                .filter(latest -> latest.isAfter(lastSeen))
+                .count();
+    }
+
+    /** Convierte Timestamp (JDBC nativo) o LocalDateTime (JPQL) a LocalDateTime. */
+    private LocalDateTime toLocalDateTime(Object value) {
+        if (value instanceof LocalDateTime ldt) return ldt;
+        if (value instanceof Timestamp ts) return ts.toLocalDateTime();
+        throw new IllegalArgumentException("No se puede convertir a LocalDateTime: " + value);
     }
 
     private User findUser(Integer userId) {

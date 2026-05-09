@@ -41,7 +41,7 @@ export class NotificationsDialogComponent implements OnInit {
   onItemClick(n: NotificationDto): void {
     if (n.type === 'LIKE') {
       this.openLikers(n);
-    } else if (n.type === 'COMMENT') {
+    } else if (n.type === 'COMMENT' || n.type === 'COMMENT_LIKE') {
       this.openComments(n);
     }
   }
@@ -112,17 +112,24 @@ export class NotificationsDialogComponent implements OnInit {
       }
       const others = n.totalCount - 1;
       return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} dado like a tu publicación del ${date}`;
-    } else {
+    }
+    if (n.type === 'COMMENT_LIKE') {
       if (n.totalCount === 1) {
-        return `ha comentado en tu publicación del ${date}`;
+        return `ha dado like a tu comentario en la publicación del ${date}`;
       }
       const others = n.totalCount - 1;
-      return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} comentado en tu publicación del ${date}`;
+      return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} dado like a tu comentario en la publicación del ${date}`;
     }
+    if (n.totalCount === 1) {
+      return `ha comentado en tu publicación del ${date}`;
+    }
+    const others = n.totalCount - 1;
+    return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} comentado en tu publicación del ${date}`;
   }
 
-  iconForType(type: 'LIKE' | 'COMMENT' | 'FRIEND_REQUEST' | 'FRIEND_REQUEST_ACCEPTED'): string {
+  iconForType(type: 'LIKE' | 'COMMENT' | 'COMMENT_LIKE' | 'FRIEND_REQUEST' | 'FRIEND_REQUEST_ACCEPTED'): string {
     if (type === 'LIKE') return 'favorite';
+    if (type === 'COMMENT_LIKE') return 'favorite_border';
     if (type === 'FRIEND_REQUEST') return 'person_add';
     if (type === 'FRIEND_REQUEST_ACCEPTED') return 'people';
     return 'chat_bubble';
