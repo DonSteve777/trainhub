@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
   UserService,
@@ -38,6 +39,7 @@ interface StationRecord {
 })
 export class TimeHistoryComponent implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly route = inject(ActivatedRoute);
 
   history = signal<UserTimeHistoryDto | null>(null);
   profile = signal<UserProfileDto | null>(null);
@@ -121,10 +123,13 @@ export class TimeHistoryComponent implements OnInit {
   runsRecord     = computed(() => this.bestEntry(this.history()?.runsHistory));
 
   ngOnInit(): void {
+    const userIdParam = this.route.snapshot.paramMap.get('userId');
+    const userId = userIdParam != null ? +userIdParam : undefined;
+
     forkJoin({
-      history: this.userService.getTimeHistory(),
-      profile: this.userService.getProfile(),
-      records: this.userService.getPersonalRecords(),
+      history: this.userService.getTimeHistory(userId),
+      profile: this.userService.getProfile(userId),
+      records: this.userService.getPersonalRecords(userId),
     }).subscribe({
       next: ({ history, profile, records }) => {
         this.history.set(history);

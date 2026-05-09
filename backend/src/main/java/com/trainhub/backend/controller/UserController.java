@@ -345,6 +345,59 @@ public class UserController {
     }
 
     /**
+     * Devuelve el perfil público (sin datos sensibles) de cualquier usuario por id.
+     *
+     * @param userId id del usuario a consultar
+     * @return perfil público del usuario (id, nombre, foto, género)
+     */
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<UserProfileResponse> getUserProfile(
+            @PathVariable Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        UserProfileResponse response = new UserProfileResponse(
+                user.getId(),
+                null,
+                user.getPhotoUrl(),
+                user.getUsername(),
+                null,
+                null,
+                user.getGender()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Devuelve el histórico de tiempos de cualquier usuario por id.
+     *
+     * @param userId id del usuario a consultar
+     * @return histórico de tiempos del usuario
+     */
+    @GetMapping("/{userId}/time-history")
+    public ResponseEntity<UserTimeHistoryResponse> getUserTimeHistory(
+            @PathVariable Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+        return ResponseEntity.ok(postService.getUserTimeHistory(userId));
+    }
+
+    /**
+     * Devuelve los records personales de cualquier usuario por id.
+     *
+     * @param userId id del usuario a consultar
+     * @return records personales del usuario
+     */
+    @GetMapping("/{userId}/personal-records")
+    public ResponseEntity<PersonalRecordsResponse> getUserPersonalRecords(
+            @PathVariable Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+        return ResponseEntity.ok(postService.getUserPersonalRecords(userId));
+    }
+
+    /**
      * Devuelve todos los posts de un usuario concreto, del más reciente al más antiguo.
      * Sin límite de fecha: se incluye el historial completo del usuario.
      *

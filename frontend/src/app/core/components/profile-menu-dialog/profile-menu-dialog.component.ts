@@ -22,8 +22,8 @@ export class ProfileMenuDialogComponent {
   }
 
   goToStats(): void {
-    console.log('Ver estadísticas – página pendiente de implementar');
     this.dialogRef.close();
+    this.router.navigate(['/time-history']);
   }
 
   goToPosts(): void {

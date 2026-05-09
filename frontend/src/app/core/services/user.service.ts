@@ -53,16 +53,19 @@ export interface PersonalRecordsDto {
 export class UserService {
   private readonly api = inject(ApiService);
 
-  getTimeHistory(): Observable<UserTimeHistoryDto> {
-    return this.api.get<UserTimeHistoryDto>('/user/time-history');
+  getTimeHistory(userId?: number): Observable<UserTimeHistoryDto> {
+    const url = userId != null ? `/user/${userId}/time-history` : '/user/time-history';
+    return this.api.get<UserTimeHistoryDto>(url);
   }
 
-  getPersonalRecords(): Observable<PersonalRecordsDto> {
-    return this.api.get<PersonalRecordsDto>('/user/personal-records');
+  getPersonalRecords(userId?: number): Observable<PersonalRecordsDto> {
+    const url = userId != null ? `/user/${userId}/personal-records` : '/user/personal-records';
+    return this.api.get<PersonalRecordsDto>(url);
   }
 
-  getProfile(): Observable<UserProfileDto> {
-    return this.api.get<UserProfileDto>('/user/me');
+  getProfile(userId?: number): Observable<UserProfileDto> {
+    const url = userId != null ? `/user/${userId}/profile` : '/user/me';
+    return this.api.get<UserProfileDto>(url);
   }
 
   searchUsers(q: string, limit = 5): Observable<UserSearchResultDto[]> {
