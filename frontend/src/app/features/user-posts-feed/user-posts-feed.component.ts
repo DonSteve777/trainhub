@@ -43,6 +43,7 @@ interface FeedPost {
   liked: boolean;
   commentsCount: number;
   creationDate: string;
+  _dto: FeedPostDto;
 }
 
 @Component({
@@ -66,6 +67,7 @@ export class UserPostsFeedComponent implements OnInit {
 
   posts = signal<FeedPost[]>([]);
   loading = signal(true);
+  historyMode = signal<'friends' | 'global'>('friends');
 
   userInfo = computed(() => {
     const p = this.posts();
@@ -90,7 +92,7 @@ export class UserPostsFeedComponent implements OnInit {
         }
         const uniqueCats = [...new Set(feed.map(d => d.category ?? 'INDIVIDUAL_MALE'))];
         const requests = Object.fromEntries(
-          uniqueCats.map(cat => [cat, this.feedService.getHistory(cat)]),
+          uniqueCats.map(cat => [cat, this.fetchHistory(cat)]),
         );
         return forkJoin(requests).pipe(
           switchMap((results) => of({ feed, entries: Object.entries(results) as [string, FeedHistoryDto][] })),
@@ -107,6 +109,30 @@ export class UserPostsFeedComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  setHistoryMode(mode: 'friends' | 'global'): void {
+    if (this.historyMode() === mode) return;
+    this.historyMode.set(mode);
+
+    const cats = [...this.historyByCategory.keys()];
+    if (cats.length === 0) return;
+
+    const requests = Object.fromEntries(
+      cats.map(cat => [cat, this.fetchHistory(cat)]),
+    );
+    forkJoin(requests).subscribe(results => {
+      Object.entries(results).forEach(([cat, hist]) =>
+        this.historyByCategory.set(cat, hist as FeedHistoryDto),
+      );
+      this.posts.update(posts => posts.map(p => this.mapDto(p._dto, p.currentSlide)));
+    });
+  }
+
+  private fetchHistory(category: string) {
+    return this.historyMode() === 'global'
+      ? this.feedService.getGlobalHistory(category)
+      : this.feedService.getHistory(category);
   }
 
   prevSlide(index: number, post: FeedPost): void {
@@ -179,7 +205,7 @@ export class UserPostsFeedComponent implements OnInit {
     });
   }
 
-  private mapDto(dto: FeedPostDto): FeedPost {
+  private mapDto(dto: FeedPostDto, currentSlide = 0): FeedPost {
     const history = this.historyByCategory.get(dto.category ?? 'INDIVIDUAL_MALE')!;
     const runTimes = [
       dto.r1Time, dto.r2Time, dto.r3Time, dto.r4Time,
@@ -239,11 +265,12 @@ export class UserPostsFeedComponent implements OnInit {
         ],
         radarSegments: this.buildRadarSegments(dto, history),
       },
-      currentSlide: 0,
+      currentSlide,
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
       creationDate: dto.creationDate,
+      _dto: dto,
     };
   }
 
