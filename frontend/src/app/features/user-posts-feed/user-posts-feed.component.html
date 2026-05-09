@@ -30,6 +30,13 @@
       </div>
       <span class="user-feed-header__username">{{ userInfo()!.username }}</span>
     </header>
+
+    <nav class="user-feed-nav" aria-label="Secciones del usuario">
+      <a class="user-feed-nav__tab user-feed-nav__tab--active"
+         [routerLink]="['/user', targetUserId()]">Posts</a>
+      <a class="user-feed-nav__tab"
+         [routerLink]="['/time-history', targetUserId()]">Estadísticas</a>
+    </nav>
   }
 
   @if (loading()) {

@@ -1,3 +1,24 @@
+@if (targetUserId()) {
+  <header class="th-user-header">
+    <a class="th-user-header__back" [routerLink]="['/user', targetUserId()]" aria-label="Volver al perfil">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    @if (profile()) {
+      <div class="th-user-header__avatar">
+        <img [src]="avatarUrl()" [alt]="profile()!.name + ' avatar'" />
+      </div>
+      <span class="th-user-header__username">{{ profile()!.name }}</span>
+    }
+  </header>
+
+  <nav class="th-user-nav" aria-label="Secciones del usuario">
+    <a class="th-user-nav__tab"
+       [routerLink]="['/user', targetUserId()]">Posts</a>
+    <a class="th-user-nav__tab th-user-nav__tab--active"
+       [routerLink]="['/time-history', targetUserId()]">Estadísticas</a>
+  </nav>
+}
+
 @if (error()) {
   <p class="th-error">{{ error() }}</p>
 } @else if (!history() || !profile() || !records()) {

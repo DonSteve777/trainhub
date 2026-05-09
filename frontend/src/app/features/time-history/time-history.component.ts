@@ -9,6 +9,8 @@ import {
   PersonalRecordsDto,
   PersonalRecordEntryDto,
 } from '../../core/services/user.service';
+import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { ProgressionChartComponent } from '../../shared/components/progression-chart/progression-chart.component';
 
 interface PersonalRecord {
@@ -33,7 +35,7 @@ interface StationRecord {
 @Component({
   selector: 'app-time-history',
   standalone: true,
-  imports: [ProgressionChartComponent],
+  imports: [RouterLink, MatIconModule, ProgressionChartComponent],
   templateUrl: './time-history.component.html',
   styleUrl: './time-history.component.scss',
 })
@@ -45,6 +47,7 @@ export class TimeHistoryComponent implements OnInit {
   profile = signal<UserProfileDto | null>(null);
   records = signal<PersonalRecordsDto | null>(null);
   error = signal<string | null>(null);
+  targetUserId = signal<number | null>(null);
 
   readonly weekDayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
@@ -125,6 +128,7 @@ export class TimeHistoryComponent implements OnInit {
   ngOnInit(): void {
     const userIdParam = this.route.snapshot.paramMap.get('userId');
     const userId = userIdParam != null ? +userIdParam : undefined;
+    this.targetUserId.set(userId ?? null);
 
     forkJoin({
       history: this.userService.getTimeHistory(userId),

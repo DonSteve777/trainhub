@@ -71,6 +71,38 @@ $card-height: calc(100dvh * 0.9);
 }
 
 // ============================================================
+// Nav de secciones (Posts / Estadísticas)
+// ============================================================
+.user-feed-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--trainhub-accent) 25%, transparent);
+  background: var(--mat-sys-surface);
+  flex-shrink: 0;
+
+  &__tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      color: var(--mat-sys-on-surface);
+    }
+
+    &--active {
+      color: var(--trainhub-accent);
+      border-bottom-color: var(--trainhub-accent);
+    }
+  }
+}
+
+// ============================================================
 // Spinner de carga inicial
 // ============================================================
 .user-feed-loading {

@@ -68,6 +68,7 @@ export class UserPostsFeedComponent implements OnInit {
   posts = signal<FeedPost[]>([]);
   loading = signal(true);
   historyMode = signal<'friends' | 'global'>('friends');
+  targetUserId = signal<number | null>(null);
 
   userInfo = computed(() => {
     const p = this.posts();
@@ -84,6 +85,7 @@ export class UserPostsFeedComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = Number(this.route.snapshot.paramMap.get('userId'));
+    this.targetUserId.set(userId);
 
     this.feedService.getUserPosts(userId).pipe(
       switchMap((feed) => {
