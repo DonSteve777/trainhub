@@ -93,6 +93,23 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("since") LocalDateTime since);
 
     /**
+     * Devuelve los tiempos individuales de todos los posts de la BD,
+     * filtrados por categoría, sin límite de fecha.
+     * Cada fila: [totalTime, r1..r8, w1..w8] (17 columnas)
+     */
+    @Query("""
+            SELECT p.totalTime,
+                   p.running1, p.running2, p.running3, p.running4,
+                   p.running5, p.running6, p.running7, p.running8,
+                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
+                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls
+            FROM Post p
+            WHERE p.category = :category
+            """)
+    List<Object[]> findAllPostTimes(
+            @Param("category") com.trainhub.backend.enums.PostCategory category);
+
+    /**
      * Devuelve todos los posts de un usuario concreto, ordenados del más reciente al más antiguo.
      * Sin límite de fecha: se devuelve el historial completo.
      */

@@ -71,6 +71,19 @@ public class FeedController {
     }
 
     /**
+     * Devuelve los históricos de tiempos de todos los usuarios de la BD,
+     * filtrados por categoría, sin límite de fecha.
+     *
+     * @param category categoría del post (INDIVIDUAL_MALE, INDIVIDUAL_FEMALE, etc.)
+     */
+    @GetMapping("/global-history")
+    public ResponseEntity<FeedHistoryResponse> getGlobalHistory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam PostCategory category) {
+        return ResponseEntity.ok(feedService.getGlobalHistory(category));
+    }
+
+    /**
      * Da o quita like al post indicado para el usuario autenticado (toggle).
      * Si el usuario aún no había dado like, lo crea. Si ya lo había dado, lo elimina.
      *

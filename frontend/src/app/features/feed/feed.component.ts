@@ -42,6 +42,7 @@ interface FeedPost {
   liked: boolean;
   commentsCount: number;
   creationDate: string;
+  _dto: FeedPostDto;
 }
 
 const PAGE_SIZE = 5;
@@ -63,6 +64,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   posts = signal<FeedPost[]>([]);
   hasMore = signal(true);
   loading = signal(false);
+  historyMode = signal<'friends' | 'global'>('friends');
 
   private cursorDate: string | null = null;
   private cursorId: number | null = null;
@@ -82,7 +84,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         const uniqueCats = [...new Set(feed.map(d => d.category ?? 'INDIVIDUAL_MALE'))];
         const requests = Object.fromEntries(
-          uniqueCats.map(cat => [cat, this.feedService.getHistory(cat)]),
+          uniqueCats.map(cat => [cat, this.fetchHistory(cat)]),
         );
         return forkJoin(requests).pipe(
           switchMap((results) => of({ feed, entries: Object.entries(results) as [string, FeedHistoryDto][] })),
@@ -119,6 +121,30 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     this.observer?.disconnect();
   }
 
+  setHistoryMode(mode: 'friends' | 'global'): void {
+    if (this.historyMode() === mode) return;
+    this.historyMode.set(mode);
+
+    const cats = [...this.historyByCategory.keys()];
+    if (cats.length === 0) return;
+
+    const requests = Object.fromEntries(
+      cats.map(cat => [cat, this.fetchHistory(cat)]),
+    );
+    forkJoin(requests).subscribe(results => {
+      Object.entries(results).forEach(([cat, hist]) =>
+        this.historyByCategory.set(cat, hist as FeedHistoryDto),
+      );
+      this.posts.update(posts => posts.map(p => this.mapDto(p._dto, p.currentSlide)));
+    });
+  }
+
+  private fetchHistory(category: string) {
+    return this.historyMode() === 'global'
+      ? this.feedService.getGlobalHistory(category)
+      : this.feedService.getHistory(category);
+  }
+
   private loadNextPage(): void {
     if (!this.hasMore() || this.loading() || !this.cursorDate || this.cursorId === null || this.historyByCategory.size === 0) return;
     this.loading.set(true);
@@ -130,7 +156,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
           return of({ newPosts, entries: [] as [string, FeedHistoryDto][] });
         }
         const requests = Object.fromEntries(
-          missingCats.map(cat => [cat, this.feedService.getHistory(cat)]),
+          missingCats.map(cat => [cat, this.fetchHistory(cat)]),
         );
         return forkJoin(requests).pipe(
           switchMap((results) => of({ newPosts, entries: Object.entries(results) as [string, FeedHistoryDto][] })),
@@ -231,7 +257,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private mapDto(dto: FeedPostDto): FeedPost {
+  private mapDto(dto: FeedPostDto, currentSlide = 0): FeedPost {
     const history = this.historyByCategory.get(dto.category ?? 'INDIVIDUAL_MALE')!;
     const runTimes = [
       dto.r1Time, dto.r2Time, dto.r3Time, dto.r4Time,
@@ -291,11 +317,12 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         ],
         radarSegments: this.buildRadarSegments(dto, history),
       },
-      currentSlide: 0,
+      currentSlide,
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
       creationDate: dto.creationDate,
+      _dto: dto,
     };
   }
 

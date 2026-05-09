@@ -65,6 +65,10 @@ export class FeedService {
     return this.api.get<FeedHistoryDto>(`/feed/history?category=${encodeURIComponent(category)}`);
   }
 
+  getGlobalHistory(category: string): Observable<FeedHistoryDto> {
+    return this.api.get<FeedHistoryDto>(`/feed/global-history?category=${encodeURIComponent(category)}`);
+  }
+
   getUserPosts(userId: number): Observable<FeedPostDto[]> {
     return this.api.get<FeedPostDto[]>(`/user/${userId}/posts`);
   }

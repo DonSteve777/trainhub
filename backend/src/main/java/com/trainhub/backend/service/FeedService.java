@@ -83,6 +83,18 @@ public class FeedService {
         );
     }
 
+    public FeedHistoryResponse getGlobalHistory(PostCategory category) {
+        List<Object[]> rows = postRepository.findAllPostTimes(category);
+
+        return new FeedHistoryResponse(
+                col(rows, 0),
+                col(rows, 1),  col(rows, 2),  col(rows, 3),  col(rows, 4),
+                col(rows, 5),  col(rows, 6),  col(rows, 7),  col(rows, 8),
+                col(rows, 9),  col(rows, 10), col(rows, 11), col(rows, 12),
+                col(rows, 13), col(rows, 14), col(rows, 15), col(rows, 16)
+        );
+    }
+
     /**
      * Da o quita like al post indicado para el usuario dado (toggle).
      * Si el usuario aún no había dado like, lo crea. Si ya lo había dado, lo elimina.

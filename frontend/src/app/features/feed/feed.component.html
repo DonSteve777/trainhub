@@ -1,4 +1,22 @@
 <div class="feed" #feedContainer>
+  <aside class="feed-stats-panel" aria-label="Estadísticas">
+    <button
+      class="feed-stats-btn"
+      [class.feed-stats-btn--active]="historyMode() === 'global'"
+      aria-label="Estadísticas globales"
+      (click)="setHistoryMode('global')"
+    >
+      <mat-icon>leaderboard</mat-icon>
+    </button>
+    <button
+      class="feed-stats-btn"
+      [class.feed-stats-btn--active]="historyMode() === 'friends'"
+      aria-label="Estadísticas de amigos"
+      (click)="setHistoryMode('friends')"
+    >
+      <mat-icon>group</mat-icon>
+    </button>
+  </aside>
   @for (post of posts(); track post.id; let i = $index) {
     <article class="post-card">
 
@@ -131,3 +149,4 @@
 
   <div #sentinel class="feed-sentinel"></div>
 </div>
+
