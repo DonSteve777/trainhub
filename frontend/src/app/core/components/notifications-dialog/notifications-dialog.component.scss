@@ -176,6 +176,10 @@
     &--comment {
       background: #3a8fd6;
     }
+
+    &--friend {
+      background: #2e7d32;
+    }
   }
 
   &__body {
@@ -211,5 +215,61 @@
     border-radius: 50%;
     background: var(--trainhub-accent, #e64a19);
     align-self: center;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &--accept {
+      background: #2e7d32;
+      color: #fff;
+
+      &:not(:disabled):hover {
+        background: #388e3c;
+      }
+    }
+
+    &--reject {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--mat-sys-on-surface-variant);
+
+      &:not(:disabled):hover {
+        background: rgba(255, 255, 255, 0.16);
+      }
+    }
+  }
+
+  &--friend-request {
+    cursor: default;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
   }
 }

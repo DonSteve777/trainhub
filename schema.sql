@@ -65,10 +65,13 @@ CREATE TABLE "friendships" (
   "user_a_id" int NOT NULL,
   "user_b_id" int NOT NULL,
   "status" varchar(50) NOT NULL CHECK (status IN ('PENDING', 'FRIEND')),
+  "requester_id" INT NOT NULL,
+  "created_at" TIMESTAMP NOT NULL DEFAULT now(),
   PRIMARY KEY (user_a_id,user_b_id),
   CONSTRAINT "chk_friendships_user_order" CHECK ("user_a_id" < "user_b_id"),
   CONSTRAINT "fk_friendships_users_a" FOREIGN KEY ("user_a_id") REFERENCES "users" ("id"),
-  CONSTRAINT "fk_friendships_users_b" FOREIGN KEY ("user_b_id") REFERENCES "users" ("id")
+  CONSTRAINT "fk_friendships_users_b" FOREIGN KEY ("user_b_id") REFERENCES "users" ("id"),
+  CONSTRAINT "fk_friendships_requester" FOREIGN KEY ("requester_id") REFERENCES "users" ("id")
 );
 
 CREATE TABLE "comment_likes" (

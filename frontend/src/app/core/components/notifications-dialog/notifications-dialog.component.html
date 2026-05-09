@@ -28,10 +28,11 @@
         <p>No tienes notificaciones todavía.</p>
       </div>
     } @else {
-      @for (n of notifications(); track n.type + '-' + n.postId) {
+      @for (n of notifications(); track n.type + '-' + (n.postId ?? n.actorId ?? n.lastActorUsername)) {
         <button
           class="notif-item"
           [class.notif-item--unread]="n.unread"
+          [class.notif-item--friend-request]="n.type === 'FRIEND_REQUEST'"
           (click)="onItemClick(n)"
         >
           <div class="notif-item__avatar-wrap">
@@ -40,7 +41,7 @@
               [src]="avatarUrl(n.lastActorPhotoUrl, n.lastActorUsername)"
               [alt]="n.lastActorUsername"
             />
-            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'">
+            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'" [class.notif-item__type-icon--friend]="n.type === 'FRIEND_REQUEST'">
               <mat-icon>{{ iconForType(n.type) }}</mat-icon>
             </span>
           </div>
@@ -50,6 +51,26 @@
               {{ buildText(n) }}
             </p>
             <span class="notif-item__time">{{ formatDate(n.lastActionAt) }}</span>
+            @if (n.type === 'FRIEND_REQUEST' && n.actorId) {
+              <div class="notif-item__actions" (click)="$event.stopPropagation()">
+                <button
+                  class="notif-item__action-btn notif-item__action-btn--accept"
+                  [disabled]="processingIds().has(n.actorId)"
+                  (click)="acceptRequest(n, $event)"
+                >
+                  <mat-icon>check</mat-icon>
+                  Aceptar
+                </button>
+                <button
+                  class="notif-item__action-btn notif-item__action-btn--reject"
+                  [disabled]="processingIds().has(n.actorId)"
+                  (click)="rejectRequest(n, $event)"
+                >
+                  <mat-icon>close</mat-icon>
+                  Rechazar
+                </button>
+              </div>
+            }
           </div>
           @if (n.unread) {
             <span class="notif-item__dot" aria-hidden="true"></span>

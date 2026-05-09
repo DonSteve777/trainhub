@@ -58,4 +58,12 @@ export class UserService {
   sendFriendRequest(targetUserId: number): Observable<void> {
     return this.api.post<void>(`/user/${targetUserId}/friend-request`, {});
   }
+
+  acceptFriendRequest(requesterId: number): Observable<void> {
+    return this.api.post<void>(`/user/${requesterId}/friend-request/accept`, {});
+  }
+
+  rejectFriendRequest(requesterId: number): Observable<void> {
+    return this.api.delete<void>(`/user/${requesterId}/friend-request`);
+  }
 }

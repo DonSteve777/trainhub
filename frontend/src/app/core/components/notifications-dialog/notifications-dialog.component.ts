@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationService, NotificationDto } from '../../services/notification.service';
+import { UserService } from '../../services/user.service';
 import { LikersDialogComponent, LikersDialogData } from '../likers-dialog/likers-dialog.component';
 import { CommentsDialogComponent } from '../../../features/feed/comments-dialog/comments-dialog.component';
 
@@ -14,12 +15,14 @@ import { CommentsDialogComponent } from '../../../features/feed/comments-dialog/
 })
 export class NotificationsDialogComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
+  private readonly userService = inject(UserService);
   private readonly dialogRef = inject(MatDialogRef<NotificationsDialogComponent>);
   private readonly dialog = inject(MatDialog);
 
   notifications = signal<NotificationDto[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  processingIds = signal<Set<number>>(new Set());
 
   ngOnInit(): void {
     this.notificationService.getNotifications().subscribe({
@@ -38,15 +41,40 @@ export class NotificationsDialogComponent implements OnInit {
   onItemClick(n: NotificationDto): void {
     if (n.type === 'LIKE') {
       this.openLikers(n);
-    } else {
+    } else if (n.type === 'COMMENT') {
       this.openComments(n);
     }
   }
 
+  acceptRequest(n: NotificationDto, event: Event): void {
+    event.stopPropagation();
+    if (!n.actorId) return;
+    this.processingIds.update(s => new Set(s).add(n.actorId!));
+    this.userService.acceptFriendRequest(n.actorId).subscribe({
+      next: () => this.removeFriendRequestNotification(n.actorId!),
+      error: () => this.processingIds.update(s => { const next = new Set(s); next.delete(n.actorId!); return next; }),
+    });
+  }
+
+  rejectRequest(n: NotificationDto, event: Event): void {
+    event.stopPropagation();
+    if (!n.actorId) return;
+    this.processingIds.update(s => new Set(s).add(n.actorId!));
+    this.userService.rejectFriendRequest(n.actorId).subscribe({
+      next: () => this.removeFriendRequestNotification(n.actorId!),
+      error: () => this.processingIds.update(s => { const next = new Set(s); next.delete(n.actorId!); return next; }),
+    });
+  }
+
+  private removeFriendRequestNotification(actorId: number): void {
+    this.notifications.update(list => list.filter(n => n.actorId !== actorId));
+    this.processingIds.update(s => { const next = new Set(s); next.delete(actorId); return next; });
+  }
+
   private openLikers(n: NotificationDto): void {
     const data: LikersDialogData = {
-      postId: n.postId,
-      postCreationDate: n.postCreationDate,
+      postId: n.postId!,
+      postCreationDate: n.postCreationDate!,
     };
     this.dialog.open(LikersDialogComponent, {
       data,
@@ -71,7 +99,10 @@ export class NotificationsDialogComponent implements OnInit {
   }
 
   buildText(n: NotificationDto): string {
-    const date = this.formatDate(n.postCreationDate);
+    if (n.type === 'FRIEND_REQUEST') {
+      return 'te ha enviado una solicitud de amistad';
+    }
+    const date = this.formatDate(n.postCreationDate!);
     if (n.type === 'LIKE') {
       if (n.totalCount === 1) {
         return `ha dado like a tu publicación del ${date}`;
@@ -87,8 +118,10 @@ export class NotificationsDialogComponent implements OnInit {
     }
   }
 
-  iconForType(type: 'LIKE' | 'COMMENT'): string {
-    return type === 'LIKE' ? 'favorite' : 'chat_bubble';
+  iconForType(type: 'LIKE' | 'COMMENT' | 'FRIEND_REQUEST'): string {
+    if (type === 'LIKE') return 'favorite';
+    if (type === 'FRIEND_REQUEST') return 'person_add';
+    return 'chat_bubble';
   }
 
   formatDate(dateStr: string): string {

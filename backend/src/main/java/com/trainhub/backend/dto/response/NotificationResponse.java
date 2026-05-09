@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  */
 public class NotificationResponse {
 
-    /** Tipo de notificación: "LIKE" o "COMMENT". */
+    /** Tipo de notificación: "LIKE", "COMMENT" o "FRIEND_REQUEST". */
     private String type;
 
     private Integer postId;
@@ -18,6 +18,8 @@ public class NotificationResponse {
     private LocalDateTime lastActionAt;
     private int totalCount;
     private boolean unread;
+    /** Id del actor. Solo se rellena para FRIEND_REQUEST (el remitente de la solicitud). */
+    private Integer actorId;
 
     public NotificationResponse(String type, Integer postId, LocalDateTime postCreationDate,
                                 String lastActorUsername, String lastActorPhotoUrl,
@@ -40,4 +42,6 @@ public class NotificationResponse {
     public LocalDateTime getLastActionAt() { return lastActionAt; }
     public int getTotalCount() { return totalCount; }
     public boolean isUnread() { return unread; }
+    public Integer getActorId() { return actorId; }
+    public void setActorId(Integer actorId) { this.actorId = actorId; }
 }

@@ -4,6 +4,7 @@ import com.trainhub.backend.dto.response.LikerResponse;
 import com.trainhub.backend.dto.response.NotificationResponse;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.CommentRepository;
+import com.trainhub.backend.repository.FriendshipRepository;
 import com.trainhub.backend.repository.PostLikeRepository;
 import com.trainhub.backend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -30,13 +31,16 @@ public class NotificationService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
 
     public NotificationService(PostLikeRepository postLikeRepository,
                                CommentRepository commentRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               FriendshipRepository friendshipRepository) {
         this.postLikeRepository = postLikeRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+        this.friendshipRepository = friendshipRepository;
     }
 
     /**
@@ -50,6 +54,7 @@ public class NotificationService {
         List<NotificationResponse> result = new ArrayList<>();
         result.addAll(buildLikeNotifications(userId, lastSeen));
         result.addAll(buildCommentNotifications(userId, lastSeen));
+        result.addAll(buildFriendRequestNotifications(userId, lastSeen));
 
         result.sort(Comparator.comparing(NotificationResponse::getLastActionAt).reversed());
         return result;
@@ -67,8 +72,9 @@ public class NotificationService {
                 postLikeRepository.findLikesOnUserPosts(userId), lastSeen);
         long unreadComments = countUnreadByType(
                 commentRepository.findCommentsOnUserPosts(userId), lastSeen);
+        long unreadFriendRequests = countUnreadFriendRequests(userId, lastSeen);
 
-        return unreadLikes + unreadComments;
+        return unreadLikes + unreadComments + unreadFriendRequests;
     }
 
     /**
@@ -183,6 +189,44 @@ public class NotificationService {
 
         return latestByPost.values().stream()
                 .filter(latest -> latest.isAfter(lastSeen))
+                .count();
+    }
+
+    private List<NotificationResponse> buildFriendRequestNotifications(
+            Integer userId, LocalDateTime lastSeen) {
+
+        List<Object[]> rows = friendshipRepository.findPendingRequestsForUser(userId);
+        List<NotificationResponse> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            Integer actorId            = (Integer)       row[0];
+            LocalDateTime createdAt    = (LocalDateTime) row[1];
+            String actorUsername       = (String)        row[2];
+            String actorPhotoUrl       = (String)        row[3];
+
+            boolean unread = lastSeen == null || createdAt.isAfter(lastSeen);
+
+            NotificationResponse n = new NotificationResponse(
+                    "FRIEND_REQUEST",
+                    null,
+                    null,
+                    actorUsername,
+                    actorPhotoUrl,
+                    createdAt,
+                    1,
+                    unread
+            );
+            n.setActorId(actorId);
+            result.add(n);
+        }
+        return result;
+    }
+
+    private long countUnreadFriendRequests(Integer userId, LocalDateTime lastSeen) {
+        List<Object[]> rows = friendshipRepository.findPendingRequestsForUser(userId);
+        if (lastSeen == null) return rows.size();
+        return rows.stream()
+                .filter(row -> ((LocalDateTime) row[1]).isAfter(lastSeen))
                 .count();
     }
 

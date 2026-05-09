@@ -15,6 +15,7 @@ import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
 import com.trainhub.backend.service.PostService;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -263,8 +264,68 @@ public class UserController {
 
         Integer userAId = Math.min(currentUserId, targetUserId);
         Integer userBId = Math.max(currentUserId, targetUserId);
-        friendshipRepository.save(new Friendship(new FriendshipId(userAId, userBId), FriendshipStatus.PENDING));
+        friendshipRepository.save(new Friendship(
+                new FriendshipId(userAId, userBId),
+                FriendshipStatus.PENDING,
+                currentUserId,
+                LocalDateTime.now()
+        ));
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Acepta una solicitud de amistad pendiente enviada por el usuario indicado.
+     *
+     * @param userPrincipal usuario autenticado (receptor de la solicitud)
+     * @param requesterId   id del usuario que envió la solicitud
+     */
+    @PostMapping("/{requesterId}/friend-request/accept")
+    public ResponseEntity<Void> acceptFriendRequest(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer requesterId) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+
+        Friendship friendship = friendshipRepository.findBetween(currentUserId, requesterId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Solicitud no encontrada"));
+
+        if (!friendship.getRequesterId().equals(requesterId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes aceptar una solicitud que tú enviaste");
+        }
+        if (friendship.getStatus() != FriendshipStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La solicitud ya fue procesada");
+        }
+
+        friendship.setStatus(FriendshipStatus.FRIEND);
+        friendshipRepository.save(friendship);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Rechaza (elimina) una solicitud de amistad pendiente enviada por el usuario indicado.
+     *
+     * @param userPrincipal usuario autenticado (receptor de la solicitud)
+     * @param requesterId   id del usuario que envió la solicitud
+     */
+    @DeleteMapping("/{requesterId}/friend-request")
+    public ResponseEntity<Void> rejectFriendRequest(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer requesterId) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+
+        Friendship friendship = friendshipRepository.findBetween(currentUserId, requesterId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Solicitud no encontrada"));
+
+        if (!friendship.getRequesterId().equals(requesterId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes rechazar una solicitud que tú enviaste");
+        }
+        if (friendship.getStatus() != FriendshipStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La solicitud ya fue procesada");
+        }
+
+        friendshipRepository.delete(friendship);
+        return ResponseEntity.ok().build();
     }
 
     /**
