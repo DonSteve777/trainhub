@@ -31,12 +31,34 @@ export interface UserSearchResultDto {
   friendshipStatus: 'NONE' | 'PENDING' | 'FRIEND';
 }
 
+export interface PersonalRecordEntryDto {
+  time: number;
+  date: string;
+}
+
+export interface PersonalRecordsDto {
+  bestTotal:          PersonalRecordEntryDto | null;
+  bestRunning:        PersonalRecordEntryDto | null;
+  bestSkiErg:         PersonalRecordEntryDto | null;
+  bestSledPush:       PersonalRecordEntryDto | null;
+  bestSledPull:       PersonalRecordEntryDto | null;
+  bestBurpeeBj:       PersonalRecordEntryDto | null;
+  bestRow:            PersonalRecordEntryDto | null;
+  bestFarmersCarry:   PersonalRecordEntryDto | null;
+  bestSandbagLunges:  PersonalRecordEntryDto | null;
+  bestWallBalls:      PersonalRecordEntryDto | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly api = inject(ApiService);
 
   getTimeHistory(): Observable<UserTimeHistoryDto> {
     return this.api.get<UserTimeHistoryDto>('/user/time-history');
+  }
+
+  getPersonalRecords(): Observable<PersonalRecordsDto> {
+    return this.api.get<PersonalRecordsDto>('/user/personal-records');
   }
 
   getProfile(): Observable<UserProfileDto> {

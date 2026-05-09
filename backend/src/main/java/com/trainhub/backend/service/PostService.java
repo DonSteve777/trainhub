@@ -1,6 +1,8 @@
 package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.request.NewPostRequest;
+import com.trainhub.backend.dto.response.PersonalRecordsResponse;
+import com.trainhub.backend.dto.response.PersonalRecordsResponse.RecordEntry;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse.TimeEntry;
 import com.trainhub.backend.model.Post;
@@ -105,5 +107,89 @@ public class PostService {
         }
 
         return new UserTimeHistoryResponse(totalHistory, workoutsHistory, runsHistory);
+    }
+
+    /**
+     * Calcula los records personales all-time del usuario para cada segmento HYROX:
+     * tiempo total, suma de runs, y cada una de las 8 estaciones por separado.
+     * Un campo es null si el usuario no tiene ningún post.
+     *
+     * @param userId id del usuario
+     * @return records personales del usuario
+     */
+    public PersonalRecordsResponse getUserPersonalRecords(Integer userId) {
+        List<Object[]> rows = postRepository.findAllUserPostTimes(userId);
+
+        RecordEntry bestTotal         = null;
+        RecordEntry bestRunning       = null;
+        RecordEntry bestSkiErg        = null;
+        RecordEntry bestSledPush      = null;
+        RecordEntry bestSledPull      = null;
+        RecordEntry bestBurpeeBj      = null;
+        RecordEntry bestRow           = null;
+        RecordEntry bestFarmersCarry  = null;
+        RecordEntry bestSandbagLunges = null;
+        RecordEntry bestWallBalls     = null;
+
+        for (Object[] row : rows) {
+            LocalDateTime date = (LocalDateTime) row[17];
+
+            int total = (Integer) row[0];
+            if (total > 0 && (bestTotal == null || total < bestTotal.getTime())) {
+                bestTotal = new RecordEntry(total, date);
+            }
+
+            int runSum = 0;
+            for (int i = 1; i <= 8; i++) runSum += (Integer) row[i];
+            if (runSum > 0 && (bestRunning == null || runSum < bestRunning.getTime())) {
+                bestRunning = new RecordEntry(runSum, date);
+            }
+
+            int skiErg = (Integer) row[9];
+            if (skiErg > 0 && (bestSkiErg == null || skiErg < bestSkiErg.getTime())) {
+                bestSkiErg = new RecordEntry(skiErg, date);
+            }
+
+            int sledPush = (Integer) row[10];
+            if (sledPush > 0 && (bestSledPush == null || sledPush < bestSledPush.getTime())) {
+                bestSledPush = new RecordEntry(sledPush, date);
+            }
+
+            int sledPull = (Integer) row[11];
+            if (sledPull > 0 && (bestSledPull == null || sledPull < bestSledPull.getTime())) {
+                bestSledPull = new RecordEntry(sledPull, date);
+            }
+
+            int burpee = (Integer) row[12];
+            if (burpee > 0 && (bestBurpeeBj == null || burpee < bestBurpeeBj.getTime())) {
+                bestBurpeeBj = new RecordEntry(burpee, date);
+            }
+
+            int rowErg = (Integer) row[13];
+            if (rowErg > 0 && (bestRow == null || rowErg < bestRow.getTime())) {
+                bestRow = new RecordEntry(rowErg, date);
+            }
+
+            int farmers = (Integer) row[14];
+            if (farmers > 0 && (bestFarmersCarry == null || farmers < bestFarmersCarry.getTime())) {
+                bestFarmersCarry = new RecordEntry(farmers, date);
+            }
+
+            int sandbag = (Integer) row[15];
+            if (sandbag > 0 && (bestSandbagLunges == null || sandbag < bestSandbagLunges.getTime())) {
+                bestSandbagLunges = new RecordEntry(sandbag, date);
+            }
+
+            int wallBalls = (Integer) row[16];
+            if (wallBalls > 0 && (bestWallBalls == null || wallBalls < bestWallBalls.getTime())) {
+                bestWallBalls = new RecordEntry(wallBalls, date);
+            }
+        }
+
+        return new PersonalRecordsResponse(
+                bestTotal, bestRunning,
+                bestSkiErg, bestSledPush, bestSledPull, bestBurpeeBj,
+                bestRow, bestFarmersCarry, bestSandbagLunges, bestWallBalls
+        );
     }
 }

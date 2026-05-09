@@ -3,17 +3,17 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* ── Header ─────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────── */
 
 .th-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.25rem;
+  gap: 2rem;
   padding: 1.5rem 1.5rem 0.5rem;
 }
 
-/* Profile */
+/* Perfil */
 .th-profile {
   display: flex;
   align-items: center;
@@ -21,99 +21,267 @@
 }
 
 .th-avatar {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .th-username {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
 
-/* Cards */
-.th-card {
+/* ── Panel de actividad (contador + calendario) ───────────────────── */
+
+.th-activity-panel {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
 }
 
-.th-card-title {
-  font-size: 0.72rem;
+.th-activity-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 7rem;
+}
+
+.th-activity-label {
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
 }
 
-/* Weeks card */
-.th-card--weeks {
-  align-items: center;
-  min-width: 9rem;
-}
-
-.th-card-value {
-  font-size: 2.4rem;
+.th-activity-count {
+  font-size: 2.8rem;
   font-weight: 800;
   line-height: 1;
   color: rgba(255, 255, 255, 0.9);
 }
 
-.th-card-sub {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-/* Records card */
-.th-card--records {
-  min-width: 16rem;
-}
-
-.th-records {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  margin-top: 0.3rem;
-}
-
-.th-record-row {
-  display: grid;
-  grid-template-columns: 5.5rem 5rem 1fr;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.th-record-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.th-record-time {
-  font-size: 1rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.th-record-date {
+.th-activity-sub {
   font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
 }
 
-/* ── Charts ──────────────────────────────────────────────── */
+/* ── Calendario ───────────────────────────────────────────────────── */
+
+.th-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.th-cal-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1.5rem);
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.th-cal-day-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.th-cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1.5rem);
+  gap: 4px;
+}
+
+.th-cal-cell {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Punto normal (día pasado sin actividad) */
+.th-cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.th-cal-dot--active {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+/* Número de hoy */
+.th-cal-today-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  line-height: 1.2;
+}
+
+/* ── Sección de Records Personales ───────────────────────────────── */
+
+.th-pr-section {
+  padding: 1.5rem 1.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.th-pr-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0 0 1rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+/* Cards principales (Total + Running) */
+.th-pr-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+.th-pr-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.th-pr-card--gold {
+  background: rgba(255, 193, 7, 0.08);
+  border-color: rgba(255, 193, 7, 0.2);
+}
+
+.th-pr-card--pink {
+  background: rgba(255, 107, 138, 0.08);
+  border-color: rgba(255, 107, 138, 0.2);
+}
+
+.th-pr-card-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.th-pr-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.th-pr-card-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.th-pr-card--gold .th-pr-card-time {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #FFC107;
+}
+
+.th-pr-card--pink .th-pr-card-time {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #FF6B8A;
+}
+
+.th-pr-card-date {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.th-pr-card-empty {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.25);
+  font-style: italic;
+}
+
+/* Grid de estaciones */
+.th-pr-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+.th-pr-station {
+  background: rgba(96, 200, 255, 0.06);
+  border: 1px solid rgba(96, 200, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.th-pr-station-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.th-pr-station-time {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #60C8FF;
+}
+
+.th-pr-station-date {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.th-pr-station-empty {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Gráficas ─────────────────────────────────────────────────────── */
 
 .th-charts {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   padding: 1rem 8rem 1.5rem;
-  
 }
 
 .th-charts app-progression-chart {
@@ -124,7 +292,7 @@
   overflow: hidden;
 }
 
-/* ── States ──────────────────────────────────────────────── */
+/* ── Estados ──────────────────────────────────────────────────────── */
 
 .th-error,
 .th-loading {

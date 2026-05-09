@@ -121,6 +121,24 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> findPostsByUserId(@Param("targetUserId") Integer targetUserId);
 
     /**
+     * Devuelve los tiempos individuales de todos los posts del usuario (sin filtro de fecha),
+     * ordenados cronológicamente. Se usa para calcular records personales all-time.
+     * Cada fila: [totalTime, r1..r8, w1..w8, creationDate] (18 columnas).
+     */
+    @Query("""
+            SELECT p.totalTime,
+                   p.running1, p.running2, p.running3, p.running4,
+                   p.running5, p.running6, p.running7, p.running8,
+                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
+                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls,
+                   p.creationDate
+            FROM Post p
+            WHERE p.user.id = :userId
+            ORDER BY p.creationDate ASC
+            """)
+    List<Object[]> findAllUserPostTimes(@Param("userId") Integer userId);
+
+    /**
      * Devuelve los posts de amigos del usuario después del cursor dado (paginación keyset).
      * Solo se incluyen posts de las últimas 4 semanas.
      * El cursor es (creationDate, id): se traen posts anteriores en el tiempo al cursor.

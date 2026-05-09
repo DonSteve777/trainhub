@@ -1,11 +1,32 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { UserService, UserTimeHistoryDto, UserProfileDto, TimeEntryDto } from '../../core/services/user.service';
+import {
+  UserService,
+  UserTimeHistoryDto,
+  UserProfileDto,
+  TimeEntryDto,
+  PersonalRecordsDto,
+  PersonalRecordEntryDto,
+} from '../../core/services/user.service';
 import { ProgressionChartComponent } from '../../shared/components/progression-chart/progression-chart.component';
 
 interface PersonalRecord {
   time: number;
   date: string;
+}
+
+interface CalendarCell {
+  dayNum: number;
+  active: boolean;
+  isToday: boolean;
+  isFuture: boolean;
+}
+
+interface StationRecord {
+  label: string;
+  icon: string;
+  record: PersonalRecordEntryDto | null;
+  color: string;
 }
 
 @Component({
@@ -20,7 +41,10 @@ export class TimeHistoryComponent implements OnInit {
 
   history = signal<UserTimeHistoryDto | null>(null);
   profile = signal<UserProfileDto | null>(null);
+  records = signal<PersonalRecordsDto | null>(null);
   error = signal<string | null>(null);
+
+  readonly weekDayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
   avatarUrl = computed(() => {
     const p = this.profile();
@@ -34,18 +58,78 @@ export class TimeHistoryComponent implements OnInit {
     return h.totalHistory.filter((e) => new Date(e.date).getTime() >= cutoff).length;
   });
 
-  totalRecord = computed(() => this.bestEntry(this.history()?.totalHistory));
+  /** Cuadrícula 4×7 (lunes→domingo) con las actividades de las últimas 4 semanas */
+  calendarGrid = computed((): CalendarCell[][] => {
+    const h = this.history();
+    if (!h) return [];
+
+    const activeDays = new Set(
+      h.totalHistory.map((e) => e.date.substring(0, 10)),
+    );
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Retroceder hasta el lunes de hace 4 semanas
+    const mondayOffset = (today.getDay() + 6) % 7; // días desde el lunes actual
+    const gridStart = new Date(today);
+    gridStart.setDate(today.getDate() - mondayOffset - 21);
+
+    return Array.from({ length: 4 }, (_, w) =>
+      Array.from({ length: 7 }, (_, d) => {
+        const date = new Date(gridStart);
+        date.setDate(gridStart.getDate() + w * 7 + d);
+        const iso = date.toISOString().substring(0, 10);
+        return {
+          dayNum: date.getDate(),
+          active: activeDays.has(iso),
+          isToday: date.getTime() === today.getTime(),
+          isFuture: date.getTime() > today.getTime(),
+        };
+      }),
+    );
+  });
+
+  /** Records globales (total y running) para la sección destacada */
+  topRecords = computed(() => {
+    const r = this.records();
+    if (!r) return null;
+    return {
+      total: r.bestTotal,
+      running: r.bestRunning,
+    };
+  });
+
+  /** Records individuales por estación */
+  stationRecords = computed((): StationRecord[] => {
+    const r = this.records();
+    if (!r) return [];
+    return [
+      { label: 'SkiErg',           icon: 'downhill_skiing', record: r.bestSkiErg,        color: '#60C8FF' },
+      { label: 'Sled Push',        icon: 'fitness_center',  record: r.bestSledPush,       color: '#60C8FF' },
+      { label: 'Sled Pull',        icon: 'fitness_center',  record: r.bestSledPull,       color: '#60C8FF' },
+      { label: 'Burpee Broad Jump',icon: 'directions_run',  record: r.bestBurpeeBj,       color: '#60C8FF' },
+      { label: 'Row',              icon: 'rowing',          record: r.bestRow,            color: '#60C8FF' },
+      { label: 'Farmers Carry',    icon: 'work',            record: r.bestFarmersCarry,   color: '#60C8FF' },
+      { label: 'Sandbag Lunges',   icon: 'accessibility_new', record: r.bestSandbagLunges, color: '#60C8FF' },
+      { label: 'Wall Balls',       icon: 'sports_basketball',record: r.bestWallBalls,     color: '#60C8FF' },
+    ];
+  });
+
+  totalRecord    = computed(() => this.bestEntry(this.history()?.totalHistory));
   workoutsRecord = computed(() => this.bestEntry(this.history()?.workoutsHistory));
-  runsRecord = computed(() => this.bestEntry(this.history()?.runsHistory));
+  runsRecord     = computed(() => this.bestEntry(this.history()?.runsHistory));
 
   ngOnInit(): void {
     forkJoin({
       history: this.userService.getTimeHistory(),
       profile: this.userService.getProfile(),
+      records: this.userService.getPersonalRecords(),
     }).subscribe({
-      next: ({ history, profile }) => {
+      next: ({ history, profile, records }) => {
         this.history.set(history);
         this.profile.set(profile);
+        this.records.set(records);
       },
       error: (err) => {
         console.error('Error cargando datos del histórico', err);

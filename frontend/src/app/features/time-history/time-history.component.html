@@ -1,8 +1,10 @@
 @if (error()) {
   <p class="th-error">{{ error() }}</p>
-} @else if (!history() || !profile()) {
+} @else if (!history() || !profile() || !records()) {
   <p class="th-loading">Cargando...</p>
 } @else {
+
+  <!-- ── Header: perfil + panel de actividad ─────────────────────── -->
   <div class="th-header">
 
     <div class="th-profile">
@@ -10,34 +12,35 @@
       <span class="th-username">{{ profile()!.name }}</span>
     </div>
 
-    <div class="th-card th-card--weeks">
-      <span class="th-card-title">Últimas 4 semanas</span>
-      <span class="th-card-value">{{ lastFourWeeksCount() }}</span>
-      <span class="th-card-sub">Actividades en total</span>
-    </div>
+    <div class="th-activity-panel">
+      <div class="th-activity-summary">
+        <span class="th-activity-label">Últimas 4 semanas</span>
+        <span class="th-activity-count">{{ lastFourWeeksCount() }}</span>
+        <span class="th-activity-sub">Actividades en total</span>
+      </div>
 
-    <div class="th-card th-card--records">
-      <span class="th-card-title">Record Personal</span>
-      <div class="th-records">
-        @if (totalRecord()) {
-          <div class="th-record-row">
-            <span class="th-record-label" style="color: #FFC107">Total time</span>
-            <span class="th-record-time" style="color: #FFC107">{{ formatTime(totalRecord()!.time) }}</span>
-            <span class="th-record-date">{{ formatDate(totalRecord()!.date) }}</span>
-          </div>
-        }
-        @if (workoutsRecord()) {
-          <div class="th-record-row">
-            <span class="th-record-label" style="color: #8B9FFF">Workout</span>
-            <span class="th-record-time" style="color: #8B9FFF">{{ formatTime(workoutsRecord()!.time) }}</span>
-            <span class="th-record-date">{{ formatDate(workoutsRecord()!.date) }}</span>
-          </div>
-        }
-        @if (runsRecord()) {
-          <div class="th-record-row">
-            <span class="th-record-label" style="color: #FF6B8A">Runs</span>
-            <span class="th-record-time" style="color: #FF6B8A">{{ formatTime(runsRecord()!.time) }}</span>
-            <span class="th-record-date">{{ formatDate(runsRecord()!.date) }}</span>
+      <div class="th-calendar">
+        <div class="th-cal-header">
+          @for (label of weekDayLabels; track label) {
+            <span class="th-cal-day-label">{{ label }}</span>
+          }
+        </div>
+        @for (week of calendarGrid(); track $index) {
+          <div class="th-cal-row">
+            @for (cell of week; track $index) {
+              <span
+                class="th-cal-cell"
+                [class.th-cal-cell--active]="cell.active"
+                [class.th-cal-cell--today]="cell.isToday"
+                [class.th-cal-cell--future]="cell.isFuture"
+              >
+                @if (cell.isToday) {
+                  <span class="th-cal-today-num">{{ cell.dayNum }}</span>
+                } @else if (!cell.isFuture) {
+                  <span class="th-cal-dot" [class.th-cal-dot--active]="cell.active"></span>
+                }
+              </span>
+            }
           </div>
         }
       </div>
@@ -45,6 +48,56 @@
 
   </div>
 
+  <!-- ── Records Personales ───────────────────────────────────────── -->
+  <section class="th-pr-section">
+    <h2 class="th-pr-title">Records Personales</h2>
+
+    <!-- Total y Running destacados -->
+    <div class="th-pr-top">
+      <div class="th-pr-card th-pr-card--gold">
+        <span class="th-pr-card-icon">🏆</span>
+        <div class="th-pr-card-body">
+          <span class="th-pr-card-label">Prueba total más rápida</span>
+          @if (records()!.bestTotal) {
+            <span class="th-pr-card-time">{{ formatTime(records()!.bestTotal!.time) }}</span>
+            <span class="th-pr-card-date">{{ formatDate(records()!.bestTotal!.date) }}</span>
+          } @else {
+            <span class="th-pr-card-empty">Sin registros</span>
+          }
+        </div>
+      </div>
+
+      <div class="th-pr-card th-pr-card--pink">
+        <span class="th-pr-card-icon">🏃</span>
+        <div class="th-pr-card-body">
+          <span class="th-pr-card-label">Running más rápido</span>
+          @if (records()!.bestRunning) {
+            <span class="th-pr-card-time">{{ formatTime(records()!.bestRunning!.time) }}</span>
+            <span class="th-pr-card-date">{{ formatDate(records()!.bestRunning!.date) }}</span>
+          } @else {
+            <span class="th-pr-card-empty">Sin registros</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Estaciones individuales -->
+    <div class="th-pr-grid">
+      @for (s of stationRecords(); track s.label) {
+        <div class="th-pr-station">
+          <span class="th-pr-station-label">{{ s.label }}</span>
+          @if (s.record) {
+            <span class="th-pr-station-time">{{ formatTime(s.record.time) }}</span>
+            <span class="th-pr-station-date">{{ formatDate(s.record.date) }}</span>
+          } @else {
+            <span class="th-pr-station-empty">—</span>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ── Gráficas de progresión ────────────────────────────────────── -->
   <div class="th-charts">
     <app-progression-chart
       [entries]="history()!.totalHistory"
@@ -62,4 +115,5 @@
       color="#FF6B8A"
     />
   </div>
+
 }
