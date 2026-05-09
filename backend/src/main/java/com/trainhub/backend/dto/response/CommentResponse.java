@@ -14,10 +14,11 @@ public class CommentResponse {
     private LocalDateTime creationDate;
     private long likesCount;
     private boolean likedByCurrentUser;
+    private boolean ownComment;
 
     public CommentResponse(Integer id, String username, String avatarUrl,
                            String content, LocalDateTime creationDate,
-                           long likesCount, boolean likedByCurrentUser) {
+                           long likesCount, boolean likedByCurrentUser, boolean ownComment) {
         this.id = id;
         this.username = username;
         this.avatarUrl = avatarUrl;
@@ -25,6 +26,7 @@ public class CommentResponse {
         this.creationDate = creationDate;
         this.likesCount = likesCount;
         this.likedByCurrentUser = likedByCurrentUser;
+        this.ownComment = ownComment;
     }
 
     public Integer getId() { return id; }
@@ -34,4 +36,5 @@ public class CommentResponse {
     public LocalDateTime getCreationDate() { return creationDate; }
     public long getLikesCount() { return likesCount; }
     public boolean isLikedByCurrentUser() { return likedByCurrentUser; }
+    public boolean isOwnComment() { return ownComment; }
 }

@@ -110,6 +110,33 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("category") com.trainhub.backend.enums.PostCategory category);
 
     /**
+     * Devuelve los tiempos de todos los posts de los amigos del usuario, con su nombre de usuario
+     * y fecha, sin límite de fecha. Se usa para pintar los marcadores de amigos en las gráficas
+     * de progresión.
+     * Cada fila: [username, totalTime, r1..r8, w1..w8, creationDate] (19 columnas).
+     */
+    @Query("""
+            SELECT p.user.username, p.totalTime,
+                   p.running1, p.running2, p.running3, p.running4,
+                   p.running5, p.running6, p.running7, p.running8,
+                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
+                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls,
+                   p.creationDate
+            FROM Post p
+            WHERE EXISTS (
+                SELECT f FROM Friendship f
+                WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
+                AND (
+                    (f.id.userAId = :userId AND f.id.userBId = p.user.id)
+                    OR
+                    (f.id.userBId = :userId AND f.id.userAId = p.user.id)
+                )
+            )
+            ORDER BY p.user.username ASC, p.creationDate ASC
+            """)
+    List<Object[]> findFriendsPostTimesWithUser(@Param("userId") Integer userId);
+
+    /**
      * Devuelve todos los posts de un usuario concreto, ordenados del más reciente al más antiguo.
      * Sin límite de fecha: se devuelve el historial completo.
      */

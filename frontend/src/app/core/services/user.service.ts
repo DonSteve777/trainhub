@@ -8,6 +8,18 @@ export interface TimeEntryDto {
   date: string;
 }
 
+export interface FriendTimeEntryDto {
+  time: number;
+  date: string;
+}
+
+export interface FriendTimeHistoryDto {
+  username: string;
+  totalHistory: FriendTimeEntryDto[];
+  workoutsHistory: FriendTimeEntryDto[];
+  runsHistory: FriendTimeEntryDto[];
+}
+
 export interface UserTimeHistoryDto {
   totalHistory:    TimeEntryDto[];
   workoutsHistory: TimeEntryDto[];
@@ -56,6 +68,10 @@ export class UserService {
   getTimeHistory(userId?: number): Observable<UserTimeHistoryDto> {
     const url = userId != null ? `/user/${userId}/time-history` : '/user/time-history';
     return this.api.get<UserTimeHistoryDto>(url);
+  }
+
+  getFriendsTimeHistory(): Observable<FriendTimeHistoryDto[]> {
+    return this.api.get<FriendTimeHistoryDto[]>('/user/friends/time-history');
   }
 
   getPersonalRecords(userId?: number): Observable<PersonalRecordsDto> {

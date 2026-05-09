@@ -2,6 +2,7 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
 import com.trainhub.backend.dto.response.FeedPostResponse;
+import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
@@ -164,6 +165,20 @@ public class UserController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Devuelve el histórico de tiempos de todos los amigos del usuario autenticado,
+     * agrupado por amigo. Sin límite de fecha.
+     *
+     * @param userPrincipal El usuario autenticado actual
+     * @return Lista de históricos de tiempos, uno por amigo
+     */
+    @GetMapping("/friends/time-history")
+    public ResponseEntity<List<FriendTimeHistoryResponse>> getFriendsTimeHistory(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(postService.getFriendsTimeHistory(userId));
     }
 
     /**

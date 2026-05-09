@@ -72,7 +72,8 @@ public class CommentService {
         return comments.stream()
                 .map(c -> toResponse(c,
                         likesCountMap.getOrDefault(c.getId(), 0L),
-                        likedIds.contains(c.getId())))
+                        likedIds.contains(c.getId()),
+                        userId))
                 .toList();
     }
 
@@ -95,7 +96,7 @@ public class CommentService {
         Comment comment = new Comment(post, user, content, LocalDateTime.now());
         Comment saved = commentRepository.save(comment);
 
-        return toResponse(saved, 0L, false);
+        return toResponse(saved, 0L, false, userId);
     }
 
     /**
@@ -113,6 +114,10 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
+        if (comment.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes dar like a tu propio comentario");
+        }
+
         boolean alreadyLiked = comment.getLikedBy().stream()
                 .anyMatch(u -> u.getId().equals(userId));
 
@@ -128,7 +133,8 @@ public class CommentService {
         return new LikeToggleResponse(!alreadyLiked, newCount);
     }
 
-    private CommentResponse toResponse(Comment comment, long likesCount, boolean likedByCurrentUser) {
+    private CommentResponse toResponse(Comment comment, long likesCount, boolean likedByCurrentUser, Integer currentUserId) {
+        boolean ownComment = currentUserId != null && currentUserId.equals(comment.getUser().getId());
         return new CommentResponse(
                 comment.getId(),
                 comment.getUser().getUsername(),
@@ -136,7 +142,8 @@ public class CommentService {
                 comment.getContent(),
                 comment.getCreationDate(),
                 likesCount,
-                likedByCurrentUser
+                likedByCurrentUser,
+                ownComment
         );
     }
 }

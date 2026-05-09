@@ -48,7 +48,9 @@
             <button
               class="comment-like-btn"
               (click)="toggleLike(comment)"
-              [attr.aria-label]="(comment.likedByCurrentUser ? 'Quitar like' : 'Dar like') + ', ' + comment.likesCount + (comment.likesCount === 1 ? ' voto' : ' votos')"
+              [disabled]="comment.ownComment"
+              [title]="comment.ownComment ? 'No puedes dar like a tu propio comentario' : ''"
+              [attr.aria-label]="comment.ownComment ? 'No puedes dar like a tu propio comentario' : (comment.likedByCurrentUser ? 'Quitar like' : 'Dar like') + ', ' + comment.likesCount + (comment.likesCount === 1 ? ' voto' : ' votos')"
             >
               <mat-icon [class.comment-like-btn__icon--liked]="comment.likedByCurrentUser">
                 {{ comment.likedByCurrentUser ? 'favorite' : 'favorite_border' }}

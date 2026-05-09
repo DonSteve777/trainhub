@@ -1,6 +1,7 @@
 package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.request.NewPostRequest;
+import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse.RecordEntry;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
@@ -15,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Servicio para la gestión de posts (entrenamientos).
@@ -191,5 +195,48 @@ public class PostService {
                 bestSkiErg, bestSledPush, bestSledPull, bestBurpeeBj,
                 bestRow, bestFarmersCarry, bestSandbagLunges, bestWallBalls
         );
+    }
+
+    /**
+     * Devuelve el histórico de tiempos de todos los amigos del usuario, agrupado por amigo.
+     * Sin límite de fecha. Se usa para pintar marcadores de amigos en las gráficas de progresión.
+     *
+     * @param userId id del usuario autenticado
+     * @return lista de históricos de tiempos, uno por amigo
+     */
+    public List<FriendTimeHistoryResponse> getFriendsTimeHistory(Integer userId) {
+        List<Object[]> rows = postRepository.findFriendsPostTimesWithUser(userId);
+
+        Map<String, FriendBuilder> builders = new LinkedHashMap<>();
+
+        for (Object[] row : rows) {
+            String username = (String) row[0];
+            LocalDateTime date = (LocalDateTime) row[18];
+
+            FriendBuilder builder = builders.computeIfAbsent(username, FriendBuilder::new);
+
+            builder.totalHistory.add(new FriendTimeHistoryResponse.TimeEntry((Integer) row[1], date));
+
+            int runsSum = 0;
+            for (int i = 2; i <= 9; i++) runsSum += (Integer) row[i];
+            builder.runsHistory.add(new FriendTimeHistoryResponse.TimeEntry(runsSum, date));
+
+            int workoutsSum = 0;
+            for (int i = 10; i <= 17; i++) workoutsSum += (Integer) row[i];
+            builder.workoutsHistory.add(new FriendTimeHistoryResponse.TimeEntry(workoutsSum, date));
+        }
+
+        return builders.values().stream()
+                .map(b -> new FriendTimeHistoryResponse(b.username, b.totalHistory, b.workoutsHistory, b.runsHistory))
+                .collect(Collectors.toList());
+    }
+
+    private static class FriendBuilder {
+        final String username;
+        final List<FriendTimeHistoryResponse.TimeEntry> totalHistory    = new ArrayList<>();
+        final List<FriendTimeHistoryResponse.TimeEntry> workoutsHistory = new ArrayList<>();
+        final List<FriendTimeHistoryResponse.TimeEntry> runsHistory     = new ArrayList<>();
+
+        FriendBuilder(String username) { this.username = username; }
     }
 }

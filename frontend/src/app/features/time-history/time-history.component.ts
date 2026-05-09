@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import {
   UserService,
   UserTimeHistoryDto,
@@ -8,10 +9,14 @@ import {
   TimeEntryDto,
   PersonalRecordsDto,
   PersonalRecordEntryDto,
+  FriendTimeHistoryDto,
 } from '../../core/services/user.service';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { ProgressionChartComponent } from '../../shared/components/progression-chart/progression-chart.component';
+import {
+  ProgressionChartComponent,
+  FriendSeries,
+} from '../../shared/components/progression-chart/progression-chart.component';
 
 interface PersonalRecord {
   time: number;
@@ -46,6 +51,7 @@ export class TimeHistoryComponent implements OnInit {
   history = signal<UserTimeHistoryDto | null>(null);
   profile = signal<UserProfileDto | null>(null);
   records = signal<PersonalRecordsDto | null>(null);
+  friendsHistory = signal<FriendTimeHistoryDto[]>([]);
   error = signal<string | null>(null);
   targetUserId = signal<number | null>(null);
 

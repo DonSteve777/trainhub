@@ -10,6 +10,7 @@ export interface CommentDto {
   creationDate: string;
   likesCount: number;
   likedByCurrentUser: boolean;
+  ownComment: boolean;
 }
 
 export interface CommentLikeToggleDto {

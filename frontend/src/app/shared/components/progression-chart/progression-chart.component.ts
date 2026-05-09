@@ -1,7 +1,24 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartData, ChartOptions } from 'chart.js';
-import { TimeEntryDto } from '../../../core/services/user.service';
+import { ChartData, ChartDataset, ChartOptions } from 'chart.js';
+import { TimeEntryDto, FriendTimeEntryDto } from '../../../core/services/user.service';
+
+export interface FriendSeries {
+  username: string;
+  entries: FriendTimeEntryDto[];
+}
+
+/** Paleta para los marcadores de amigos (contrasta con los colores de las 3 gráficas) */
+const FRIEND_COLORS = [
+  '#4CAF50',
+  '#FF9800',
+  '#00BCD4',
+  '#E91E63',
+  '#9C27B0',
+  '#00E676',
+  '#FF6D00',
+  '#18FFFF',
+];
 
 @Component({
   selector: 'app-progression-chart',
@@ -14,6 +31,7 @@ export class ProgressionChartComponent implements OnChanges {
   @Input({ required: true }) entries: TimeEntryDto[] = [];
   @Input({ required: true }) label = '';
   @Input({ required: true }) color = '#FFC107';
+  @Input() friendsData: FriendSeries[] = [];
 
   chartData: ChartData<'line'> = { datasets: [] };
   chartOptions: ChartOptions<'line'> = {};
@@ -45,19 +63,38 @@ export class ProgressionChartComponent implements OnChanges {
       y: e.time,
     }));
 
+    const mainDataset: ChartDataset<'line'> = {
+      data: points,
+      borderColor: this.color,
+      backgroundColor: this.color + '28',
+      fill: true,
+      tension: 0.35,
+      pointRadius: 3,
+      pointBackgroundColor: this.color,
+      borderWidth: 2,
+      label: this.label,
+    };
+
+    const friendDatasets: ChartDataset<'line'>[] = this.friendsData.map((friend, i) => ({
+      data: friend.entries.map((e) => ({
+        x: new Date(e.date).getTime(),
+        y: e.time,
+      })),
+      label: friend.username,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
+      showLine: false,
+      fill: false,
+      tension: 0,
+      pointRadius: 6,
+      pointHoverRadius: 8,
+      pointBackgroundColor: FRIEND_COLORS[i % FRIEND_COLORS.length],
+      pointBorderColor: 'rgba(255,255,255,0.85)',
+      pointBorderWidth: 1.5,
+    }));
+
     this.chartData = {
-      datasets: [
-        {
-          data: points,
-          borderColor: this.color,
-          backgroundColor: this.color + '28',
-          fill: true,
-          tension: 0.35,
-          pointRadius: 3,
-          pointBackgroundColor: this.color,
-          borderWidth: 2,
-        },
-      ],
+      datasets: [mainDataset, ...friendDatasets],
     };
 
     this.chartOptions = {
@@ -65,12 +102,23 @@ export class ProgressionChartComponent implements OnChanges {
       maintainAspectRatio: false,
       animation: false,
       parsing: false,
+      interaction: {
+        mode: 'nearest',
+        intersect: true,
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            title: (items) => this.formatDate(new Date(items[0].parsed.x ?? 0).toISOString()),
-            label: (ctx) => ` ${this.formatTime(ctx.parsed.y as number)}`,
+            title: (items) =>
+              this.formatDate(new Date(items[0].parsed.x ?? 0).toISOString()),
+            label: (ctx) => {
+              const time = this.formatTime(ctx.parsed.y as number);
+              if (ctx.datasetIndex === 0) {
+                return ` ${time}`;
+              }
+              return ` ${ctx.dataset.label}: ${time}`;
+            },
           },
         },
       },
