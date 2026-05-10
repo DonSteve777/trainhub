@@ -1,83 +1,137 @@
-# Frontend
+# TrainHub
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.1.
-con routing, sin ssr
-Node 24
-npm 11.6
-SCSS
+Aplicación web de red social deportiva desarrollada como Trabajo de Fin de Grado.
 
-frontend/
-├── src/
-│   ├── app/
-│   │   ├── app.ts           # Componente principal standalone
-│   │   ├── app.routes.ts    # Configuración de rutas
-│   │   ├── app.config.ts    # Configuración de la app
-│   │   └── app.scss         # Estilos del componente
-│   ├── main.ts              # Punto de entrada
-│   ├── index.html
-│   └── styles.scss          # Estilos globales
-├── public/
-├── angular.json
-└── package.json
+**Stack:** Angular 21 · Spring Boot 3 (Java 17) · PostgreSQL 17 · Docker
+
+---
+
+## Requisitos previos
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y en ejecución
+Para usar  el SMTP:
+- Una cuenta de Gmail con [verificación en dos pasos](https://myaccount.google.com/security) activada
+- Una [contraseña de aplicación de Google](https://myaccount.google.com/apppasswords) generada para el envío de emails
 
 
+---
 
+## Despliegue con Docker (recomendado)
 
-## Development server
-
-To start a local development server, run:
+### 1. Clonar el repositorio
 
 ```bash
-ng serve
+git clone https://github.com/DonSteve777/trainhub.git
+cd repo
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### 2. Configurar las credenciales de email
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Copia la plantilla de variables de entorno y rellena tus credenciales:
 
 ```bash
-ng generate component component-name
+cp .env.example .env
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Edita el archivo `.env`:
+
+```
+MAIL_USERNAME=tu-email@gmail.com
+MAIL_PASSWORD=xxxx-xxxx-xxxx-xxxx   # contraseña de aplicación de Google
+```
+
+### 3. Levantar todos los servicios
 
 ```bash
-ng generate --help
+docker compose up --build
 ```
 
-## Building
+Este comando construye las imágenes del backend y el frontend, y arranca los tres contenedores (base de datos, backend y frontend). La primera vez tarda varios minutos.
 
-To build the project run:
+La base de datos se inicializa automáticamente con el esquema y los datos de ejemplo incluidos en `schema.sql` e `inserts.sql`.
+
+### 4. Poblar la base de datos con datos de ejemplo
+
+```powershell
+.\seed.ps1
+```
+
+Este script registra 30 usuarios vía API (las contraseñas quedan encriptadas) e inserta posts, amistades, comentarios y likes. Solo ejecutarlo una vez.
+
+> **Usuarios de ejemplo** — todos con contraseña `password123`:
+> `pedro.alonso@example.com`, `lucia.vega@example.com`, `javier.mena@example.com`, …
+
+### 5. Acceder a la aplicación
+
+| Servicio  | URL                          |
+|-----------|------------------------------|
+| Frontend  | http://localhost:4200        |
+| Backend   | http://localhost:8080        |
+
+### Parar los servicios
 
 ```bash
-ng build
+docker compose down
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Para parar y eliminar también los datos de la base de datos:
 
 ```bash
-ng test
+docker compose down -v
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## Desarrollo local (sin Docker)
+
+### Requisitos adicionales
+
+- Java 17
+- Maven 3.9+
+- Node.js 22 y npm 11.6+
+- PostgreSQL 17 (o usar solo el contenedor de Postgres: `docker compose up postgres`)
+
+### Base de datos
 
 ```bash
-ng e2e
+docker compose up postgres
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Backend
 
-## Additional Resources
+```bash
+cd backend
+./mvnw spring-boot:run
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+El backend arranca en http://localhost:8080.
 
---- 
+> Las variables de entorno `MAIL_USERNAME` y `MAIL_PASSWORD` deben estar definidas en el sistema, o configuradas en el IDE antes de arrancar.
 
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+El frontend arranca en http://localhost:4200.
+
+---
+
+## Estructura del proyecto
+
+```
+repo/
+├── backend/              # API REST Spring Boot
+├── frontend/             # SPA Angular
+├── design/               # Documentación y diseño
+├── schema.sql            # Esquema de la base de datos
+├── inserts.sql           # Datos de ejemplo
+├── docker-compose.yml    # Orquestación de servicios
+├── Dockerfile.backend
+├── Dockerfile.frontend
+├── nginx.conf
+└── .env.example          # Plantilla de variables de entorno
+```

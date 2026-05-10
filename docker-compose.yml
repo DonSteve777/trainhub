@@ -1,55 +1,48 @@
-# // contenedor para postgres y el servicio pgAdmin
-# https://hub.docker.com/_/postgres
 services:
   postgres:
     image: postgres:17
     restart: always
-    ports:
-    #  host:contenedor
-      - "5431:5432"
     environment:
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: dev_pass
       POSTGRES_DB: trainhub_dev_db
-
-  # para que el contenedor cree estas variables de entorno al inciar( estas coinciden con las del properties):
-  # si no, hay que crearlas manualmente, que es lo que he estado haciendo
-  # postgres:
-  #   image: postgres:17
-  #   environment:
-  #     POSTGRES_USER: dev_user
-  #     POSTGRES_PASSWORD: dev_pass
-  #     POSTGRES_DB: trainhub_dev_db
-
     volumes:
-      - ./postgresdata:/var/lib/postgresql/data
-  pgadmin:
-    image: dpage/pgadmin4
+      - postgresdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d trainhub_dev_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     ports:
-      - "80:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/trainhub_dev_db
+      SPRING_DATASOURCE_USERNAME: dev_user
+      SPRING_DATASOURCE_PASSWORD: dev_pass
+      APP_UPLOAD_DIR: /app/uploads/avatars
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: ../Dockerfile
-  #   ports:
-  #     - "8081:8081"
-  #   depends_on:
-  #     - postgres
-  #   volumes:
-  #   # hot-reload
-  #     - ./backend/src:/app/src
-      # - ./backend/src/main/resources:/app/src/main/resources
-      # - ./backend/src/main/java:/app/src/main/java
-      # - ./backend/src/main/resources/application.properties:/app/src/main/resources/application.properties
+      - uploads_data:/app/uploads
 
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
 
 volumes:
-  pgadmin_data:
   postgresdata:
+  uploads_data:

@@ -1,257 +1,261 @@
-TRUNCATE TABLE users CASCADE;
-TRUNCATE TABLE posts CASCADE;
-TRUNCATE TABLE friendships CASCADE;
-
-
-
 -- ============================================================
--- prueba: ver un comentario hecho por 93adones a un post de javier mena
--- lucia vega con id = ?? es amiga de javier mena
---    La constraint exige user_a_id < user_b_id → como los nuevos
+-- SEED DATA — ejecutar con seed.ps1 DESPUÉS de docker compose up
 -- ============================================================
-INSERT INTO friendships (user_a_id, user_b_id, status)
-SELECT 92, id, 'FRIEND'
-FROM users
-WHERE username IN (
-  'pedro_alonso', 'marcos_gil', 'sofia_ramos', 'javier_mena',
-  'nuria_pons', 'alberto_diaz', 'marta_fuentes', 'roberto_santos'
-);
 
-ALTER TABLE users ADD COLUMN notifications_last_seen_at TIMESTAMP;
+-- ------------------------------------------------------------
+-- 1. Género (el endpoint de registro en bulk no lo persiste)
+-- ------------------------------------------------------------
+UPDATE users SET gender = 'MALE'   WHERE username IN ('pedro_alonso','marcos_gil','javier_mena','alberto_diaz','roberto_santos','carlos_martin','miguel_torres','david_romero','sergio_molina','fernando_rubio','alejandro_reyes','antonio_lara','jose_guerrero','manuel_cano','raul_pascual');
+UPDATE users SET gender = 'FEMALE' WHERE username IN ('lucia_vega','sofia_ramos','nuria_pons','marta_fuentes','isabel_perez','ana_garcia','laura_jimenez','paula_navarro','elena_castro','carmen_ortiz','pilar_moreno','beatriz_herrero','rosa_medina','cristina_vidal','eva_serrano');
 
-
--- ============================================================
--- 2. Amistades con el usuario 93adones@gmail.com
---    La constraint exige user_a_id < user_b_id → como los nuevos
--- ============================================================
-INSERT INTO friendships (user_a_id, user_b_id, status)
-SELECT 108, id, 'FRIEND'
-FROM users
-WHERE username IN (
-  'lucia_vega', 'marcos_gil', 'pedro_alonso'
-  
-);
-
-INSERT INTO friendships (user_a_id, user_b_id, status)
-SELECT 104, id, 'FRIEND'
-FROM users
-WHERE username IN (
-  'lucia_vega', 'marcos_gil', 'sofia_ramos', 'javier_mena',
-  'nuria_pons', 'alberto_diaz', 'marta_fuentes', 'roberto_santos', 'isabel_perez'
-);
-
+-- ------------------------------------------------------------
+-- 2. Posts — 35 entrenamientos (5 usuarios con 2 posts)
+--    total_time = suma de los 16 campos de ejercicio
+-- ------------------------------------------------------------
 INSERT INTO posts (
-  user_id,
-  running1, running2, running3, running4, running5, running6, running7, running8,
-  ski_erg, sled_push, sled_pull, burpee_broad_jump, row, farmers_carry, sandbag_lunges, wall_balls,
-  total_time, description, creation_date
+    user_id,
+    running1, running2, running3, running4, running5, running6, running7, running8,
+    ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
+    farmers_carry, sandbag_lunges, wall_balls,
+    total_time, description, category, creation_date
 )
-SELECT id,
-       r1, r2, r3, r4, r5, r6, r7, r8,
-       w1, w2, w3, w4, w5, w6, w7, w8,
-       r1+r2+r3+r4+r5+r6+r7+r8 + w1+w2+w3+w4+w5+w6+w7+w8,
-       desc_text,
-       cdate
-FROM users
+SELECT u.id,
+       v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
+       v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
+       v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
+       v.descr, v.cat, v.cdate
+FROM (VALUES
+  ('pedro_alonso',     62,57,71,66,81,76,89,84,  118,46,52,179,296,91,119,149, 'Mejor marca personal. El sled pull sigue mejorando.',             'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-10 08:00:00'),
+  ('pedro_alonso',     63,58,72,67,82,77,88,83,  116,47,53,178,295,91,119,149, 'Segunda semana seguida bajando de 27:30.',                        'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-24 07:45:00'),
+  ('lucia_vega',       58,53,68,63,78,73,93,87,  124,44,49,183,307,88,123,153, 'Entrenamiento duro pero gratificante.',                           'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-11 09:30:00'),
+  ('lucia_vega',       57,52,67,62,77,72,94,88,  125,43,48,185,310,87,125,155, 'Nuevo PB en wall balls. ¡Muy contenta!',                          'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-25 08:15:00'),
+  ('marcos_gil',       63,58,73,68,83,78,87,82,  115,47,54,174,293,94,116,146, 'Primera vez que bajo de 27 minutos!',                             'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-12 07:45:00'),
+  ('marcos_gil',       62,58,72,67,82,77,88,83,  116,47,53,175,293,93,117,147, 'Consistencia. Semana muy sólida.',                                'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-26 08:00:00'),
+  ('sofia_ramos',      60,55,70,65,80,75,90,85,  120,45,50,180,300,90,120,150, 'Sesión completada con el equipo.',                                'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-13 18:15:00'),
+  ('javier_mena',      66,62,76,71,86,81,84,79,  112,50,56,170,288,97,113,143, 'Nuevo PR en ski erg. El entrenamiento de fuerza da frutos.',      'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-14 06:30:00'),
+  ('javier_mena',      65,61,75,70,85,80,85,80,  111,50,55,169,287,96,112,142, 'Mejorando la técnica en sled push.',                             'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-28 06:45:00'),
+  ('nuria_pons',       57,52,67,62,77,72,94,88,  126,43,48,184,309,87,124,154, 'Vuelta a la competición después de las vacaciones.',              'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-15 10:00:00'),
+  ('alberto_diaz',     63,59,73,68,83,78,87,82,  116,48,53,176,294,93,117,147, 'Las wall balls me matan, pero el tiempo total mejora.',           'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-16 08:45:00'),
+  ('marta_fuentes',    59,54,69,64,79,74,91,86,  122,44,51,181,302,89,122,152, 'Entrenamiento en solitario. Muy concentrada hoy.',                'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-17 17:00:00'),
+  ('roberto_santos',   65,61,75,70,85,80,85,80,  113,49,55,172,290,95,114,144, 'El sled pull sigue siendo mi talón de Aquiles.',                  'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-18 07:15:00'),
+  ('isabel_perez',     61,56,72,67,82,77,88,83,  119,45,51,178,298,91,119,149, 'Buen día, buen humor, buen tiempo.',                             'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-19 09:00:00'),
+  ('carlos_martin',    60,56,70,65,80,75,90,85,  120,47,51,177,298,92,120,151, 'Primera competición oficial. Muy satisfecho.',                    'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-20 08:30:00'),
+  ('carlos_martin',    59,55,69,64,79,74,91,86,  121,45,50,178,298,91,120,151, 'Mejorando semana a semana.',                                      'INDIVIDUAL_MALE',   TIMESTAMP '2026-05-01 07:30:00'),
+  ('ana_garcia',       62,57,72,67,82,77,88,83,  118,46,52,177,297,91,118,148, 'Entrenamiento matutino. El cuerpo responde bien.',                'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-21 07:00:00'),
+  ('miguel_torres',    67,63,77,72,87,82,83,78,  110,51,57,168,286,98,112,142, 'El running me sale muy bien hoy.',                               'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-22 09:00:00'),
+  ('laura_jimenez',    64,59,74,69,84,79,86,81,  114,48,54,174,292,94,116,146, 'Debut en Hyrox. Resultado mejor de lo esperado!',                'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-22 10:30:00'),
+  ('david_romero',     61,57,71,66,81,76,89,84,  117,46,53,175,295,91,118,148, 'Entrenamiento con Carlos. Muy buen ritmo.',                       'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-23 08:00:00'),
+  ('paula_navarro',    65,60,75,70,85,80,85,80,  113,49,55,172,290,95,114,144, 'Buena sesión. Mejoro en burpees.',                               'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-23 09:15:00'),
+  ('sergio_molina',    64,60,74,69,84,79,86,81,  114,48,54,174,292,94,117,146, 'Entrenamiento nocturno. Ambiente increíble.',                     'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-24 20:00:00'),
+  ('elena_castro',     63,58,73,68,83,78,87,82,  116,47,53,176,294,93,117,147, 'Concentración máxima. Resultado personal.',                       'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-25 08:30:00'),
+  ('fernando_rubio',   62,58,72,67,82,77,88,83,  116,47,53,176,294,92,118,148, 'Técnica mejorada en farmers carry.',                             'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-26 07:45:00'),
+  ('carmen_ortiz',     66,61,76,71,86,81,84,79,  111,50,56,171,288,97,112,142, 'Cada semana un paso más.',                                        'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-27 09:00:00'),
+  ('alejandro_reyes',  59,55,69,64,79,74,91,86,  121,45,51,180,300,89,121,151, 'El trabajo de fuerza se nota en el sled.',                        'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-28 08:00:00'),
+  ('pilar_moreno',     58,53,68,63,78,73,93,87,  125,44,49,184,308,88,124,154, 'Semana brutal. El esfuerzo vale la pena.',                        'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-29 10:00:00'),
+  ('antonio_lara',     65,61,75,70,85,80,85,80,  112,50,55,171,289,96,113,143, 'Mejorar en row es mi objetivo del mes.',                          'INDIVIDUAL_MALE',   TIMESTAMP '2026-04-30 07:00:00'),
+  ('beatriz_herrero',  60,55,70,65,80,75,90,85,  121,45,50,181,301,90,121,151, 'Temporada en alza. Muy contenta.',                               'INDIVIDUAL_FEMALE', TIMESTAMP '2026-04-30 09:30:00'),
+  ('jose_guerrero',    63,59,73,68,83,78,87,82,  115,48,53,175,294,92,118,148, 'Debut. Nervios pero buen resultado.',                             'INDIVIDUAL_MALE',   TIMESTAMP '2026-05-01 08:00:00'),
+  ('rosa_medina',      62,57,72,67,82,77,88,83,  119,46,52,178,298,91,119,149, 'Nuevo mes, nuevas metas.',                                        'INDIVIDUAL_FEMALE', TIMESTAMP '2026-05-01 09:00:00'),
+  ('manuel_cano',      68,64,78,73,88,83,82,77,  109,52,58,166,284,99,111,141, 'El sprinting es mi punto fuerte.',                               'INDIVIDUAL_MALE',   TIMESTAMP '2026-05-02 07:30:00'),
+  ('cristina_vidal',   64,59,74,69,84,79,86,81,  115,48,54,174,292,94,116,146, 'Gran sesión. El trabajo constante da sus frutos.',               'INDIVIDUAL_FEMALE', TIMESTAMP '2026-05-02 08:45:00'),
+  ('raul_pascual',     61,57,71,66,81,76,89,84,  118,46,52,179,296,90,119,149, 'Semana cargada pero el resultado merece la pena.',                'INDIVIDUAL_MALE',   TIMESTAMP '2026-05-03 07:15:00'),
+  ('eva_serrano',      67,62,77,72,87,82,83,78,  110,51,57,168,286,98,112,142, 'Me sorprendo a mí misma cada entreno.',                          'INDIVIDUAL_FEMALE', TIMESTAMP '2026-05-03 09:00:00')
+) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
+JOIN users u ON u.username = v.uname;
+
+-- ------------------------------------------------------------
+-- 3. Amistades — red social de 47 pares
+--    LEAST/GREATEST garantiza user_a_id < user_b_id
+-- ------------------------------------------------------------
+INSERT INTO friendships (user_a_id, user_b_id, status, requester_id)
+SELECT LEAST(u1.id,u2.id), GREATEST(u1.id,u2.id), 'FRIEND', u1.id
+FROM (VALUES
+  ('pedro_alonso','marcos_gil'),
+  ('pedro_alonso','javier_mena'),
+  ('pedro_alonso','alberto_diaz'),
+  ('pedro_alonso','roberto_santos'),
+  ('pedro_alonso','carlos_martin'),
+  ('lucia_vega','sofia_ramos'),
+  ('lucia_vega','nuria_pons'),
+  ('lucia_vega','marta_fuentes'),
+  ('lucia_vega','isabel_perez'),
+  ('lucia_vega','ana_garcia'),
+  ('marcos_gil','miguel_torres'),
+  ('marcos_gil','david_romero'),
+  ('javier_mena','sofia_ramos'),
+  ('javier_mena','sergio_molina'),
+  ('sofia_ramos','laura_jimenez'),
+  ('alberto_diaz','fernando_rubio'),
+  ('alberto_diaz','alejandro_reyes'),
+  ('roberto_santos','carlos_martin'),
+  ('roberto_santos','jose_guerrero'),
+  ('nuria_pons','paula_navarro'),
+  ('nuria_pons','pilar_moreno'),
+  ('marta_fuentes','elena_castro'),
+  ('marta_fuentes','beatriz_herrero'),
+  ('isabel_perez','carmen_ortiz'),
+  ('isabel_perez','rosa_medina'),
+  ('carlos_martin','miguel_torres'),
+  ('carlos_martin','raul_pascual'),
+  ('ana_garcia','laura_jimenez'),
+  ('ana_garcia','cristina_vidal'),
+  ('ana_garcia','eva_serrano'),
+  ('miguel_torres','david_romero'),
+  ('laura_jimenez','paula_navarro'),
+  ('david_romero','sergio_molina'),
+  ('paula_navarro','elena_castro'),
+  ('sergio_molina','fernando_rubio'),
+  ('elena_castro','carmen_ortiz'),
+  ('fernando_rubio','alejandro_reyes'),
+  ('carmen_ortiz','rosa_medina'),
+  ('alejandro_reyes','antonio_lara'),
+  ('pilar_moreno','beatriz_herrero'),
+  ('pilar_moreno','cristina_vidal'),
+  ('antonio_lara','jose_guerrero'),
+  ('antonio_lara','manuel_cano'),
+  ('beatriz_herrero','cristina_vidal'),
+  ('jose_guerrero','raul_pascual'),
+  ('rosa_medina','eva_serrano'),
+  ('manuel_cano','raul_pascual')
+) AS v(a, b)
+JOIN users u1 ON u1.username = v.a
+JOIN users u2 ON u2.username = v.b
+ON CONFLICT DO NOTHING;
+
+-- ------------------------------------------------------------
+-- 4. Comentarios
+-- ------------------------------------------------------------
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'lucia_vega'),
+       '¡Qué pasada! Enhorabuena por el PR.',
+       TIMESTAMP '2026-04-10 09:15:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'pedro_alonso' AND p.creation_date = TIMESTAMP '2026-04-10 08:00:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'marcos_gil'),
+       'Ese sled pull ya se nota que está mejorando, ¡sigue así!',
+       TIMESTAMP '2026-04-10 10:00:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'pedro_alonso' AND p.creation_date = TIMESTAMP '2026-04-10 08:00:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'sofia_ramos'),
+       'El ski erg siempre ha sido tu fuerte. ¡Brutal resultado!',
+       TIMESTAMP '2026-04-14 07:30:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'javier_mena' AND p.creation_date = TIMESTAMP '2026-04-14 06:30:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'pedro_alonso'),
+       '¡Bien hecho! A ver si coincidimos en el próximo.',
+       TIMESTAMP '2026-04-14 08:00:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'javier_mena' AND p.creation_date = TIMESTAMP '2026-04-14 06:30:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'marta_fuentes'),
+       'Wall balls... no hay nada peor jaja. ¡Bien!',
+       TIMESTAMP '2026-04-25 09:00:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'lucia_vega' AND p.creation_date = TIMESTAMP '2026-04-25 08:15:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'nuria_pons'),
+       '¿Otro PB? ¡Qué animal!',
+       TIMESTAMP '2026-04-25 10:30:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'lucia_vega' AND p.creation_date = TIMESTAMP '2026-04-25 08:15:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'pedro_alonso'),
+       'Primera competición y ya con ese tiempo. ¡Impresionante!',
+       TIMESTAMP '2026-04-20 09:30:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'carlos_martin' AND p.creation_date = TIMESTAMP '2026-04-20 08:30:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'roberto_santos'),
+       '¡Bienvenido al club!',
+       TIMESTAMP '2026-04-20 10:00:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'carlos_martin' AND p.creation_date = TIMESTAMP '2026-04-20 08:30:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'pedro_alonso'),
+       '¡Por fin! Te dije que podías bajar de 27.',
+       TIMESTAMP '2026-04-12 08:30:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'marcos_gil' AND p.creation_date = TIMESTAMP '2026-04-12 07:45:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'javier_mena'),
+       '¡Máquina!',
+       TIMESTAMP '2026-04-12 09:00:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'marcos_gil' AND p.creation_date = TIMESTAMP '2026-04-12 07:45:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'ana_garcia'),
+       '¡Debut con nota! Mucho por delante.',
+       TIMESTAMP '2026-04-22 11:00:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'laura_jimenez' AND p.creation_date = TIMESTAMP '2026-04-22 10:30:00';
+
+INSERT INTO comments (post_id, user_id, content, creation_date)
+SELECT p.id,
+       (SELECT id FROM users WHERE username = 'cristina_vidal'),
+       '¡Gran sesión! Nos vemos en el próximo.',
+       TIMESTAMP '2026-05-02 09:30:00'
+FROM posts p JOIN users u ON p.user_id = u.id
+WHERE u.username = 'eva_serrano' AND p.creation_date = TIMESTAMP '2026-05-03 09:00:00';
+
+-- ------------------------------------------------------------
+-- 5. Likes en posts
+-- ------------------------------------------------------------
+INSERT INTO post_likes (post_id, user_id)
+SELECT p.id, (SELECT id FROM users WHERE username = u2)
+FROM posts p
+JOIN users u ON p.user_id = u.id
 JOIN (VALUES
-  ('pedro_alonso',    62, 57, 71, 66, 81, 76, 89, 84,  118, 46, 52, 179, 296, 91, 119, 149, 'Mejor marca personal en la carrera de obstáculos!',        TIMESTAMP '2026-04-10 08:00:00'),
-  ('lucia_vega',      58, 53, 68, 63, 78, 73, 93, 87,  124, 44, 49, 183, 307, 88, 123, 153, 'Entrenamiento duro pero gratificante.',                    TIMESTAMP '2026-04-11 09:30:00'),
-  ('marcos_gil',      64, 60, 74, 69, 84, 79, 86, 81,  115, 47, 54, 174, 293, 94, 116, 146, 'Primera vez que bajo de 27 minutos!',                      TIMESTAMP '2026-04-12 07:45:00'),
-  ('sofia_ramos',     60, 55, 70, 65, 80, 75, 90, 85,  120, 45, 50, 180, 300, 90, 120, 150, 'Sesión completada con el equipo.',                         TIMESTAMP '2026-04-13 18:15:00'),
-  ('javier_mena',     66, 62, 76, 71, 86, 81, 84, 79,  112, 50, 56, 170, 288, 97, 113, 143, 'Nuevo PR en ski erg. El entreno de fuerza está dando frutos.', TIMESTAMP '2026-04-14 06:30:00'),
-  ('nuria_pons',      57, 52, 67, 62, 77, 72, 94, 88,  126, 43, 48, 184, 309, 87, 124, 154, 'Vuelta a la competición después de las vacaciones.',       TIMESTAMP '2026-04-15 10:00:00'),
-  ('alberto_diaz',    63, 59, 73, 68, 83, 78, 87, 82,  116, 48, 53, 176, 294, 93, 117, 147, 'Las wall balls me matan, pero el tiempo total mejora.',    TIMESTAMP '2026-04-16 08:45:00'),
-  ('marta_fuentes',   59, 54, 69, 64, 79, 74, 91, 86,  122, 44, 51, 181, 302, 89, 122, 152, 'Entrenamiento en solitario. Muy concentrada hoy.',         TIMESTAMP '2026-04-17 17:00:00'),
-  ('roberto_santos',  65, 61, 75, 70, 85, 80, 85, 80,  113, 49, 55, 172, 290, 95, 114, 144, 'El sled pull sigue siendo mi talón de Aquiles.',           TIMESTAMP '2026-04-18 07:15:00'),
-  ('isabel_perez',    61, 56, 72, 67, 82, 77, 88, 83,  119, 45, 51, 178, 298, 91, 119, 149, 'Buen día, buen humor, buen tiempo.',                       TIMESTAMP '2026-04-19 09:00:00')
-) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, w1,w2,w3,w4,w5,w6,w7,w8, desc_text, cdate)
-  ON users.username = v.uname;
-
-
-INSERT INTO posts (
-  user_id,
-  running1, running2, running3, running4, running5, running6, running7, running8,
-  ski_erg, sled_push, sled_pull, burpee_broad_jump, row, farmers_carry, sandbag_lunges, wall_balls,
-  total_time, description, creation_date
-)
-SELECT id,
-       r1, r2, r3, r4, r5, r6, r7, r8,
-       w1, w2, w3, w4, w5, w6, w7, w8,
-       r1+r2+r3+r4+r5+r6+r7+r8 + w1+w2+w3+w4+w5+w6+w7+w8,
-       desc_text,
-       cdate
-FROM users
-JOIN (VALUES
-  ('pedro_alonso',    62, 57, 71, 66, 81, 76, 89, 84,  118, 46, 52, 179, 296, 91, 119, 149, 'Mejor marca personal en la carrera de obstáculos!',        TIMESTAMP '2026-04-10 08:00:00'),
-  ('lucia_vega',      58, 53, 68, 63, 78, 73, 93, 87,  124, 44, 49, 183, 307, 88, 123, 153, 'Entrenamiento duro pero gratificante.',                    TIMESTAMP '2026-04-11 09:30:00'),
-  ('marcos_gil',      64, 60, 74, 69, 84, 79, 86, 81,  115, 47, 54, 174, 293, 94, 116, 146, 'Primera vez que bajo de 27 minutos!',                      TIMESTAMP '2026-04-12 07:45:00'),
-  ('sofia_ramos',     60, 55, 70, 65, 80, 75, 90, 85,  120, 45, 50, 180, 300, 90, 120, 150, 'Sesión completada con el equipo.',                         TIMESTAMP '2026-04-13 18:15:00'),
-  ('javier_mena',     66, 62, 76, 71, 86, 81, 84, 79,  112, 50, 56, 170, 288, 97, 113, 143, 'Nuevo PR en ski erg. El entreno de fuerza está dando frutos.', TIMESTAMP '2026-04-14 06:30:00'),
-  ('nuria_pons',      57, 52, 67, 62, 77, 72, 94, 88,  126, 43, 48, 184, 309, 87, 124, 154, 'Vuelta a la competición después de las vacaciones.',       TIMESTAMP '2026-04-15 10:00:00'),
-  ('alberto_diaz',    63, 59, 73, 68, 83, 78, 87, 82,  116, 48, 53, 176, 294, 93, 117, 147, 'Las wall balls me matan, pero el tiempo total mejora.',    TIMESTAMP '2026-04-16 08:45:00'),
-  ('marta_fuentes',   59, 54, 69, 64, 79, 74, 91, 86,  122, 44, 51, 181, 302, 89, 122, 152, 'Entrenamiento en solitario. Muy concentrada hoy.',         TIMESTAMP '2026-04-17 17:00:00'),
-  ('roberto_santos',  65, 61, 75, 70, 85, 80, 85, 80,  113, 49, 55, 172, 290, 95, 114, 144, 'El sled pull sigue siendo mi talón de Aquiles.',           TIMESTAMP '2026-04-18 07:15:00'),
-  ('isabel_perez',    61, 56, 72, 67, 82, 77, 88, 83,  119, 45, 51, 178, 298, 91, 119, 149, 'Buen día, buen humor, buen tiempo.',                       TIMESTAMP '2026-04-19 09:00:00')
-) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, w1,w2,w3,w4,w5,w6,w7,w8, desc_text, cdate)
-  ON users.username = v.uname;
-
--- ============================================================
--- 4. Dos posts extra para el usuario nuria.pons@example.com id 96
--- ============================================================
-INSERT INTO posts (
-  user_id,
-  running1, running2, running3, running4, running5, running6, running7, running8,
-  ski_erg, sled_push, sled_pull, burpee_broad_jump, row, farmers_carry, sandbag_lunges, wall_balls,
-  total_time, description, creation_date
-) VALUES
-  (96,
-   56, 51, 66, 61, 76, 71, 96, 90,
-   128, 42, 47, 186, 312, 85, 126, 156,
-   56+51+66+61+76+71+96+90 + 128+42+47+186+312+85+126+156,
-   'Segunda sesión de la semana. El cuerpo responde bien.',
-   TIMESTAMP '2026-04-20 08:00:00'),
-  (96,
-   54, 49, 64, 59, 74, 69, 98, 92,
-   130, 41, 46, 188, 315, 84, 128, 158,
-   54+49+64+59+74+69+98+92 + 130+41+46+188+315+84+128+158,
-   'Mejorando en burpee broad jump, flojeo en ski erg.',
-   TIMESTAMP '2026-04-21 07:30:00');
-
--- ============================================================
--- 5. Dos posts extra para el usuario javier.mena@example.com
--- ============================================================
-INSERT INTO posts (
-  user_id,
-  running1, running2, running3, running4, running5, running6, running7, running8,
-  ski_erg, sled_push, sled_pull, burpee_broad_jump, row, farmers_carry, sandbag_lunges, wall_balls,
-  total_time, description, creation_date
-) VALUES
-  (95,
-   63, 58, 73, 68, 83, 78, 87, 82,
-   116, 47, 53, 177, 295, 92, 117, 147,
-   63+58+73+68+83+78+87+82 + 116+47+53+177+295+92+117+147,
-   'Consistencia ante todo. Semana muy sólida.',
-   TIMESTAMP '2026-04-22 09:15:00'),
-  (95,
-   65, 60, 75, 70, 85, 80, 85, 80,
-   113, 49, 55, 173, 291, 95, 114, 144,
-   65+60+75+70+85+80+85+80 + 113+49+55+173+291+95+114+144,
-   'Último entrenamiento antes de la competición del domingo.',
-   TIMESTAMP '2026-04-23 06:45:00');
-
--- ============================================================
--- 6. Like a un post de javier.mena@example.com
--- ============================================================
-INSERT INTO post_likes (post_id, user_id, liked_at)
-VALUES (, 7, NOW());
-
-
-
--- ============================================================
--- 7. Insertar 10 posts para el usuario 108 javier mena
--- ============================================================
-INSERT INTO posts (
-  user_id,
-  running1, running2, running3, running4, running5, running6, running7, running8,
-  ski_erg, sled_push, sled_pull, burpee_broad_jump, row, farmers_carry, sandbag_lunges, wall_balls,
-  total_time, description, creation_date
-) VALUES
-  (108, 60,55,70,65,80,75,100,95, 135,45,50,195,320,90,132,162,
-   60+55+70+65+80+75+100+95+135+45+50+195+320+90+132+162,
-   'Primera sesión del mes. Buena energía desde el principio.',
-   TIMESTAMP '2026-04-01 07:00:00'),
-
-  (108, 59,54,69,64,79,74,99,94, 134,44,49,193,318,89,130,160,
-   59+54+69+64+79+74+99+94+134+44+49+193+318+89+130+160,
-   'Ritmo constante, bien en los running splits.',
-   TIMESTAMP '2026-04-03 07:15:00'),
-
-  (108, 58,53,68,63,78,73,98,93, 133,44,48,191,316,88,129,159,
-   58+53+68+63+78+73+98+93+133+44+48+191+316+88+129+159,
-   'Cansancio acumulado pero no me detuve.',
-   TIMESTAMP '2026-04-05 08:00:00'),
-
-  (108, 57,52,67,62,77,72,97,92, 132,43,48,190,315,87,128,158,
-   57+52+67+62+77+72+97+92+132+43+48+190+315+87+128+158,
-   'Sled push mejorado respecto a la semana pasada.',
-   TIMESTAMP '2026-04-07 07:30:00'),
-
-  (108, 57,52,67,62,77,71,97,91, 131,43,47,189,313,87,127,157,
-   57+52+67+62+77+71+97+91+131+43+47+189+313+87+127+157,
-   'Buen día, todo fluyó bien.',
-   TIMESTAMP '2026-04-09 07:00:00'),
-
-  (108, 56,51,66,61,76,71,96,91, 130,42,47,188,312,86,126,156,
-   56+51+66+61+76+71+96+91+130+42+47+188+312+86+126+156,
-   'Sesión de mitad de semana. Enfocado en la técnica.',
-   TIMESTAMP '2026-04-11 08:30:00'),
-
-  (108, 56,51,66,61,76,70,96,90, 130,42,46,187,310,85,125,155,
-   56+51+66+61+76+70+96+90+130+42+46+187+310+85+125+155,
-   'Wall balls muy bien hoy.',
-   TIMESTAMP '2026-04-13 07:00:00'),
-
-  (108, 55,50,65,60,75,70,95,90, 129,42,46,186,309,85,125,154,
-   55+50+65+60+75+70+95+90+129+42+46+186+309+85+125+154,
-   'Farmers carry más ligero que nunca.',
-   TIMESTAMP '2026-04-15 07:45:00'),
-
-  (108, 55,50,65,60,75,69,95,89, 128,41,46,185,308,84,124,153,
-   55+50+65+60+75+69+95+89+128+41+46+185+308+84+124+153,
-   'Muy bien en row, necesito mejorar burpee.',
-   TIMESTAMP '2026-04-17 08:00:00'),
-
-  (108, 54,49,64,59,74,69,94,89, 128,41,45,184,306,84,123,152,
-   54+49+64+59+74+69+94+89+128+41+45+184+306+84+123+152,
-   'Semana de carga alta, el cuerpo aguanta.',
-   TIMESTAMP '2026-04-19 07:30:00'),
-
-  (108, 54,49,64,59,74,68,94,88, 127,41,45,183,305,83,122,151,
-   54+49+64+59+74+68+94+88+127+41+45+183+305+83+122+151,
-   'Mejora progresiva en todos los ejercicios.',
-   TIMESTAMP '2026-04-21 07:00:00'),
-
-  (108, 53,48,63,58,73,68,93,88, 126,40,44,182,303,83,121,150,
-   53+48+63+58+73+68+93+88+126+40+44+182+303+83+121+150,
-   'Jornada completa sin paradas.',
-   TIMESTAMP '2026-04-23 08:15:00'),
-
-  (108, 53,48,63,58,73,67,93,87, 126,40,44,181,302,82,121,149,
-   53+48+63+58+73+67+93+87+126+40+44+181+302+82+121+149,
-   'Sled pull costó más de lo normal.',
-   TIMESTAMP '2026-04-25 07:00:00'),
-
-  (108, 52,47,62,57,72,67,92,87, 125,40,43,180,300,82,120,148,
-   52+47+62+57+72+67+92+87+125+40+43+180+300+82+120+148,
-   'Buena sesión previa al descanso del fin de semana.',
-   TIMESTAMP '2026-04-27 07:30:00'),
-
-  (108, 52,47,62,57,72,66,92,86, 124,39,43,179,299,81,119,147,
-   52+47+62+57+72+66+92+86+124+39+43+179+299+81+119+147,
-   'Comienzo de la última semana de abril fuerte.',
-   TIMESTAMP '2026-04-29 07:00:00'),
-
-  (108, 51,47,62,57,71,66,91,86, 124,39,43,178,297,81,119,146,
-   51+47+62+57+71+66+91+86+124+39+43+178+297+81+119+146,
-   'Fin de mes, superé mis marcas personales.',
-   TIMESTAMP '2026-04-30 08:00:00'),
-
-  (108, 51,46,61,56,71,65,91,85, 123,39,42,177,296,80,118,145,
-   51+46+61+56+71+65+91+85+123+39+42+177+296+80+118+145,
-   'Arrancando mayo con ganas.',
-   TIMESTAMP '2026-05-01 07:00:00'),
-
-  (108, 50,46,61,56,70,65,90,85, 122,38,42,176,294,80,117,144,
-   50+46+61+56+70+65+90+85+122+38+42+176+294+80+117+144,
-   'Ritmo sostenido durante toda la sesión.',
-   TIMESTAMP '2026-05-01 17:00:00'),
-
-  (108, 50,45,60,55,70,64,90,84, 122,38,41,175,293,79,116,143,
-   50+45+60+55+70+64+90+84+122+38+41+175+293+79+116+143,
-   'Mejora notable en ski erg.',
-   TIMESTAMP '2026-05-02 07:30:00'),
-
-  (108, 49,45,60,55,69,64,89,84, 121,38,41,174,291,79,116,142,
-   49+45+60+55+69+64+89+84+121+38+41+174+291+79+116+142,
-   'Gran sesión de cierre de semana.',
-   TIMESTAMP '2026-05-03 07:00:00');
+  ('pedro_alonso',  TIMESTAMP '2026-04-10 08:00:00', 'lucia_vega'),
+  ('pedro_alonso',  TIMESTAMP '2026-04-10 08:00:00', 'marcos_gil'),
+  ('pedro_alonso',  TIMESTAMP '2026-04-10 08:00:00', 'javier_mena'),
+  ('pedro_alonso',  TIMESTAMP '2026-04-10 08:00:00', 'carlos_martin'),
+  ('javier_mena',   TIMESTAMP '2026-04-14 06:30:00', 'pedro_alonso'),
+  ('javier_mena',   TIMESTAMP '2026-04-14 06:30:00', 'sofia_ramos'),
+  ('javier_mena',   TIMESTAMP '2026-04-14 06:30:00', 'alberto_diaz'),
+  ('lucia_vega',    TIMESTAMP '2026-04-11 09:30:00', 'sofia_ramos'),
+  ('lucia_vega',    TIMESTAMP '2026-04-11 09:30:00', 'nuria_pons'),
+  ('lucia_vega',    TIMESTAMP '2026-04-11 09:30:00', 'marta_fuentes'),
+  ('lucia_vega',    TIMESTAMP '2026-04-11 09:30:00', 'isabel_perez'),
+  ('lucia_vega',    TIMESTAMP '2026-04-25 08:15:00', 'ana_garcia'),
+  ('lucia_vega',    TIMESTAMP '2026-04-25 08:15:00', 'marta_fuentes'),
+  ('marcos_gil',    TIMESTAMP '2026-04-12 07:45:00', 'pedro_alonso'),
+  ('marcos_gil',    TIMESTAMP '2026-04-12 07:45:00', 'javier_mena'),
+  ('carlos_martin', TIMESTAMP '2026-04-20 08:30:00', 'pedro_alonso'),
+  ('carlos_martin', TIMESTAMP '2026-04-20 08:30:00', 'roberto_santos'),
+  ('carlos_martin', TIMESTAMP '2026-04-20 08:30:00', 'miguel_torres'),
+  ('carlos_martin', TIMESTAMP '2026-04-20 08:30:00', 'raul_pascual'),
+  ('nuria_pons',    TIMESTAMP '2026-04-15 10:00:00', 'lucia_vega'),
+  ('nuria_pons',    TIMESTAMP '2026-04-15 10:00:00', 'marta_fuentes'),
+  ('ana_garcia',    TIMESTAMP '2026-04-21 07:00:00', 'lucia_vega'),
+  ('ana_garcia',    TIMESTAMP '2026-04-21 07:00:00', 'laura_jimenez'),
+  ('laura_jimenez', TIMESTAMP '2026-04-22 10:30:00', 'ana_garcia'),
+  ('laura_jimenez', TIMESTAMP '2026-04-22 10:30:00', 'sofia_ramos'),
+  ('miguel_torres', TIMESTAMP '2026-04-22 09:00:00', 'marcos_gil'),
+  ('miguel_torres', TIMESTAMP '2026-04-22 09:00:00', 'carlos_martin')
+) AS v(owner, cdate, liker)
+  ON u.username = v.owner AND p.creation_date = v.cdate
+ON CONFLICT DO NOTHING;

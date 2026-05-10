@@ -37,4 +37,4 @@ postgresdata/
 .vscode/settings.json
 memoria.md
 tasks.md
-tasks.md
+.env
