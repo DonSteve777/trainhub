@@ -40,7 +40,9 @@ CREATE TABLE "posts" (
   "description" text,
   "category" varchar(20) NOT NULL DEFAULT 'INDIVIDUAL_MALE',
   "creation_date" timestamp NOT NULL DEFAULT (now()),
+  "mate" int,
   CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id"),
+  CONSTRAINT "fk_posts_mate" FOREIGN KEY ("mate") REFERENCES "users" ("id") ON DELETE SET NULL,
   CONSTRAINT "chk_posts_category" CHECK ("category" IN ('INDIVIDUAL_MALE', 'INDIVIDUAL_FEMALE', 'DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE'))
 );
 

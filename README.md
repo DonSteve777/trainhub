@@ -50,13 +50,18 @@ Este comando construye las imágenes del backend y el frontend, y arranca los tr
 
 La base de datos se inicializa automáticamente con el esquema y los datos de ejemplo incluidos en `schema.sql` e `inserts.sql`.
 
-### 4. Poblar la base de datos con datos de ejemplo
+### 4. Poblar la base de datos con datos de ejemplo: ejecutar en bash
 
-```powershell
-.\seed.ps1
+```bash
+bash seed.sh
 ```
 
-Este script registra 30 usuarios vía API (las contraseñas quedan encriptadas) e inserta posts, amistades, comentarios y likes. Solo ejecutarlo una vez.
+Este script realiza dos operaciones:
+
+1. **Usuarios** — los registra vía API REST (no directamente en SQL) para que las contraseñas queden encriptadas con BCrypt. Si los usuarios ya existen, los omite sin error. Las contraseñas son siempre la misma: password123
+2. **Resto de datos** — vacía completamente las tablas `posts`, `friendships`, `comments`, `comment_likes` y `post_likes`, y las vuelve a poblar desde cero. La tabla `users` **no se toca** en este paso.
+
+Se puede ejecutar varias veces: siempre deja la base de datos en un estado limpio y consistente.
 
 > **Usuarios de ejemplo** — todos con contraseña `password123`:
 > `pedro.alonso@example.com`, `lucia.vega@example.com`, `javier.mena@example.com`, …

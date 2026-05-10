@@ -2,6 +2,18 @@
 -- SEED DATA — ejecutar con seed.ps1 DESPUÉS de docker compose up
 -- ============================================================
 
+-- select * from users;
+-- select * from posts;
+-- select * from friendships;
+-- select * from comments;
+-- select * from post_likes;
+-- select * from omment_likes;
+
+-- ------------------------------------------------------------
+-- 0. Limpiar tablas (excepto users)
+-- ------------------------------------------------------------
+TRUNCATE TABLE comment_likes, post_likes, comments, friendships, posts RESTART IDENTITY CASCADE;
+
 -- ------------------------------------------------------------
 -- 1. Género (el endpoint de registro en bulk no lo persiste)
 -- ------------------------------------------------------------
@@ -225,7 +237,7 @@ WHERE u.username = 'eva_serrano' AND p.creation_date = TIMESTAMP '2026-05-03 09:
 -- 5. Likes en posts
 -- ------------------------------------------------------------
 INSERT INTO post_likes (post_id, user_id)
-SELECT p.id, (SELECT id FROM users WHERE username = u2)
+SELECT p.id, (SELECT id FROM users WHERE username = v.liker)
 FROM posts p
 JOIN users u ON p.user_id = u.id
 JOIN (VALUES
@@ -259,3 +271,33 @@ JOIN (VALUES
 ) AS v(owner, cdate, liker)
   ON u.username = v.owner AND p.creation_date = v.cdate
 ON CONFLICT DO NOTHING;
+
+-- ------------------------------------------------------------
+-- 6. Posts en pareja (DOUBLES)
+-- ------------------------------------------------------------
+INSERT INTO posts (
+    user_id, mate,
+    running1, running2, running3, running4, running5, running6, running7, running8,
+    ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
+    farmers_carry, sandbag_lunges, wall_balls,
+    total_time, description, category, creation_date
+)
+SELECT u.id, m.id,
+       v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
+       v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
+       v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
+       v.descr, v.cat, v.cdate
+FROM (VALUES
+  ('pedro_alonso',   'marcos_gil',      65,60,74,69,84,79,91,86,  120,48,54,181,298,93,121,151, 'Primera vez en pareja. ¡Brutal sinergia!',                       'DOUBLES_MALE',   TIMESTAMP '2026-05-01 08:00:00'),
+  ('javier_mena',    'alberto_diaz',    67,62,76,71,86,81,93,88,  122,50,56,183,300,95,123,153, 'Mejor tiempo en dobles masculino hasta la fecha.',               'DOUBLES_MALE',   TIMESTAMP '2026-05-02 07:30:00'),
+  ('carlos_martin',  'roberto_santos',  64,59,73,68,83,78,90,85,  119,47,53,180,297,92,120,150, 'Bien coordinados en el sled. Repetiremos.',                      'DOUBLES_MALE',   TIMESTAMP '2026-05-03 08:15:00'),
+  ('miguel_torres',  'david_romero',    66,61,75,70,85,80,92,87,  121,49,55,182,299,94,122,152, 'Nos hemos complementado perfectamente en el ski erg.',           'DOUBLES_MALE',   TIMESTAMP '2026-05-04 07:00:00'),
+  ('lucia_vega',     'sofia_ramos',     60,55,70,65,80,75,95,89,  126,46,51,185,309,90,125,155, 'Dobles femenino por primera vez. ¡Muy satisfechas!',             'DOUBLES_FEMALE', TIMESTAMP '2026-05-01 09:30:00'),
+  ('nuria_pons',     'marta_fuentes',   61,56,71,66,81,76,94,88,  125,45,50,184,308,89,124,154, 'El burpee broad jump fue el punto fuerte del equipo.',           'DOUBLES_FEMALE', TIMESTAMP '2026-05-02 10:00:00'),
+  ('ana_garcia',     'laura_jimenez',   59,54,69,64,79,74,96,90,  127,47,52,186,310,91,126,156, 'Gran entrenamiento. Mañana repetimos apuntando al podio.',       'DOUBLES_FEMALE', TIMESTAMP '2026-05-03 09:00:00'),
+  ('pedro_alonso',   'lucia_vega',      63,58,72,67,82,77,92,87,  120,47,53,182,300,92,122,152, 'Mixto con mucha energía. El wall balls voló.',                   'DOUBLES_MIXED',  TIMESTAMP '2026-05-05 08:00:00'),
+  ('javier_mena',    'nuria_pons',      65,60,74,69,84,79,91,86,  122,49,55,183,301,93,123,153, 'Ritmo constante de principio a fin. Top resultado mixto.',       'DOUBLES_MIXED',  TIMESTAMP '2026-05-06 07:45:00'),
+  ('carlos_martin',  'elena_castro',    64,59,73,68,83,78,90,85,  121,48,54,181,299,93,121,151, 'Entrenamiento mixto muy completo. El row fue espectacular.',     'DOUBLES_MIXED',  TIMESTAMP '2026-05-07 08:30:00')
+) AS v(uname, mate_name, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
+JOIN users u ON u.username = v.uname
+JOIN users m ON m.username = v.mate_name;
