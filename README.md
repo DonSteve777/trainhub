@@ -27,6 +27,10 @@ cd repo
 
 ### 2. Configurar las credenciales de email
 
+Nota:
+.env.example → se sube al repo, muestra qué variables hacen falta
+.env → cada persona lo crea con sus propias credenciales, nunca se sube
+
 Copia la plantilla de variables de entorno y rellena tus credenciales:
 
 ```bash
@@ -72,6 +76,24 @@ Se puede ejecutar varias veces: siempre deja la base de datos en un estado limpi
 |-----------|------------------------------|
 | Frontend  | http://localhost:4200        |
 | Backend   | http://localhost:8080        |
+| pgAdmin   | http://localhost:5050        |
+
+**Credenciales de pgAdmin:**
+
+| Campo    | Valor                  |
+|----------|------------------------|
+| Email    | admin@trainhub.com     |
+| Password | admin123               |
+
+Una vez dentro, para conectar al servidor PostgreSQL usa:
+
+| Campo    | Valor             |
+|----------|-------------------|
+| Host     | postgres          |
+| Port     | 5432              |
+| Database | trainhub_dev_db   |
+| Username | dev_user          |
+| Password | dev_pass          |
 
 ### Parar los servicios
 

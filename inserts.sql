@@ -301,3 +301,29 @@ FROM (VALUES
 ) AS v(uname, mate_name, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
 JOIN users u ON u.username = v.uname
 JOIN users m ON m.username = v.mate_name;
+
+INSERT INTO posts (
+    user_id,
+    running1, running2, running3, running4, running5, running6, running7, running8,
+    ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
+    farmers_carry, sandbag_lunges, wall_balls,
+    total_time, description, category, creation_date
+)
+SELECT u.id,
+       v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
+       v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
+       v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
+       v.descr, v.cat, v.cdate
+FROM (VALUES
+  ('javier_mena', 64,60,74,69,84,79,86,81, 113,49,55,171,289,96,113,143, 'Semana de carga. Sensaciones muy buenas en el ski erg.',         'INDIVIDUAL_MALE', TIMESTAMP '2026-05-08 06:30:00'),
+  ('javier_mena', 63,59,73,68,83,78,87,82, 114,48,54,172,290,95,112,142, 'El sled pull mejora cada semana. A seguir así.',                 'INDIVIDUAL_MALE', TIMESTAMP '2026-05-12 07:00:00'),
+  ('javier_mena', 65,61,75,70,85,80,84,79, 111,50,56,170,288,97,113,143, 'Bajé otro segundo en total. Pequeños avances que suman.',       'INDIVIDUAL_MALE', TIMESTAMP '2026-05-16 06:45:00'),
+  ('javier_mena', 62,58,72,67,82,77,88,83, 115,47,53,173,291,94,114,144, 'Entrenamiento con lluvia. El burpee fue un caos.',               'INDIVIDUAL_MALE', TIMESTAMP '2026-05-20 08:00:00'),
+  ('javier_mena', 66,62,76,71,86,81,83,78, 110,51,57,168,287,98,112,142, 'Nuevo PR en row. El trabajo de espalda se nota.',               'INDIVIDUAL_MALE', TIMESTAMP '2026-05-24 06:30:00'),
+  ('javier_mena', 64,60,74,69,84,79,85,80, 112,49,55,169,288,96,112,142, 'Sesión nocturna. Ambiente brutal en el box.',                   'INDIVIDUAL_MALE', TIMESTAMP '2026-05-28 20:00:00'),
+  ('javier_mena', 63,59,73,68,83,78,86,81, 113,48,55,171,289,95,113,143, 'Competición. Nervioso al principio pero buen ritmo al final.',  'INDIVIDUAL_MALE', TIMESTAMP '2026-06-01 09:00:00'),
+  ('javier_mena', 61,57,71,66,81,76,88,83, 116,47,53,174,292,93,115,145, 'Recuperación activa. No era el día pero lo completé.',         'INDIVIDUAL_MALE', TIMESTAMP '2026-06-05 07:30:00'),
+  ('javier_mena', 65,61,75,70,85,80,84,79, 111,50,56,169,287,97,112,142, 'Vuelta al 100%. Los farmers carry se sienten fáciles ya.',      'INDIVIDUAL_MALE', TIMESTAMP '2026-06-09 06:45:00'),
+  ('javier_mena', 64,60,74,69,84,79,85,80, 112,49,55,170,288,96,113,143, 'Fin de temporada. Mejor marca del año. ¡A por la siguiente!',  'INDIVIDUAL_MALE', TIMESTAMP '2026-06-13 08:00:00')
+) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
+JOIN users u ON u.username = v.uname;
