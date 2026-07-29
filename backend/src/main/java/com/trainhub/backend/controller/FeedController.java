@@ -58,7 +58,7 @@ public class FeedController {
 
     /**
      * Devuelve los históricos de tiempos de los posts de los amigos del usuario
-     * autenticado en las últimas 4 semanas, filtrados por categoría.
+     * autenticado, filtrados por categoría y sin límite de fecha.
      *
      * @param category categoría del post (INDIVIDUAL_MALE, INDIVIDUAL_FEMALE, etc.)
      */

@@ -43,19 +43,13 @@ public class FeedService {
         this.userRepository = userRepository;
     }
 
-    private static final int FEED_WEEKS = 4;
-
-    private LocalDateTime since() {
-        return LocalDateTime.now().minusWeeks(FEED_WEEKS);
-    }
-
     public List<FeedPostResponse> getFirstPage(Integer userId, int size) {
-        List<Post> posts = postRepository.findFeedFirstPage(userId, since(), PageRequest.of(0, size));
+        List<Post> posts = postRepository.findFeedFirstPage(userId, PageRequest.of(0, size));
         return toResponseList(posts, userId);
     }
 
     public List<FeedPostResponse> getNextPage(Integer userId, LocalDateTime cursorDate, Integer cursorId, int size) {
-        List<Post> posts = postRepository.findFeedWithCursor(userId, since(), cursorDate, cursorId, PageRequest.of(0, size));
+        List<Post> posts = postRepository.findFeedWithCursor(userId, cursorDate, cursorId, PageRequest.of(0, size));
         return toResponseList(posts, userId);
     }
 
@@ -72,7 +66,7 @@ public class FeedService {
     }
 
     public FeedHistoryResponse getHistory(Integer userId, PostCategory category) {
-        List<Object[]> rows = postRepository.findFriendPostTimes(userId, since(), category);
+        List<Object[]> rows = postRepository.findFriendPostTimes(userId, category);
 
         return new FeedHistoryResponse(
                 col(rows, 0),
