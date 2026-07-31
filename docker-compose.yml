@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:17
+    ports:
+      - "5431:5432"
     restart: always
     environment:
       POSTGRES_USER: dev_user
