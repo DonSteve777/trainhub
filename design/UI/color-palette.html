@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paleta de Colores - Trainhub</title>
+  <style>
+    :root {
+      --bg-color: #1a1412;
+      --text-color: #e0e0e0;
+      --surface-medium: #2d2522;
+      --surface-light: #3f3733;
+      --accent: #FF5722;
+      --border-color: #444;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1, h2, h3 {
+      color: #fff;
+      margin-top: 2rem;
+    }
+
+    h1 { border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { border-bottom: 1px solid var(--surface-light); padding-bottom: 0.3rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background-color: var(--surface-medium);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--surface-light);
+    }
+
+    th {
+      background-color: var(--surface-light);
+      font-weight: 600;
+    }
+
+    code {
+      font-family: "Courier New", Courier, monospace;
+      background-color: #000;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #ffab91;
+    }
+
+    pre {
+      background-color: #000;
+      padding: 1.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid var(--surface-light);
+    }
+
+    pre code {
+      background-color: transparent;
+      padding: 0;
+      color: #e0e0e0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: 0; height: 1px; background: var(--border-color); margin: 2rem 0; }
+
+    /* Estilo para las muestras de color */
+    .color-swatch {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      vertical-align: middle;
+      margin-right: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .hex-container {
+      display: inline-flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Paleta de Colores - Trainhub</h1>
+  <p>El tema está <strong>optimizado para modo oscuro</strong></p>
+
+  <hr>
+
+  <h2>Colores Principales</h2>
+
+  <h3>Primary - Naranja Energético</h3>
+  <p><strong>Color base:</strong> <span class="hex-container"><span class="color-swatch" style="background-color: #FF5722;"></span><code>#FF5722</code></span> (Deep Orange)</p>
+
+  <table>
+    <thead>
+      <tr><th>Tono</th><th>Hex</th><th>Uso</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>10</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #3a0800;"></span><code>#3a0800</code></span></td><td>Superficies más oscuras</td></tr>
+      <tr><td>20</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #5f1100;"></span><code>#5f1100</code></span></td><td>Fondos de contenedores</td></tr>
+      <tr><td>30</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #802200;"></span><code>#802200</code></span></td><td>Estados hover oscuros</td></tr>
+      <tr><td>40</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #a33200;"></span><code>#a33200</code></span></td><td>Elementos deshabilitados</td></tr>
+      <tr><td>50</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #c84a0e;"></span><code>#c84a0e</code></span></td><td>Estados focus</td></tr>
+      <tr><td>60</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #e96328;"></span><code>#e96328</code></span></td><td>Elementos secundarios</td></tr>
+      <tr><td>70</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ff8a65;"></span><code>#ff8a65</code></span></td><td>Hover en modo oscuro</td></tr>
+      <tr><td>80</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffab91;"></span><code>#ffab91</code></span></td><td>Texto sobre fondos oscuros</td></tr>
+      <tr><td>90</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffd5c8;"></span><code>#ffd5c8</code></span></td><td>Fondos suaves</td></tr>
+      <tr><td>95</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffede9;"></span><code>#ffede9</code></span></td><td>Fondos muy claros</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Usos recomendados:</strong></p>
+  <ul>
+    <li>Botones de acción principal (CTA)</li>
+    <li>Botón "+" para crear publicaciones</li>
+    <li>Iconos de navegación activos</li>
+    <li>Enlaces importantes</li>
+    <li>Bordes de elementos seleccionados</li>
+  </ul>
+
+<pre><code class="language-scss">// Ejemplo de uso
+.primary-button {
+  background-color: var(--trainhub-accent);
+  
+  &amp;:hover {
+    background-color: var(--trainhub-accent-light);
+  }
+  
+  &amp;:active {
+    background-color: var(--trainhub-accent-dark);
+  }
+}</code></pre>
+
+  <hr>
+
+  <h3>Secondary - Amarillo Vibrante</h3>
+  <p><strong>Color base:</strong> <span class="hex-container"><span class="color-swatch" style="background-color: #FFC107;"></span><code>#FFC107</code></span> (Amber)</p>
+  <p>Representa logros, metas alcanzadas y progreso en el entrenamiento.</p>
+
+  <table>
+    <thead>
+      <tr><th>Tono</th><th>Hex</th><th>Uso</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>20</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #462b00;"></span><code>#462b00</code></span></td><td>Fondos oscuros</td></tr>
+      <tr><td>40</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #805900;"></span><code>#805900</code></span></td><td>Estados hover</td></tr>
+      <tr><td>60</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #c08c00;"></span><code>#c08c00</code></span></td><td>Elementos destacados</td></tr>
+      <tr><td>80</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffc107;"></span><code>#ffc107</code></span></td><td><strong>Color base - logros</strong></td></tr>
+      <tr><td>90</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffd54f;"></span><code>#ffd54f</code></span></td><td>Hover/focus</td></tr>
+      <tr><td>95</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffe57f;"></span><code>#ffe57f</code></span></td><td>Fondos suaves</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Usos recomendados:</strong></p>
+  <ul>
+    <li>Botones de acciones secundarias</li>
+    <li>Insignias de logros y medallas</li>
+    <li>Indicadores de progreso completado</li>
+    <li>Notificaciones de éxito</li>
+    <li>Claps/likes (alternativa al rojo)</li>
+  </ul>
+
+<pre><code class="language-scss">// Ejemplo de uso
+.achievement-badge {
+  background: var(--trainhub-achievement-gold);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}</code></pre>
+
+  <hr>
+
+  <h3>Tertiary - Rojo Intenso</h3>
+  <p><strong>Color base:</strong> <span class="hex-container"><span class="color-swatch" style="background-color: #F44336;"></span><code>#F44336</code></span> (Red)</p>
+  <p>Para destacar información crítica, métricas de rendimiento y elementos de alta prioridad.</p>
+
+  <table>
+    <thead>
+      <tr><th>Tono</th><th>Hex</th><th>Uso</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>30</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #93000a;"></span><code>#93000a</code></span></td><td>Fondos de alerta</td></tr>
+      <tr><td>40</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ba1a1a;"></span><code>#ba1a1a</code></span></td><td>Estados activos</td></tr>
+      <tr><td>50</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #de3730;"></span><code>#de3730</code></span></td><td>Alertas importantes</td></tr>
+      <tr><td>60</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ff5449;"></span><code>#ff5449</code></span></td><td><strong>Color base - alertas</strong></td></tr>
+      <tr><td>70</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ff897d;"></span><code>#ff897d</code></span></td><td>Hover en modo oscuro</td></tr>
+      <tr><td>90</td><td><span class="hex-container"><span class="color-swatch" style="background-color: #ffdad6;"></span><code>#ffdad6</code></span></td><td>Fondos suaves de error</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Usos recomendados:</strong></p>
+  <ul>
+    <li>Botones de like/clap (corazón)</li>
+    <li>Métricas de rendimiento destacadas</li>
+    <li>Tiempo récord personal</li>
+    <li>Notificaciones importantes</li>
+    <li>Indicadores de intensidad alta</li>
+  </ul>
+
+<pre><code class="language-scss">// Ejemplo de uso
+.like-button {
+  color: var(--mat-sys-tertiary);
+  
+  &amp;.liked {
+    color: var(--mat-sys-tertiary);
+    animation: heartbeat 0.3s ease;
+  }
+}</code></pre>
+
+  <hr>
+
+  <h2>Colores de Sistema</h2>
+
+  <h3>Success - Verde Deportivo</h3>
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Hex</th><th>Uso</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>--trainhub-success</code></td><td><span class="hex-container"><span class="color-swatch" style="background-color: #66BB6A;"></span><code>#66BB6A</code></span></td><td>Éxito base</td></tr>
+      <tr><td><code>--trainhub-success-light</code></td><td><span class="hex-container"><span class="color-swatch" style="background-color: #81C784;"></span><code>#81C784</code></span></td><td>Hover</td></tr>
+      <tr><td><code>--trainhub-success-dark</code></td><td><span class="hex-container"><span class="color-swatch" style="background-color: #4CAF50;"></span><code>#4CAF50</code></span></td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Usos:</strong> Confirmaciones de acción exitosa, Objetivos completados, Entrenamientos finalizados, Estados de conexión activa.</p>
+
+  <hr>
+
+  <h3>Warning - Naranja Advertencia</h3>
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Hex</th><th>Uso</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>--trainhub-warning</code></td><td><span class="hex-container"><span class="color-swatch" style="background-color: #FFA726;"></span><code>#FFA726</code></span></td><td>Advertencia base</td></tr>
+      <tr><td><code>--trainhub-warning-light</code></td><td><span class="hex-container"><span class="color-swatch" style="background-color: #FFB74D;"></span><code>#FFB74D</code></span></td><td>Hover</td></tr>
+      <tr><td><code>--trainhub-warning-dark</code></td><td><span class="hex-container"><span class="color-swatch" style="background-color: #FF9800;"></span><code>#FF9800</code></span></td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Usos:</strong> Advertencias moderadas, Límites de tiempo próximos, Acciones que requieren atención, Campos de formulario con validación pendiente.</p>
+
+  <hr>
+
+  <h3>Error - Rojo Error</h3>
+  <table>
+    <thead>
+      <tr><th>

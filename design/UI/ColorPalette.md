@@ -489,7 +489,7 @@ export class MyComponent {
 ## Recursos Adicionales
 
 - **Archivo de tema:** `frontend/src/styles/_theme.scss`
-- **Estilos globales:** `frontend/src/styles.scss`
+- **Estilos globales:** `frontend/src/styles/styles.scss`
 - **Material Design 3:** [material.angular.dev](https://material.angular.dev/guide/theming)
 
 ---
