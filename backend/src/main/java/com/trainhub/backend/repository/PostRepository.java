@@ -67,7 +67,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("category") com.trainhub.backend.enums.PostCategory category);
 
     /**
-     * Devuelve los tiempos de cada post del propio usuario de las últimas 4 semanas,
+     * Devuelve los tiempos de cada post del propio usuario ,
      * ordenados por fecha ascendente.
      * Cada fila: [totalTime, r1..r8, w1..w8, creationDate] (18 columnas).
      */

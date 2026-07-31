@@ -1,24 +1,4 @@
 <div class="user-feed">
-
-  <aside class="feed-stats-panel" aria-label="Estadísticas">
-    <button
-      class="feed-stats-btn"
-      [class.feed-stats-btn--active]="historyMode() === 'global'"
-      aria-label="Estadísticas globales"
-      (click)="setHistoryMode('global')"
-    >
-      <mat-icon>leaderboard</mat-icon>
-    </button>
-    <button
-      class="feed-stats-btn"
-      [class.feed-stats-btn--active]="historyMode() === 'friends'"
-      aria-label="Estadísticas de amigos"
-      (click)="setHistoryMode('friends')"
-    >
-      <mat-icon>group</mat-icon>
-    </button>
-  </aside>
-
   <!-- Cabecera de usuario -->
   @if (userInfo()) {
     <header class="user-feed-header">
@@ -32,10 +12,14 @@
     </header>
 
     <nav class="user-feed-nav" aria-label="Secciones del usuario">
-      <a class="user-feed-nav__tab user-feed-nav__tab--active"
-         [routerLink]="['/user', targetUserId()]">Posts</a>
-      <a class="user-feed-nav__tab"
-         [routerLink]="['/time-history', targetUserId()]">Estadísticas</a>
+      <a
+        class="user-feed-nav__tab user-feed-nav__tab--active"
+        [routerLink]="['/user', targetUserId()]"
+        >Posts</a
+      >
+      <a class="user-feed-nav__tab" [routerLink]="['/time-history', targetUserId()]"
+        >Estadísticas</a
+      >
     </nav>
   }
 
@@ -52,9 +36,8 @@
   }
 
   <div class="feed">
-    @for (post of posts(); track post.id; let i = $index) {
+    @for (post of posts(); track post.id) {
       <article class="post-card">
-
         <!-- Bloque 1: Header + Acciones en la misma fila -->
         <div class="post-top-bar">
           <div class="post-header">
@@ -63,10 +46,16 @@
             </a>
             <div class="post-meta">
               <div class="post-username-row">
-                <a class="post-username" [routerLink]="['/user', post.userId]">{{ post.username }}</a>
+                <a class="post-username" [routerLink]="['/user', post.userId]">{{
+                  post.username
+                }}</a>
                 @if (post.mateUsername) {
                   <span class="post-mate-separator">&amp;</span>
-                  <a class="post-username post-username--mate" [routerLink]="['/user', post.mateUserId]">{{ post.mateUsername }}</a>
+                  <a
+                    class="post-username post-username--mate"
+                    [routerLink]="['/user', post.mateUserId]"
+                    >{{ post.mateUsername }}</a
+                  >
                 }
               </div>
               <p class="post-description">{{ post.description }}</p>
@@ -77,7 +66,9 @@
             <button
               class="action-btn"
               (click)="toggleLike(post)"
-              [attr.aria-label]="'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')"
+              [attr.aria-label]="
+                'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')
+              "
             >
               <mat-icon [class.action-btn__icon--liked]="post.liked">
                 {{ post.liked ? 'favorite' : 'favorite_border' }}
@@ -88,7 +79,11 @@
             <button
               class="action-btn"
               (click)="openComments(post)"
-              [attr.aria-label]="'Comentarios, ' + post.commentsCount + (post.commentsCount === 1 ? ' comentario' : ' comentarios')"
+              [attr.aria-label]="
+                'Comentarios, ' +
+                post.commentsCount +
+                (post.commentsCount === 1 ? ' comentario' : ' comentarios')
+              "
             >
               <mat-icon>chat_bubble_outline</mat-icon>
               <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
@@ -96,80 +91,11 @@
           </div>
         </div>
 
-        <!-- Bloque 2: Carrusel -->
-        <div class="post-carousel-wrapper">
-          <button
-            class="carousel-arrow carousel-arrow--prev"
-            [class.carousel-arrow--hidden]="post.currentSlide === 0"
-            (click)="prevSlide(i, post)"
-            aria-label="Gráfico anterior"
-          >
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-
-          <div class="post-carousel" #carousel>
-            <div class="carousel-track">
-              <div class="carousel-slide carousel-slide--stats">
-                <app-race-distribution-chart
-                  [allTimes]="post.stats.allTotalTimes"
-                  [athleteTime]="post.stats.athleteTotal"
-                  label="Total Time"
-                  color="#FFC107"
-                />
-                <div class="stats-divider"></div>
-                <app-race-distribution-chart
-                  [allTimes]="post.stats.allWorkoutTimes"
-                  [athleteTime]="post.stats.athleteWorkout"
-                  label="Workouts"
-                  color="#8B9FFF"
-                />
-                <div class="stats-divider"></div>
-                <app-race-distribution-chart
-                  [allTimes]="post.stats.allRunTimes"
-                  [athleteTime]="post.stats.athleteRun"
-                  label="Runs"
-                  color="#FF6B8A"
-                />
-              </div>
-
-              <div class="carousel-slide carousel-slide--segment-grid">
-                @for (seg of post.stats.runSegments; track seg.label) {
-                  <app-race-distribution-chart
-                    [allTimes]="seg.allTimes"
-                    [athleteTime]="seg.athleteTime"
-                    [label]="seg.label"
-                    color="#FF6B8A"
-                  />
-                }
-              </div>
-
-              <div class="carousel-slide carousel-slide--segment-grid">
-                @for (seg of post.stats.workoutSegments; track seg.label) {
-                  <app-race-distribution-chart
-                    [allTimes]="seg.allTimes"
-                    [athleteTime]="seg.athleteTime"
-                    [label]="seg.label"
-                    color="#8B9FFF"
-                  />
-                }
-              </div>
-
-              <div class="carousel-slide carousel-slide--radar">
-                <app-performance-radar-chart [segments]="post.stats.radarSegments" />
-              </div>
-            </div>
-          </div>
-
-          <button
-            class="carousel-arrow carousel-arrow--next"
-            [class.carousel-arrow--hidden]="post.currentSlide === slides.length - 1"
-            (click)="nextSlide(i, post)"
-            aria-label="Gráfico siguiente"
-          >
-            <mat-icon>chevron_right</mat-icon>
-          </button>
+        <!-- Punto de inserción temporal para la futura visualización del post -->
+        <div class="post-visualization-placeholder" role="status">
+          <mat-icon aria-hidden="true">insights</mat-icon>
+          <span>Visualización de carrera próximamente</span>
         </div>
-
       </article>
     }
   </div>
