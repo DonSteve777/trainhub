@@ -39,14 +39,6 @@ export interface LikeToggleDto {
   likesCount: number;
 }
 
-export interface FeedHistoryDto {
-  totalsHistory: number[];
-  r1History: number[]; r2History: number[]; r3History: number[]; r4History: number[];
-  r5History: number[]; r6History: number[]; r7History: number[]; r8History: number[];
-  w1History: number[]; w2History: number[]; w3History: number[]; w4History: number[];
-  w5History: number[]; w6History: number[]; w7History: number[]; w8History: number[];
-}
-
 @Injectable({ providedIn: 'root' })
 export class FeedService {
   private readonly api = inject(ApiService);
@@ -57,16 +49,8 @@ export class FeedService {
 
   getNextPage(cursorDate: string, cursorId: number, size = 5): Observable<FeedPostDto[]> {
     return this.api.get<FeedPostDto[]>(
-      `/feed?cursorDate=${encodeURIComponent(cursorDate)}&cursorId=${cursorId}&size=${size}`,
+      `/feed?cursorDate=${encodeURIComponent(cursorDate)}&cursorId=${cursorId}&size=${size}`
     );
-  }
-
-  getHistory(category: string): Observable<FeedHistoryDto> {
-    return this.api.get<FeedHistoryDto>(`/feed/history?category=${encodeURIComponent(category)}`);
-  }
-
-  getGlobalHistory(category: string): Observable<FeedHistoryDto> {
-    return this.api.get<FeedHistoryDto>(`/feed/global-history?category=${encodeURIComponent(category)}`);
   }
 
   getUserPosts(userId: number): Observable<FeedPostDto[]> {
