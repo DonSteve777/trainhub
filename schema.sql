@@ -82,8 +82,7 @@ CREATE TABLE "post_likes" (
   "content" text NOT NULL,
   "creation_date" timestamp NOT NULL DEFAULT (now()),
   CONSTRAINT "fk_comments_posts" FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
-  CONSTRAINT "fk_comments_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
-  CONSTRAINT "fk_comments_mate" FOREIGN KEY ("mate") REFERENCES "users" ("id") ON DELETE SET NULL
+  CONSTRAINT "fk_comments_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "comment_likes" (
