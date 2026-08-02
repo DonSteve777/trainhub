@@ -1,9 +1,7 @@
 package com.trainhub.backend.service;
 
-import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
-import com.trainhub.backend.enums.PostCategory;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.PostLike;
 import com.trainhub.backend.model.PostLikeId;
@@ -65,30 +63,6 @@ public class FeedService {
         return toResponseList(posts, currentUserId);
     }
 
-    public FeedHistoryResponse getHistory(Integer userId, PostCategory category) {
-        List<Object[]> rows = postRepository.findFriendPostTimes(userId, category);
-
-        return new FeedHistoryResponse(
-                col(rows, 0),
-                col(rows, 1),  col(rows, 2),  col(rows, 3),  col(rows, 4),
-                col(rows, 5),  col(rows, 6),  col(rows, 7),  col(rows, 8),
-                col(rows, 9),  col(rows, 10), col(rows, 11), col(rows, 12),
-                col(rows, 13), col(rows, 14), col(rows, 15), col(rows, 16)
-        );
-    }
-
-    public FeedHistoryResponse getGlobalHistory(PostCategory category) {
-        List<Object[]> rows = postRepository.findAllPostTimes(category);
-
-        return new FeedHistoryResponse(
-                col(rows, 0),
-                col(rows, 1),  col(rows, 2),  col(rows, 3),  col(rows, 4),
-                col(rows, 5),  col(rows, 6),  col(rows, 7),  col(rows, 8),
-                col(rows, 9),  col(rows, 10), col(rows, 11), col(rows, 12),
-                col(rows, 13), col(rows, 14), col(rows, 15), col(rows, 16)
-        );
-    }
-
     /**
      * Da o quita like al post indicado para el usuario dado (toggle).
      * Si el usuario aún no había dado like, lo crea. Si ya lo había dado, lo elimina.
@@ -114,12 +88,6 @@ public class FeedService {
 
         long newCount = postLikeRepository.countByPostId(postId);
         return new LikeToggleResponse(!alreadyLiked, newCount);
-    }
-
-    private List<Integer> col(List<Object[]> rows, int index) {
-        return rows.stream()
-                .map(r -> ((Number) r[index]).intValue())
-                .collect(Collectors.toList());
     }
 
     private List<FeedPostResponse> toResponseList(List<Post> posts, Integer userId) {

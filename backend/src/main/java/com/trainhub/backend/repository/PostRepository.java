@@ -39,34 +39,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             Pageable pageable);
 
     /**
-     * Devuelve los tiempos individuales de cada post de los amigos del usuario,
-     * sin paginación, para construir las distribuciones en el frontend.
-     * Se incluyen todos los posts de la categoría indicada, sin límite de fecha.
-     * Cada fila: [totalTime, r1..r8, w1..w8] (17 columnas, índice i = mismo post)
-     */
-    @Query("""
-            SELECT p.totalTime,
-                   p.running1, p.running2, p.running3, p.running4,
-                   p.running5, p.running6, p.running7, p.running8,
-                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
-                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls
-            FROM Post p
-            WHERE EXISTS (
-                SELECT f FROM Friendship f
-                WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
-                AND (
-                    (f.id.userAId = :userId AND f.id.userBId = p.user.id)
-                    OR
-                    (f.id.userBId = :userId AND f.id.userAId = p.user.id)
-                )
-            )
-            AND p.category = :category
-            """)
-    List<Object[]> findFriendPostTimes(
-            @Param("userId") Integer userId,
-            @Param("category") com.trainhub.backend.enums.PostCategory category);
-
-    /**
      * Devuelve los tiempos de cada post del propio usuario ,
      * ordenados por fecha ascendente.
      * Cada fila: [totalTime, r1..r8, w1..w8, creationDate] (18 columnas).
@@ -86,23 +58,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Object[]> findUserPostTimes(
             @Param("userId") Integer userId,
             @Param("since") LocalDateTime since);
-
-    /**
-     * Devuelve los tiempos individuales de todos los posts de la BD,
-     * filtrados por categoría, sin límite de fecha.
-     * Cada fila: [totalTime, r1..r8, w1..w8] (17 columnas)
-     */
-    @Query("""
-            SELECT p.totalTime,
-                   p.running1, p.running2, p.running3, p.running4,
-                   p.running5, p.running6, p.running7, p.running8,
-                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
-                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls
-            FROM Post p
-            WHERE p.category = :category
-            """)
-    List<Object[]> findAllPostTimes(
-            @Param("category") com.trainhub.backend.enums.PostCategory category);
 
     /**
      * Devuelve los tiempos de todos los posts de los amigos del usuario, con su nombre de usuario

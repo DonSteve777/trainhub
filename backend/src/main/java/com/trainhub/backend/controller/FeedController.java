@@ -1,9 +1,7 @@
 package com.trainhub.backend.controller;
 
-import com.trainhub.backend.dto.response.FeedHistoryResponse;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
-import com.trainhub.backend.enums.PostCategory;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,33 +52,6 @@ public class FeedController {
                 : feedService.getFirstPage(userId, size);
 
         return ResponseEntity.ok(posts);
-    }
-
-    /**
-     * Devuelve los históricos de tiempos de los posts de los amigos del usuario
-     * autenticado, filtrados por categoría y sin límite de fecha.
-     *
-     * @param category categoría del post (INDIVIDUAL_MALE, INDIVIDUAL_FEMALE, etc.)
-     */
-    @GetMapping("/history")
-    public ResponseEntity<FeedHistoryResponse> getHistory(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam PostCategory category) {
-        Integer userId = userPrincipal.getUser().getId();
-        return ResponseEntity.ok(feedService.getHistory(userId, category));
-    }
-
-    /**
-     * Devuelve los históricos de tiempos de todos los usuarios de la BD,
-     * filtrados por categoría, sin límite de fecha.
-     *
-     * @param category categoría del post (INDIVIDUAL_MALE, INDIVIDUAL_FEMALE, etc.)
-     */
-    @GetMapping("/global-history")
-    public ResponseEntity<FeedHistoryResponse> getGlobalHistory(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam PostCategory category) {
-        return ResponseEntity.ok(feedService.getGlobalHistory(category));
     }
 
     /**
