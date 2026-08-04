@@ -178,7 +178,7 @@ repo/
 ├── backend/              # API REST Spring Boot
 ├── frontend/             # SPA Angular
 ├── design/               # Documentación y diseño
-├── schema.sql            # Esquema de la base de datos
+├── bdd/                  # Esquema de la base de datos, inicialización, y utilidades
 ├── inserts.sql           # Datos de ejemplo
 ├── docker-compose.yml    # Orquestación de servicios
 ├── Dockerfile.backend
