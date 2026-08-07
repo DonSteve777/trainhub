@@ -1,5 +1,6 @@
 package com.trainhub.backend.controller;
 
+import com.trainhub.backend.dto.request.NewCheckinRequest;
 import com.trainhub.backend.dto.request.NewPostRequest;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.PostService;
@@ -36,6 +37,23 @@ public class PostController {
 
         Integer userId = userPrincipal.getUser().getId();
         postService.createPost(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Crea un check-in de entrenamiento para el usuario autenticado.
+     *
+     * @param userPrincipal usuario autenticado (extraído del token JWT)
+     * @param request       datos del check-in
+     * @return 201 Created sin cuerpo
+     */
+    @PostMapping("/checkin")
+    public ResponseEntity<Void> createCheckin(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody NewCheckinRequest request) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        postService.createCheckin(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

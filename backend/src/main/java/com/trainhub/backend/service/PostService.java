@@ -1,5 +1,6 @@
 package com.trainhub.backend.service;
 
+import com.trainhub.backend.dto.request.NewCheckinRequest;
 import com.trainhub.backend.dto.request.NewPostRequest;
 import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse;
@@ -75,6 +76,35 @@ public class PostService {
         post.setCategory(request.getCategory());
         post.setPostType(PostType.RESULT);
         post.setBox(user.getBox());
+
+        if (request.getMateUsername() != null && !request.getMateUsername().isBlank()) {
+            userRepository.findByUsername(request.getMateUsername())
+                    .ifPresent(post::setMate);
+        }
+
+        return postRepository.save(post);
+    }
+
+    /**
+     * Crea un check-in de entrenamiento sin marcas HYROX ni categoría.
+     *
+     * @param userId         id del usuario autenticado
+     * @param request        datos del check-in
+     * @return el Post persistido
+     * @throws EntityNotFoundException si el usuario no existe
+     */
+    @Transactional
+    public Post createCheckin(Integer userId, NewCheckinRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + userId));
+
+        Post post = new Post();
+        post.setUser(user);
+        post.setPostType(PostType.CHECKIN);
+        post.setBox(user.getBox());
+        post.setTrainingTag(request.getTrainingTag());
+        post.setDescription(request.getDescription());
+        post.setCreationDate(LocalDateTime.now());
 
         if (request.getMateUsername() != null && !request.getMateUsername().isBlank()) {
             userRepository.findByUsername(request.getMateUsername())
