@@ -10,40 +10,40 @@ services:
       POSTGRES_DB: trainhub_dev_db
     volumes:
       - postgresdata:/var/lib/postgresql/data
-      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ../bdd/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dev_user -d trainhub_dev_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/trainhub_dev_db
-      SPRING_DATASOURCE_USERNAME: dev_user
-      SPRING_DATASOURCE_PASSWORD: dev_pass
-      APP_UPLOAD_DIR: /app/uploads/avatars
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-    volumes:
-      - uploads_data:/app/uploads
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.backend
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/trainhub_dev_db
+  #     SPRING_DATASOURCE_USERNAME: dev_user
+  #     SPRING_DATASOURCE_PASSWORD: dev_pass
+  #     APP_UPLOAD_DIR: /app/uploads/avatars
+  #     MAIL_USERNAME: ${MAIL_USERNAME}
+  #     MAIL_PASSWORD: ${MAIL_PASSWORD}
+  #   volumes:
+  #     - uploads_data:/app/uploads
 
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "4200:80"
-    depends_on:
-      - backend
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.frontend
+  #   ports:
+  #     - "4200:80"
+  #   depends_on:
+  #     - backend
 
   pgadmin:
     image: dpage/pgadmin4
