@@ -41,6 +41,8 @@ public class FeedPostResponse {
     private Integer commentsCount;
     private Integer likesCount;
     private boolean likedByCurrentUser;
+    private Integer participantsCount;
+    private boolean joinedByCurrentUser;
 
     public FeedPostResponse() {}
 
@@ -162,6 +164,12 @@ public class FeedPostResponse {
     public boolean isLikedByCurrentUser() { return likedByCurrentUser; }
     public void setLikedByCurrentUser(boolean likedByCurrentUser) { this.likedByCurrentUser = likedByCurrentUser; }
 
+    public Integer getParticipantsCount() { return participantsCount; }
+    public void setParticipantsCount(Integer participantsCount) { this.participantsCount = participantsCount; }
+
+    public boolean isJoinedByCurrentUser() { return joinedByCurrentUser; }
+    public void setJoinedByCurrentUser(boolean joinedByCurrentUser) { this.joinedByCurrentUser = joinedByCurrentUser; }
+
     public static Builder builder() { return new Builder(); }
 
     public static final class Builder {
@@ -196,6 +204,8 @@ public class FeedPostResponse {
         public Builder mateId(Integer v)             { r.mateId = v;           return this; }
         public Builder mateUsername(String v)        { r.mateUsername = v;     return this; }
         public Builder creationDate(java.time.LocalDateTime v) { r.creationDate = v; return this; }
+        public Builder participantsCount(Integer v)  { r.participantsCount = v; return this; }
+        public Builder joinedByCurrentUser(boolean v) { r.joinedByCurrentUser = v; return this; }
 
         public FeedPostResponse build() { return r; }
     }

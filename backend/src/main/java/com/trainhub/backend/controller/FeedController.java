@@ -2,6 +2,7 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
+import com.trainhub.backend.dto.response.ParticipationToggleResponse;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -67,6 +68,21 @@ public class FeedController {
 
         Integer userId = userPrincipal.getUser().getId();
         LikeToggleResponse response = feedService.toggleLike(postId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Apunta o desapunta al usuario autenticado del reto de box indicado (toggle).
+     *
+     * @return nuevo estado de participación y conteo actualizado
+     */
+    @PostMapping("/posts/{postId}/join")
+    public ResponseEntity<ParticipationToggleResponse> toggleParticipation(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer postId) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        ParticipationToggleResponse response = feedService.toggleParticipation(postId, userId);
         return ResponseEntity.ok(response);
     }
 }

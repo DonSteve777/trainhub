@@ -2,12 +2,17 @@ package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
+import com.trainhub.backend.dto.response.ParticipationToggleResponse;
+import com.trainhub.backend.enums.PostType;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.PostLike;
 import com.trainhub.backend.model.PostLikeId;
+import com.trainhub.backend.model.PostParticipant;
+import com.trainhub.backend.model.PostParticipantId;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.CommentRepository;
 import com.trainhub.backend.repository.PostLikeRepository;
+import com.trainhub.backend.repository.PostParticipantRepository;
 import com.trainhub.backend.repository.PostRepository;
 import com.trainhub.backend.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
@@ -30,13 +35,16 @@ public class FeedService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostParticipantRepository postParticipantRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
     public FeedService(PostRepository postRepository, PostLikeRepository postLikeRepository,
+                       PostParticipantRepository postParticipantRepository,
                        CommentRepository commentRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
+        this.postParticipantRepository = postParticipantRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
     }
@@ -90,6 +98,36 @@ public class FeedService {
         return new LikeToggleResponse(!alreadyLiked, newCount);
     }
 
+    /**
+     * Apunta o desapunta al usuario de un reto de box (toggle).
+     *
+     * @return estado nuevo de la participación y el conteo actualizado.
+     */
+    @Transactional
+    public ParticipationToggleResponse toggleParticipation(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post no encontrado"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        if (post.getPostType() != PostType.BOX_CHALLENGE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se puede participar en retos de box");
+        }
+
+        PostParticipantId participantId = new PostParticipantId(postId, userId);
+        boolean alreadyJoined = postParticipantRepository.existsById(participantId);
+
+        if (alreadyJoined) {
+            postParticipantRepository.deleteById(participantId);
+        } else {
+            postParticipantRepository.save(new PostParticipant(post, user, LocalDateTime.now()));
+        }
+
+        long newCount = postParticipantRepository.countByPostId(postId);
+        return new ParticipationToggleResponse(!alreadyJoined, newCount);
+    }
+
     private List<FeedPostResponse> toResponseList(List<Post> posts, Integer userId) {
         if (posts.isEmpty()) return List.of();
 
@@ -109,7 +147,15 @@ public class FeedService {
                         row -> ((Long) row[1]).intValue()
                 ));
 
+        Map<Integer, Integer> participantCountByPostId = postParticipantRepository.countByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
+
         Set<Integer> likedByUser = Set.copyOf(postLikeRepository.findLikedPostIds(postIds, userId));
+        Set<Integer> joinedByUser = Set.copyOf(postParticipantRepository.findJoinedPostIds(postIds, userId));
 
         return posts.stream()
                 .map(post -> {
@@ -117,6 +163,8 @@ public class FeedService {
                     response.setLikesCount(likeCountByPostId.getOrDefault(post.getId(), 0));
                     response.setCommentsCount(commentCountByPostId.getOrDefault(post.getId(), 0));
                     response.setLikedByCurrentUser(likedByUser.contains(post.getId()));
+                    response.setParticipantsCount(participantCountByPostId.getOrDefault(post.getId(), 0));
+                    response.setJoinedByCurrentUser(joinedByUser.contains(post.getId()));
                     return response;
                 })
                 .collect(Collectors.toList());
