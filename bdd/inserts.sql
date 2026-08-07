@@ -10,9 +10,26 @@
 -- select * from omment_likes;
 
 -- ------------------------------------------------------------
--- 0. Limpiar tablas (excepto users)
+-- 0. Limpiar tablas (excepto users, cities y boxes)
+--    Nota: cities/boxes NO se truncan aquí porque users.box_id
+--    referencia boxes; un TRUNCATE ... CASCADE sobre boxes arrastraría
+--    también la tabla users. En su lugar se insertan de forma idempotente
+--    (INSERT ... WHERE NOT EXISTS) en el punto 0b.
 -- ------------------------------------------------------------
-TRUNCATE TABLE comment_likes, post_likes, comments, friendships, posts RESTART IDENTITY CASCADE;
+TRUNCATE TABLE comment_likes, post_likes, comments, post_participants, friendships, posts RESTART IDENTITY CASCADE;
+
+-- ------------------------------------------------------------
+-- 0b. Ciudad y box de ejemplo (idempotente)
+-- ------------------------------------------------------------
+INSERT INTO cities (name)
+SELECT 'Madrid'
+WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name = 'Madrid');
+
+INSERT INTO boxes (name, city_id, address)
+SELECT 'CrossFit Origen', c.id, 'Calle del Deporte 12, Madrid'
+FROM cities c
+WHERE c.name = 'Madrid'
+  AND NOT EXISTS (SELECT 1 FROM boxes WHERE name = 'CrossFit Origen');
 
 -- ------------------------------------------------------------
 -- 1. Género (el endpoint de registro en bulk no lo persiste)
@@ -25,13 +42,13 @@ UPDATE users SET gender = 'FEMALE' WHERE username IN ('lucia_vega','sofia_ramos'
 --    total_time = suma de los 16 campos de ejercicio
 -- ------------------------------------------------------------
 INSERT INTO posts (
-    user_id,
+    user_id, post_type, box_id,
     running1, running2, running3, running4, running5, running6, running7, running8,
     ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
     farmers_carry, sandbag_lunges, wall_balls,
     total_time, description, category, creation_date
 )
-SELECT u.id,
+SELECT u.id, 'RESULT', b.id,
        v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
        v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
        v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
@@ -73,7 +90,8 @@ FROM (VALUES
   ('raul_pascual',     61,57,71,66,81,76,89,84,  118,46,52,179,296,90,119,149, 'Semana cargada pero el resultado merece la pena.',                'INDIVIDUAL_MALE',   TIMESTAMP '2026-05-03 07:15:00'),
   ('eva_serrano',      67,62,77,72,87,82,83,78,  110,51,57,168,286,98,112,142, 'Me sorprendo a mí misma cada entreno.',                          'INDIVIDUAL_FEMALE', TIMESTAMP '2026-05-03 09:00:00')
 ) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
-JOIN users u ON u.username = v.uname;
+JOIN users u ON u.username = v.uname
+JOIN boxes b ON b.name = 'CrossFit Origen';
 
 -- ------------------------------------------------------------
 -- 3. Amistades — red social de 47 pares
@@ -276,13 +294,13 @@ ON CONFLICT DO NOTHING;
 -- 6. Posts en pareja (DOUBLES)
 -- ------------------------------------------------------------
 INSERT INTO posts (
-    user_id, mate,
+    user_id, mate, post_type, box_id,
     running1, running2, running3, running4, running5, running6, running7, running8,
     ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
     farmers_carry, sandbag_lunges, wall_balls,
     total_time, description, category, creation_date
 )
-SELECT u.id, m.id,
+SELECT u.id, m.id, 'RESULT', b.id,
        v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
        v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
        v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
@@ -300,16 +318,17 @@ FROM (VALUES
   ('carlos_martin',  'elena_castro',    64,59,73,68,83,78,90,85,  121,48,54,181,299,93,121,151, 'Entrenamiento mixto muy completo. El row fue espectacular.',     'DOUBLES_MIXED',  TIMESTAMP '2026-05-07 08:30:00')
 ) AS v(uname, mate_name, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
 JOIN users u ON u.username = v.uname
-JOIN users m ON m.username = v.mate_name;
+JOIN users m ON m.username = v.mate_name
+JOIN boxes b ON b.name = 'CrossFit Origen';
 
 INSERT INTO posts (
-    user_id,
+    user_id, post_type, box_id,
     running1, running2, running3, running4, running5, running6, running7, running8,
     ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
     farmers_carry, sandbag_lunges, wall_balls,
     total_time, description, category, creation_date
 )
-SELECT u.id,
+SELECT u.id, 'RESULT', b.id,
        v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
        v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
        v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
@@ -326,4 +345,66 @@ FROM (VALUES
   ('javier_mena', 65,61,75,70,85,80,84,79, 111,50,56,169,287,97,112,142, 'Vuelta al 100%. Los farmers carry se sienten fáciles ya.',      'INDIVIDUAL_MALE', TIMESTAMP '2026-06-09 06:45:00'),
   ('javier_mena', 64,60,74,69,84,79,85,80, 112,49,55,170,288,96,113,143, 'Fin de temporada. Mejor marca del año. ¡A por la siguiente!',  'INDIVIDUAL_MALE', TIMESTAMP '2026-06-13 08:00:00')
 ) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
-JOIN users u ON u.username = v.uname;
+JOIN users u ON u.username = v.uname
+JOIN boxes b ON b.name = 'CrossFit Origen';
+
+-- ------------------------------------------------------------
+-- 7. Posts de box — CHECKIN, BOX_WOD, BOX_ANNOUNCEMENT, BOX_CHALLENGE
+-- ------------------------------------------------------------
+
+-- CHECKIN: sin marcas, con training_tag
+INSERT INTO posts (user_id, post_type, training_tag, description, creation_date)
+SELECT u.id, 'CHECKIN', 'CARRERA',
+       'Rodaje suave de 8km antes de la sesión de Hyrox. Sensaciones muy buenas.',
+       TIMESTAMP '2026-05-04 07:00:00'
+FROM users u WHERE u.username = 'pedro_alonso';
+
+INSERT INTO posts (user_id, post_type, training_tag, description, creation_date)
+SELECT u.id, 'CHECKIN', 'FUERZA',
+       'Sesión de fuerza en el box: sentadilla, press banca y peso muerto.',
+       TIMESTAMP '2026-05-09 18:30:00'
+FROM users u WHERE u.username = 'lucia_vega';
+
+-- BOX_WOD: título, sin marcas
+INSERT INTO posts (user_id, post_type, box_id, title, description, creation_date)
+SELECT u.id, 'BOX_WOD', b.id, 'WOD de la semana: Hyrox Simulation',
+       '8x(500m row + 40 wall balls). Series completas con 2 min de descanso entre rondas.',
+       TIMESTAMP '2026-05-05 06:00:00'
+FROM users u
+JOIN boxes b ON b.name = 'CrossFit Origen'
+WHERE u.username = 'carlos_martin';
+
+-- BOX_ANNOUNCEMENT: título, sin marcas
+INSERT INTO posts (user_id, post_type, box_id, title, description, creation_date)
+SELECT u.id, 'BOX_ANNOUNCEMENT', b.id, 'Nuevo horario de clases',
+       'A partir del lunes, la clase de las 19:00 pasa a las 19:30. ¡Gracias por vuestra paciencia!',
+       TIMESTAMP '2026-05-06 09:00:00'
+FROM users u
+JOIN boxes b ON b.name = 'CrossFit Origen'
+WHERE u.username = 'carlos_martin';
+
+-- BOX_CHALLENGE: título + challenge_deadline
+INSERT INTO posts (user_id, post_type, box_id, title, challenge_deadline, description, creation_date)
+SELECT u.id, 'BOX_CHALLENGE', b.id, 'Reto de mayo: 100 wall balls seguidas',
+       '2026-05-31 23:59:00+02'::timestamptz,
+       'Quien complete 100 wall balls sin soltar la pelota se lleva una camiseta del box. ¡Apuntaos!',
+       TIMESTAMP '2026-05-07 08:00:00'
+FROM users u
+JOIN boxes b ON b.name = 'CrossFit Origen'
+WHERE u.username = 'carlos_martin';
+
+-- ------------------------------------------------------------
+-- 8. Participantes del reto de box (post_participants)
+-- ------------------------------------------------------------
+INSERT INTO post_participants (post_id, user_id, joined_at)
+SELECT p.id, part.id, v.joined
+FROM posts p
+CROSS JOIN (VALUES
+  ('pedro_alonso', TIMESTAMP '2026-05-07 10:00:00'),
+  ('lucia_vega',   TIMESTAMP '2026-05-07 11:30:00'),
+  ('marcos_gil',   TIMESTAMP '2026-05-08 08:00:00'),
+  ('sofia_ramos',  TIMESTAMP '2026-05-08 09:15:00')
+) AS v(username, joined)
+JOIN users part ON part.username = v.username
+WHERE p.post_type = 'BOX_CHALLENGE'
+  AND p.creation_date = TIMESTAMP '2026-05-07 08:00:00';
