@@ -52,6 +52,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                    p.creationDate
             FROM Post p
             WHERE p.user.id = :userId
+            AND p.postType = com.trainhub.backend.enums.PostType.RESULT
             AND p.creationDate >= :since
             ORDER BY p.creationDate ASC
             """)
@@ -73,7 +74,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                    p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls,
                    p.creationDate
             FROM Post p
-            WHERE EXISTS (
+            WHERE p.postType = com.trainhub.backend.enums.PostType.RESULT
+            AND EXISTS (
                 SELECT f FROM Friendship f
                 WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
                 AND (
@@ -111,6 +113,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                    p.creationDate
             FROM Post p
             WHERE p.user.id = :userId
+            AND p.postType = com.trainhub.backend.enums.PostType.RESULT
             ORDER BY p.creationDate ASC
             """)
     List<Object[]> findAllUserPostTimes(@Param("userId") Integer userId);

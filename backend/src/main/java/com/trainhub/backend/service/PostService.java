@@ -6,6 +6,7 @@ import com.trainhub.backend.dto.response.PersonalRecordsResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse.RecordEntry;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse.TimeEntry;
+import com.trainhub.backend.enums.PostType;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.PostRepository;
@@ -72,6 +73,8 @@ public class PostService {
                 LocalDateTime.now()
         );
         post.setCategory(request.getCategory());
+        post.setPostType(PostType.RESULT);
+        post.setBox(user.getBox());
 
         if (request.getMateUsername() != null && !request.getMateUsername().isBlank()) {
             userRepository.findByUsername(request.getMateUsername())
