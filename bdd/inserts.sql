@@ -38,6 +38,12 @@ UPDATE users SET gender = 'MALE'   WHERE username IN ('pedro_alonso','marcos_gil
 UPDATE users SET gender = 'FEMALE' WHERE username IN ('lucia_vega','sofia_ramos','nuria_pons','marta_fuentes','isabel_perez','ana_garcia','laura_jimenez','paula_navarro','elena_castro','carmen_ortiz','pilar_moreno','beatriz_herrero','rosa_medina','cristina_vidal','eva_serrano');
 
 -- ------------------------------------------------------------
+-- 1b. Box y rol (el endpoint de registro en bulk no los persiste)
+-- ------------------------------------------------------------
+UPDATE users SET box_id = (SELECT id FROM boxes WHERE name = 'CrossFit Origen');
+UPDATE users SET role = 'BOX_ADMIN' WHERE username = 'carlos_martin';
+
+-- ------------------------------------------------------------
 -- 2. Posts — 35 entrenamientos (5 usuarios con 2 posts)
 --    total_time = suma de los 16 campos de ejercicio
 -- ------------------------------------------------------------

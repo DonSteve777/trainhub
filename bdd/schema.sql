@@ -30,6 +30,7 @@ CREATE TABLE "users" (
   "password_reset_expires_at" TIMESTAMP WITH TIME ZONE,
   "notifications_last_seen_at" TIMESTAMP,
   "gender" varchar(10) CHECK (gender IN ('MALE', 'FEMALE')),
+  "role" varchar(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'BOX_ADMIN')),
   box_id INT,
   FOREIGN KEY (box_id) REFERENCES boxes(id) ON DELETE SET NULL
 );

@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 
 import com.trainhub.backend.enums.AccountStatus;
 import com.trainhub.backend.enums.Gender;
+import com.trainhub.backend.enums.Role;
 
 /**
  * Entidad que representa un usuario en el sistema.
@@ -63,6 +64,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 10)
     private Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    @NotNull
+    private Role role = Role.USER;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "box_id")
+    private Box box;
 
     // Constructores
     public User() {
@@ -179,6 +189,22 @@ public class User {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public Box getBox() {
+        return box;
+    }
+
+    public void setBox(Box box) {
+        this.box = box;
     }
 
 }
