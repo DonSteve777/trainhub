@@ -1,6 +1,7 @@
 package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.request.NewCheckinRequest;
+import com.trainhub.backend.dto.request.NewBoxPostRequest;
 import com.trainhub.backend.dto.request.NewPostRequest;
 import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse;
@@ -8,13 +9,16 @@ import com.trainhub.backend.dto.response.PersonalRecordsResponse.RecordEntry;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse.TimeEntry;
 import com.trainhub.backend.enums.PostType;
+import com.trainhub.backend.enums.Role;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.PostRepository;
 import com.trainhub.backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -110,6 +114,49 @@ public class PostService {
             userRepository.findByUsername(request.getMateUsername())
                     .ifPresent(post::setMate);
         }
+
+        return postRepository.save(post);
+    }
+
+    /**
+     * Crea contenido publicado por el box del administrador autenticado.
+     *
+     * @param userId         id del administrador autenticado
+     * @param request        datos del contenido de box
+     * @return el Post persistido
+     * @throws EntityNotFoundException si el usuario no existe
+     */
+    @Transactional
+    public Post createBoxPost(Integer userId, NewBoxPostRequest request) {
+        User admin = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + userId));
+
+        if (admin.getRole() != Role.BOX_ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo los administradores de box pueden crear contenido de box");
+        }
+
+        if (admin.getBox() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El administrador no tiene un box asignado");
+        }
+
+        PostType postType = request.getPostType();
+        if (postType == null || !postType.isBoxContent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tipo de post no corresponde a contenido de box");
+        }
+
+        if (postType == PostType.BOX_CHALLENGE && request.getChallengeDeadline() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los retos de box requieren una fecha límite");
+        }
+
+        Post post = new Post();
+        post.setUser(admin);
+        post.setBox(admin.getBox());
+        post.setPostType(postType);
+        post.setTitle(request.getTitle());
+        post.setDescription(request.getDescription());
+        post.setTrainingTag(request.getTrainingTag());
+        post.setChallengeDeadline(request.getChallengeDeadline());
+        post.setCreationDate(LocalDateTime.now());
 
         return postRepository.save(post);
     }

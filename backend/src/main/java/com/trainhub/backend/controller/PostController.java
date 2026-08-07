@@ -1,5 +1,6 @@
 package com.trainhub.backend.controller;
 
+import com.trainhub.backend.dto.request.NewBoxPostRequest;
 import com.trainhub.backend.dto.request.NewCheckinRequest;
 import com.trainhub.backend.dto.request.NewPostRequest;
 import com.trainhub.backend.security.UserPrincipal;
@@ -54,6 +55,23 @@ public class PostController {
 
         Integer userId = userPrincipal.getUser().getId();
         postService.createCheckin(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Crea contenido publicado por el box del administrador autenticado.
+     *
+     * @param userPrincipal administrador autenticado (extraído del token JWT)
+     * @param request       datos del contenido de box
+     * @return 201 Created sin cuerpo
+     */
+    @PostMapping("/box")
+    public ResponseEntity<Void> createBoxPost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody NewBoxPostRequest request) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        postService.createBoxPost(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Manejador global de excepciones para toda la aplicación.
@@ -136,6 +137,16 @@ public class GlobalExceptionHandler {
         System.out.println("Error en el procesamiento del token JWT: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("Error de autenticación: token inválido.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Maneja excepciones de negocio con estado HTTP explícito.
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+        String errorMessage = ex.getReason() != null ? ex.getReason() : ex.getStatusCode().toString();
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+        return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
     }
 
     /**
