@@ -1,8 +1,11 @@
 package com.trainhub.backend.model;
 
 import com.trainhub.backend.enums.PostCategory;
+import com.trainhub.backend.enums.PostType;
+import com.trainhub.backend.enums.TrainingTag;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Entidad que representa una publicación (entrenamiento) en el sistema.
@@ -20,62 +23,80 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "running1", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "post_type", nullable = false)
+    private PostType postType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "box_id")
+    private Box box;
+
+    @Column(name = "title", length = 150)
+    private String title;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "training_tag", length = 20)
+    private TrainingTag trainingTag;
+
+    @Column(name = "challenge_deadline")
+    private OffsetDateTime challengeDeadline;
+
+    @Column(name = "running1")
     private Integer running1;
 
-    @Column(name = "running2", nullable = false)
+    @Column(name = "running2")
     private Integer running2;
 
-    @Column(name = "running3", nullable = false)
+    @Column(name = "running3")
     private Integer running3;
 
-    @Column(name = "running4", nullable = false)
+    @Column(name = "running4")
     private Integer running4;
 
-    @Column(name = "running5", nullable = false)
+    @Column(name = "running5")
     private Integer running5;
 
-    @Column(name = "running6", nullable = false)
+    @Column(name = "running6")
     private Integer running6;
 
-    @Column(name = "running7", nullable = false)
+    @Column(name = "running7")
     private Integer running7;
 
-    @Column(name = "running8", nullable = false)
+    @Column(name = "running8")
     private Integer running8;
 
-    @Column(name = "skiErg", nullable = false)
+    @Column(name = "skiErg")
     private Integer skiErg;
 
-    @Column(name = "sledPush", nullable = false)
+    @Column(name = "sledPush")
     private Integer sledPush;
 
-    @Column(name = "sledPull", nullable = false)
+    @Column(name = "sledPull")
     private Integer sledPull;
 
-    @Column(name = "burpeeBroadJump", nullable = false)
+    @Column(name = "burpeeBroadJump")
     private Integer burpeeBroadJump;
 
-    @Column(name = "row", nullable = false)
+    @Column(name = "row")
     private Integer row;
 
-    @Column(name = "farmersCarry", nullable = false)
+    @Column(name = "farmersCarry")
     private Integer farmersCarry;
 
-    @Column(name = "sandbagLunges", nullable = false)
+    @Column(name = "sandbagLunges")
     private Integer sandbagLunges;
 
-    @Column(name = "wallBalls", nullable = false)
+    @Column(name = "wallBalls")
     private Integer wallBalls;
 
-    @Column(name = "total_time", nullable = false)
+    @Column(name = "total_time")
     private Integer totalTime;
 
     @Column(name = "description")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false)
+    @Column(name = "category")
     private PostCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -127,6 +148,21 @@ public class Post {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public PostType getPostType() { return postType; }
+    public void setPostType(PostType postType) { this.postType = postType; }
+
+    public Box getBox() { return box; }
+    public void setBox(Box box) { this.box = box; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public TrainingTag getTrainingTag() { return trainingTag; }
+    public void setTrainingTag(TrainingTag trainingTag) { this.trainingTag = trainingTag; }
+
+    public OffsetDateTime getChallengeDeadline() { return challengeDeadline; }
+    public void setChallengeDeadline(OffsetDateTime challengeDeadline) { this.challengeDeadline = challengeDeadline; }
 
     public Integer getRunning1() {
         return running1;
