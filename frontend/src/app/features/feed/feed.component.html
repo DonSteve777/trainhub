@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <app-post-content [post]="post" />
+      <app-post-content [post]="post" (joinToggle)="toggleJoin(post)" />
     </article>
   }
 

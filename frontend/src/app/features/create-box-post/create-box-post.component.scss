@@ -1,0 +1,208 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.create-box-post-page {
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: linear-gradient(
+    135deg,
+    var(--trainhub-surface-dark) 0%,
+    var(--trainhub-surface-medium) 100%
+  );
+}
+
+.create-box-post-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .th-title-gradient {
+    width: 100%;
+  }
+}
+
+.create-box-post-form {
+  width: 100%;
+  max-width: 720px;
+  margin: 0.5rem auto 0;
+}
+
+.post-type-selector {
+  width: 100%;
+  margin: 0 auto 1.5rem;
+  text-align: left;
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: rgba(240, 223, 219, 0.95);
+  }
+}
+
+.post-type-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.post-type-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 7rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover,
+  &.is-active {
+    border-color: rgba(255, 87, 34, 0.65);
+    background: rgba(255, 87, 34, 0.12);
+    transform: translateY(-1px);
+  }
+
+  &.is-active {
+    box-shadow: 0 0 0 1px rgba(255, 87, 34, 0.25);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--trainhub-info);
+    outline-offset: 3px;
+  }
+}
+
+.post-type-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #f0dfdb;
+}
+
+.post-type-copy {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: rgba(240, 223, 219, 0.68);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+  margin: 0 auto 1.25rem;
+
+  .th-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--trainhub-info);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+textarea.th-input {
+  min-height: 7rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.optional-hint {
+  font-size: 0.8em;
+  font-weight: 400;
+  color: rgba(240, 223, 219, 0.5);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.th-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f0dfdb' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+
+  option {
+    background: var(--trainhub-surface-dark, #1a1a2e);
+    color: #f0dfdb;
+  }
+}
+
+.form-field--deadline {
+  padding: 1rem;
+  border: 1px solid rgba(41, 182, 246, 0.35);
+  border-radius: 12px;
+  background: rgba(41, 182, 246, 0.08);
+}
+
+.deadline-input {
+  color-scheme: dark;
+  min-height: 2.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(240, 223, 219, 0.55);
+}
+
+.field-error {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--trainhub-accent);
+}
+
+.create-box-post-submit {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.create-box-post-back {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.backend-message-wrapper {
+  width: 100%;
+  margin-top: 1.25rem;
+
+  .backend-message {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: #f0dfdb;
+    background: rgba(255, 87, 34, 0.15);
+    border: 1px solid rgba(255, 87, 34, 0.4);
+    border-radius: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .post-type-options {
+    grid-template-columns: 1fr;
+  }
+
+  .post-type-card {
+    min-height: auto;
+  }
+}

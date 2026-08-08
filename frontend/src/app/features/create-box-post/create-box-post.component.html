@@ -1,0 +1,107 @@
+@if (!checkingAccess()) {
+  <div class="create-box-post-page">
+    <div class="create-box-post-content">
+      <h1 class="th-title-gradient">Contenido de box</h1>
+
+      <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="create-box-post-form">
+        <section class="post-type-selector" aria-labelledby="post-type-title">
+          <h2 id="post-type-title">¿Qué quieres publicar?</h2>
+          <div class="post-type-options">
+            @for (option of boxPostTypeOptions; track option.value) {
+              <button
+                type="button"
+                class="post-type-card"
+                [class.is-active]="selectedPostType() === option.value"
+                [attr.aria-pressed]="selectedPostType() === option.value"
+                (click)="selectPostType(option.value)"
+              >
+                <span class="post-type-label">{{ option.label }}</span>
+                <span class="post-type-copy">{{ option.copy }}</span>
+              </button>
+            }
+          </div>
+        </section>
+
+        <div class="form-field">
+          <label class="th-label" for="title">Título</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            class="th-input"
+            maxlength="150"
+            placeholder="Ej. WOD del jueves"
+          />
+          @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
+            <span class="field-error">El título es obligatorio (máx. 150 caracteres)</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="th-label" for="description">Descripción</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            class="th-input"
+            rows="5"
+            placeholder="Describe el contenido…"
+          ></textarea>
+          @if (postForm.get('description')?.invalid && postForm.get('description')?.touched) {
+            <span class="field-error">La descripción es obligatoria</span>
+          }
+        </div>
+
+        @if (isChallenge()) {
+          <div class="form-field form-field--deadline">
+            <label class="th-label" for="challengeDeadline">Fecha límite del reto</label>
+            <input
+              id="challengeDeadline"
+              type="datetime-local"
+              formControlName="challengeDeadline"
+              class="th-input deadline-input"
+            />
+            <span class="field-hint">Hasta cuándo pueden apuntarse los miembros</span>
+            @if (
+              postForm.get('challengeDeadline')?.invalid &&
+              postForm.get('challengeDeadline')?.touched
+            ) {
+              <span class="field-error">Los retos necesitan una fecha límite</span>
+            }
+          </div>
+        }
+
+        <div class="form-field">
+          <label class="th-label" for="trainingTag">
+            Etiqueta de entrenamiento <span class="optional-hint">(opcional)</span>
+          </label>
+          <select id="trainingTag" formControlName="trainingTag" class="th-input th-select">
+            <option value="">Sin etiqueta</option>
+            @for (tag of trainingTagOptions; track tag.value) {
+              <option [value]="tag.value">{{ tag.label }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="th-btn-primary create-box-post-submit"
+          [disabled]="postForm.invalid || submitting()"
+        >
+          @if (submitting()) {
+            Publicando…
+          } @else {
+            Publicar en el box
+          }
+        </button>
+
+        <a routerLink="/feed" class="th-link-info create-box-post-back">Volver al feed</a>
+
+        @if (backendMessage()) {
+          <div class="backend-message-wrapper">
+            <div class="backend-message" role="alert">{{ backendMessage() }}</div>
+          </div>
+        }
+      </form>
+    </div>
+  </div>
+}

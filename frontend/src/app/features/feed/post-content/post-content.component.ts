@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { FeedPostType, FeedTrainingTag } from '../../../core/services/feed.service';
 
 export interface PostContentPost {
@@ -8,6 +9,8 @@ export interface PostContentPost {
   trainingTag: FeedTrainingTag | null;
   title: string | null;
   challengeDeadline: string | null;
+  participantsCount: number;
+  joinedByCurrentUser: boolean;
 }
 
 const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
@@ -21,18 +24,24 @@ const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
 @Component({
   selector: 'app-post-content',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MatIconModule, MatButtonModule],
   templateUrl: './post-content.component.html',
   styleUrl: './post-content.component.scss',
 })
 export class PostContentComponent {
   post = input.required<PostContentPost>();
+  joinToggle = output<void>();
 
   isCheckin = computed(() => this.post().postType === 'CHECKIN');
   isBoxTextContent = computed(
     () => this.post().postType === 'BOX_WOD' || this.post().postType === 'BOX_ANNOUNCEMENT'
   );
   isBoxChallenge = computed(() => this.post().postType === 'BOX_CHALLENGE');
+
+  participantsLabel = computed(() => {
+    const count = this.post().participantsCount;
+    return count === 1 ? '1 participante' : `${count} participantes`;
+  });
 
   checkinText = computed(() => {
     const tag = this.post().trainingTag;
@@ -43,6 +52,10 @@ export class PostContentComponent {
     const deadline = this.post().challengeDeadline;
     return deadline ? this.formatDate(deadline) : null;
   });
+
+  onJoinToggle(): void {
+    this.joinToggle.emit();
+  }
 
   private formatTrainingTag(tag: FeedTrainingTag): string {
     return TRAINING_TAG_LABELS[tag];

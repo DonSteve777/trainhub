@@ -26,6 +26,8 @@ export interface UserTimeHistoryDto {
   runsHistory:     TimeEntryDto[];
 }
 
+export type UserRole = 'USER' | 'BOX_ADMIN';
+
 export interface UserProfileDto {
   id: number;
   email: string;
@@ -34,6 +36,8 @@ export interface UserProfileDto {
   accountStatus: string;
   emailVerified: boolean;
   gender: 'MALE' | 'FEMALE' | null;
+  role: UserRole | null;
+  boxId: number | null;
 }
 
 export interface UserSearchResultDto {

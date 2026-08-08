@@ -4,10 +4,20 @@ import { ApiService } from './api.service';
 
 export type TrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'OTRO';
 
+export type BoxPostType = 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
+
 export interface NewCheckinRequest {
   trainingTag: TrainingTag;
   description?: string;
   mateUsername?: string;
+}
+
+export interface NewBoxPostRequest {
+  postType: BoxPostType;
+  title: string;
+  description: string;
+  trainingTag?: TrainingTag;
+  challengeDeadline?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -16,5 +26,9 @@ export class PostService {
 
   createCheckin(payload: NewCheckinRequest): Observable<void> {
     return this.api.post<void>('/posts/checkin', payload);
+  }
+
+  createBoxPost(payload: NewBoxPostRequest): Observable<void> {
+    return this.api.post<void>('/posts/box', payload);
   }
 }

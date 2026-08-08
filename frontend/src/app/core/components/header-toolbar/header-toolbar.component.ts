@@ -63,6 +63,13 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
     return this.router.url === '/create-post';
   });
 
+  readonly isOnCreateBoxPost = computed(() => {
+    this.navigationEnd();
+    return this.router.url === '/create-box-post';
+  });
+
+  readonly isBoxAdmin = signal(false);
+
   unreadCount = signal(0);
 
   readonly searchOpen = signal(false);
@@ -76,6 +83,7 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
     if (this.panel === 'right') {
       this.loadUnreadCount();
       this.initSearch();
+      this.loadBoxAdminStatus();
     }
   }
 
@@ -87,6 +95,13 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
     this.notificationService.getUnreadCount().subscribe({
       next: (res) => this.unreadCount.set(Number(res.count)),
       error: () => this.unreadCount.set(0),
+    });
+  }
+
+  private loadBoxAdminStatus(): void {
+    this.userService.getProfile().subscribe({
+      next: (profile) => this.isBoxAdmin.set(profile.role === 'BOX_ADMIN'),
+      error: () => this.isBoxAdmin.set(false),
     });
   }
 
@@ -189,6 +204,10 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
 
   goToCreatePost(): void {
     this.router.navigate(['/create-post']);
+  }
+
+  goToCreateBoxPost(): void {
+    this.router.navigate(['/create-box-post']);
   }
 
   logout(): void {

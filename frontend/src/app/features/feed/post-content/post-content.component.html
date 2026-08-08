@@ -17,7 +17,22 @@
         Fecha límite: {{ formattedDeadline() }}
       </span>
     }
-    <div class="post-box-content__join-slot"></div>
+    <div class="post-box-content__join-slot">
+      <button
+        type="button"
+        class="post-box-content__join-btn"
+        [class.post-box-content__join-btn--joined]="post().joinedByCurrentUser"
+        mat-stroked-button
+        (click)="onJoinToggle()"
+        [attr.aria-pressed]="post().joinedByCurrentUser"
+      >
+        <mat-icon aria-hidden="true">{{
+          post().joinedByCurrentUser ? 'check_circle' : 'add_circle_outline'
+        }}</mat-icon>
+        <span>{{ post().joinedByCurrentUser ? 'Me borro' : 'Me apunto' }}</span>
+        <span class="post-box-content__join-count">{{ participantsLabel() }}</span>
+      </button>
+    </div>
   </div>
 } @else {
   <div class="post-visualization-placeholder" role="status">

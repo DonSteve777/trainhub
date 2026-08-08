@@ -82,7 +82,9 @@ public class UserController {
                 user.getUsername(),
                 user.getAccountStatus(),
                 user.getEmailVerified(),
-                user.getGender()
+                user.getGender(),
+                user.getRole(),
+                user.getBox() != null ? user.getBox().getId() : null
         );
         
         return ResponseEntity.ok(response);
@@ -130,7 +132,9 @@ public class UserController {
                 updatedUser.getUsername(),
                 updatedUser.getAccountStatus(),
                 updatedUser.getEmailVerified(),
-                updatedUser.getGender()
+                updatedUser.getGender(),
+                updatedUser.getRole(),
+                updatedUser.getBox() != null ? updatedUser.getBox().getId() : null
         );
 
         return ResponseEntity.ok(response);

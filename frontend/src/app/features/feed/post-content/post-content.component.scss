@@ -83,9 +83,42 @@
     justify-content: space-between;
   }
 
-  // Hueco reservado para el botón "Me apunto" / "Me borro" (feature 11)
   &__join-slot {
     flex-shrink: 0;
     min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  &__join-btn {
+    border-color: var(--trainhub-accent);
+    color: var(--trainhub-accent);
+
+    // Material proyecta el contenido en .mdc-button__label; el gap del host no aplica ahí
+    ::ng-deep .mdc-button__label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+      margin-right: 0.15rem;
+    }
+
+    &--joined {
+      background: color-mix(in srgb, var(--trainhub-accent) 15%, transparent);
+    }
+  }
+
+  &__join-count {
+    margin-left: 0.25rem;
+    padding-left: 0.55rem;
+    border-left: 1px solid color-mix(in srgb, var(--trainhub-accent) 45%, transparent);
+    font-size: 0.8rem;
+    font-weight: 500;
+    opacity: 0.8;
   }
 }

@@ -50,6 +50,11 @@ export interface LikeToggleDto {
   likesCount: number;
 }
 
+export interface JoinToggleDto {
+  joined: boolean;
+  participantsCount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FeedService {
   private readonly api = inject(ApiService);
@@ -70,5 +75,9 @@ export class FeedService {
 
   toggleLike(postId: number): Observable<LikeToggleDto> {
     return this.api.post<LikeToggleDto>(`/feed/posts/${postId}/like`, {});
+  }
+
+  toggleJoin(postId: number): Observable<JoinToggleDto> {
+    return this.api.post<JoinToggleDto>(`/feed/posts/${postId}/join`, {});
   }
 }

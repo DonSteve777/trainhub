@@ -18,6 +18,7 @@ import {
   FeedPostType,
   FeedTrainingTag,
   LikeToggleDto,
+  JoinToggleDto,
 } from '../../core/services/feed.service';
 import {
   CommentsDialogComponent,
@@ -143,6 +144,44 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       error: () => {
         this.posts.update(posts =>
           posts.map(p => (p.id === post.id ? { ...p, liked: post.liked, likes: post.likes } : p))
+        );
+      },
+    });
+  }
+
+  toggleJoin(post: FeedPost): void {
+    const optimisticJoined = !post.joinedByCurrentUser;
+    const optimisticCount = post.participantsCount + (post.joinedByCurrentUser ? -1 : 1);
+
+    this.posts.update(posts =>
+      posts.map(p =>
+        p.id === post.id
+          ? { ...p, joinedByCurrentUser: optimisticJoined, participantsCount: optimisticCount }
+          : p
+      )
+    );
+
+    this.feedService.toggleJoin(post.id).subscribe({
+      next: (res: JoinToggleDto) => {
+        this.posts.update(posts =>
+          posts.map(p =>
+            p.id === post.id
+              ? { ...p, joinedByCurrentUser: res.joined, participantsCount: res.participantsCount }
+              : p
+          )
+        );
+      },
+      error: () => {
+        this.posts.update(posts =>
+          posts.map(p =>
+            p.id === post.id
+              ? {
+                  ...p,
+                  joinedByCurrentUser: post.joinedByCurrentUser,
+                  participantsCount: post.participantsCount,
+                }
+              : p
+          )
         );
       },
     });
