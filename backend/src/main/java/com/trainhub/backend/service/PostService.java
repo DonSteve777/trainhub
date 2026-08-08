@@ -6,6 +6,7 @@ import com.trainhub.backend.dto.request.NewPostRequest;
 import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse.RecordEntry;
+import com.trainhub.backend.dto.response.StreakResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse.TimeEntry;
 import com.trainhub.backend.enums.PostType;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -159,6 +161,43 @@ public class PostService {
         post.setCreationDate(LocalDateTime.now());
 
         return postRepository.save(post);
+    }
+
+    /**
+     * Calcula la racha actual de días consecutivos con actividad propia.
+     *
+     * @param userId id del usuario autenticado
+     * @return racha actual del usuario
+     */
+    public StreakResponse getStreak(Integer userId) {
+        List<LocalDate> activityDates = postRepository.findActivityDatesForUser(userId);
+        if (activityDates.isEmpty()) {
+            return new StreakResponse(0);
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate latestActivity = activityDates.get(0);
+        LocalDate expectedDate;
+
+        if (latestActivity.equals(today)) {
+            expectedDate = today;
+        } else if (latestActivity.equals(today.minusDays(1))) {
+            expectedDate = today.minusDays(1);
+        } else {
+            return new StreakResponse(0);
+        }
+
+        int currentStreak = 0;
+        for (LocalDate activityDate : activityDates) {
+            if (!activityDate.equals(expectedDate)) {
+                break;
+            }
+
+            currentStreak++;
+            expectedDate = expectedDate.minusDays(1);
+        }
+
+        return new StreakResponse(currentStreak);
     }
 
     /**

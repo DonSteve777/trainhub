@@ -4,6 +4,7 @@ import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
 import com.trainhub.backend.dto.response.PersonalRecordsResponse;
+import com.trainhub.backend.dto.response.StreakResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
@@ -207,6 +208,19 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Integer userId = userPrincipal.getUser().getId();
         return ResponseEntity.ok(postService.getUserPersonalRecords(userId));
+    }
+
+    /**
+     * Devuelve la racha actual de actividad del usuario autenticado.
+     *
+     * @param userPrincipal El usuario autenticado actual
+     * @return Racha actual de entrenamiento del usuario
+     */
+    @GetMapping("/streak")
+    public ResponseEntity<StreakResponse> getStreak(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(postService.getStreak(userId));
     }
 
     /**

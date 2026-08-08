@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -143,6 +144,18 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             ORDER BY p.creationDate ASC
             """)
     List<Object[]> findAllUserPostTimes(@Param("userId") Integer userId);
+
+    /**
+     * Devuelve los días únicos en los que el usuario tuvo actividad propia.
+     */
+    @Query(value = """
+            SELECT DISTINCT CAST(p.creation_date AS date)
+            FROM posts p
+            WHERE p.user_id = :userId
+            AND p.post_type IN ('CHECKIN', 'RESULT')
+            ORDER BY CAST(p.creation_date AS date) DESC
+            """, nativeQuery = true)
+    List<LocalDate> findActivityDatesForUser(@Param("userId") Integer userId);
 
     /**
      * Devuelve los posts de amigos y el contenido del box después del cursor dado (paginación keyset).
