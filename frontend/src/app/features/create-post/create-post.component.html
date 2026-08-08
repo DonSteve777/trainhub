@@ -3,141 +3,328 @@
     <h1 class="th-title-gradient">Nuevo entrenamiento</h1>
 
     <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="create-post-form">
-
-      <div class="form-field category-field">
-        <label class="th-label" for="category">Categoría</label>
-        <select id="category" formControlName="category" class="th-input th-select">
-          <option value="" disabled>Selecciona una categoría</option>
-          @for (cat of categories(); track cat.value) {
-            <option [value]="cat.value">{{ cat.label }}</option>
-          }
-        </select>
-        @if (postForm.get('category')?.invalid && postForm.get('category')?.touched) {
-          <span class="field-error">Debes seleccionar una categoría</span>
-        }
-      </div>
-
-      @if (isDoubles()) {
-        <div class="form-field category-field mate-field">
-          <label class="th-label" for="mateSearch">
-            Compañero/a <span class="optional-hint">(opcional)</span>
-          </label>
-
-          @if (selectedMate(); as mate) {
-            <div class="mate-chip">
-              @if (mate.photoUrl) {
-                <img [src]="mate.photoUrl" class="mate-avatar" alt="" />
-              } @else {
-                <span class="mate-avatar mate-avatar-placeholder">{{ mate.username.charAt(0).toUpperCase() }}</span>
-              }
-              <span class="mate-chip-name">{{ mate.username }}</span>
-              <button type="button" class="mate-chip-clear" (click)="clearMate()" aria-label="Quitar compañero">×</button>
-            </div>
-          } @else {
-            <div class="mate-search-wrapper">
-              <input
-                id="mateSearch"
-                type="text"
-                class="th-input"
-                placeholder="Buscar por nombre de usuario…"
-                [value]="mateQuery()"
-                (input)="onMateInput($any($event.target).value)"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              @if (mateSearching()) {
-                <span class="mate-searching-hint">Buscando…</span>
-              }
-              @if (mateResults().length > 0) {
-                <ul class="mate-results" role="listbox">
-                  @for (user of mateResults(); track user.id) {
-                    <li class="mate-result-item" role="option" (click)="selectMate(user)">
-                      @if (user.photoUrl) {
-                        <img [src]="user.photoUrl" class="mate-avatar" alt="" />
-                      } @else {
-                        <span class="mate-avatar mate-avatar-placeholder">{{ user.username.charAt(0).toUpperCase() }}</span>
-                      }
-                      <span>{{ user.username }}</span>
-                    </li>
-                  }
-                </ul>
-              }
-            </div>
-          }
+      <section class="post-mode-selector" aria-labelledby="post-mode-title">
+        <h2 id="post-mode-title">¿Qué quieres publicar?</h2>
+        <div class="post-mode-options">
+          <button
+            type="button"
+            class="post-mode-card"
+            [class.is-active]="isCheckinPost()"
+            [attr.aria-pressed]="isCheckinPost()"
+            (click)="selectPostMode('CHECKIN')"
+          >
+            <span class="post-mode-label">He entrenado hoy</span>
+            <span class="post-mode-copy"
+              >Check-in rápido para compartir una sesión sin tiempos HYROX.</span
+            >
+          </button>
+          <button
+            type="button"
+            class="post-mode-card"
+            [class.is-active]="isHyroxPost()"
+            [attr.aria-pressed]="isHyroxPost()"
+            (click)="selectPostMode('HYROX')"
+          >
+            <span class="post-mode-label">Resultado HYROX</span>
+            <span class="post-mode-copy"
+              >Registra categoría, compañero y los 16 parciales de la prueba.</span
+            >
+          </button>
         </div>
+      </section>
+
+      @if (isCheckinPost()) {
+        <section
+          class="checkin-entry-panel"
+          aria-label="Entrada de check-in"
+          formGroupName="checkin"
+        >
+          <div>
+            <span class="checkin-kicker">Check-in rápido</span>
+            <h2>Publica que has entrenado sin completar una prueba HYROX</h2>
+            <p>
+              Comparte la sesión con una etiqueta, una nota opcional y, si quieres, menciona a un
+              compañero.
+            </p>
+          </div>
+
+          <div class="checkin-fields">
+            <div class="form-field checkin-field">
+              <label class="th-label" for="trainingTag">Tipo de entrenamiento</label>
+              <select id="trainingTag" formControlName="trainingTag" class="th-input th-select">
+                <option value="" disabled>Selecciona una etiqueta</option>
+                @for (tag of trainingTagOptions; track tag.value) {
+                  <option [value]="tag.value">{{ tag.label }}</option>
+                }
+              </select>
+              @if (
+                checkinForm.get('trainingTag')?.invalid && checkinForm.get('trainingTag')?.touched
+              ) {
+                <span class="field-error">Debes elegir un tipo de entrenamiento</span>
+              }
+            </div>
+
+            <div class="form-field checkin-field">
+              <label class="th-label" for="checkinDescription">
+                Descripción <span class="optional-hint">(opcional)</span>
+              </label>
+              <textarea
+                id="checkinDescription"
+                formControlName="description"
+                class="th-input checkin-description"
+                rows="4"
+                maxlength="500"
+                placeholder="¿Qué has entrenado hoy?"
+              ></textarea>
+            </div>
+
+            <div class="form-field checkin-field mate-field">
+              <label class="th-label" for="checkinMateSearch">
+                Compañero/a <span class="optional-hint">(opcional)</span>
+              </label>
+
+              @if (selectedCheckinMate(); as mate) {
+                <div class="mate-chip">
+                  @if (mate.photoUrl) {
+                    <img [src]="mate.photoUrl" class="mate-avatar" alt="" />
+                  } @else {
+                    <span class="mate-avatar mate-avatar-placeholder">{{
+                      mate.username.charAt(0).toUpperCase()
+                    }}</span>
+                  }
+                  <span class="mate-chip-name">{{ mate.username }}</span>
+                  <button
+                    type="button"
+                    class="mate-chip-clear"
+                    (click)="clearCheckinMate()"
+                    aria-label="Quitar compañero"
+                  >
+                    ×
+                  </button>
+                </div>
+              } @else {
+                <div class="mate-search-wrapper">
+                  <input
+                    id="checkinMateSearch"
+                    type="text"
+                    class="th-input"
+                    placeholder="Buscar por nombre de usuario…"
+                    [value]="checkinMateQuery()"
+                    (input)="onCheckinMateInput($any($event.target).value)"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                  @if (checkinMateSearching()) {
+                    <span class="mate-searching-hint">Buscando…</span>
+                  }
+                  @if (checkinMateResults().length > 0) {
+                    <ul class="mate-results" role="listbox">
+                      @for (user of checkinMateResults(); track user.id) {
+                        <li class="mate-result-item" role="option" aria-selected="false">
+                          <button
+                            type="button"
+                            class="mate-result-button"
+                            (click)="selectCheckinMate(user)"
+                          >
+                            @if (user.photoUrl) {
+                              <img [src]="user.photoUrl" class="mate-avatar" alt="" />
+                            } @else {
+                              <span class="mate-avatar mate-avatar-placeholder">{{
+                                user.username.charAt(0).toUpperCase()
+                              }}</span>
+                            }
+                            <span>{{ user.username }}</span>
+                          </button>
+                        </li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="th-btn-primary create-post-submit"
+            [disabled]="checkinForm.invalid || submitting()"
+          >
+            @if (submitting()) {
+              Publicando…
+            } @else {
+              Publicar check-in
+            }
+          </button>
+        </section>
       }
 
-      <fieldset class="time-fieldset hyrox-fieldset">
-        <legend>Prueba HYROX</legend>
-        <div class="hyrox-table" role="group" aria-label="Tiempos por tramo de carrera y prueba">
-          <div class="hyrox-header-row">
-            <span class="hyrox-col-head">Carrera <span class="hyrox-format-hint">(mm:ss)</span></span>
-            <span class="hyrox-col-head">Prueba <span class="hyrox-format-hint">(mm:ss)</span></span>
-          </div>
-          <div formArrayName="segments">
-            @for (row of hyroxRows; track row.stationKey; let i = $index) {
-              <div class="hyrox-row" [formGroupName]="i">
-                <div class="hyrox-cell hyrox-cell-running">
-                  <label class="running-label" [for]="'run-time-' + i">{{ row.runningLabel }}</label>
-                  <input
-                    [id]="'run-time-' + i"
-                    type="text"
-                    formControlName="running"
-                    class="th-input time-input-mmss"
-                    placeholder="00:00"
-                    inputmode="numeric"
-                    autocomplete="off"
-                    spellcheck="false"
-                    (input)="onMmSsInput($event, i, 'running')"
-                    [attr.aria-describedby]="'err-run-' + i"
-                  />
-                  @if (segments.at(i).get('running')?.invalid && segments.at(i).get('running')?.touched) {
-                    <span class="field-error" [id]="'err-run-' + i">
-                      @if (segments.at(i).get('running')?.hasError('required')) {
-                        Obligatorio
-                      } @else {
-                        Formato mm:ss (segundos 0–59), ej. 5:03
-                      }
-                    </span>
-                  }
-                </div>
-                <div class="hyrox-cell hyrox-cell-station">
-                  <label class="station-label" [for]="'st-time-' + i">{{ row.stationLabel }}</label>
-                  <input
-                    [id]="'st-time-' + i"
-                    type="text"
-                    formControlName="station"
-                    class="th-input time-input-mmss"
-                    placeholder="00:00"
-                    inputmode="numeric"
-                    autocomplete="off"
-                    spellcheck="false"
-                    (input)="onMmSsInput($event, i, 'station')"
-                    [attr.aria-describedby]="'err-st-' + i"
-                  />
-                  @if (segments.at(i).get('station')?.invalid && segments.at(i).get('station')?.touched) {
-                    <span class="field-error" [id]="'err-st-' + i">
-                      @if (segments.at(i).get('station')?.hasError('required')) {
-                        Obligatorio
-                      } @else {
-                        Formato mm:ss (segundos 0–59), ej. 5:03
-                      }
-                    </span>
-                  }
-                </div>
+      @if (isHyroxPost()) {
+        <div class="form-field category-field">
+          <label class="th-label" for="category">Categoría</label>
+          <select id="category" formControlName="category" class="th-input th-select">
+            <option value="" disabled>Selecciona una categoría</option>
+            @for (cat of categories(); track cat.value) {
+              <option [value]="cat.value">{{ cat.label }}</option>
+            }
+          </select>
+          @if (postForm.get('category')?.invalid && postForm.get('category')?.touched) {
+            <span class="field-error">Debes seleccionar una categoría</span>
+          }
+        </div>
+
+        @if (isDoubles()) {
+          <div class="form-field category-field mate-field">
+            <label class="th-label" for="mateSearch">
+              Compañero/a <span class="optional-hint">(opcional)</span>
+            </label>
+
+            @if (selectedMate(); as mate) {
+              <div class="mate-chip">
+                @if (mate.photoUrl) {
+                  <img [src]="mate.photoUrl" class="mate-avatar" alt="" />
+                } @else {
+                  <span class="mate-avatar mate-avatar-placeholder">{{
+                    mate.username.charAt(0).toUpperCase()
+                  }}</span>
+                }
+                <span class="mate-chip-name">{{ mate.username }}</span>
+                <button
+                  type="button"
+                  class="mate-chip-clear"
+                  (click)="clearMate()"
+                  aria-label="Quitar compañero"
+                >
+                  ×
+                </button>
+              </div>
+            } @else {
+              <div class="mate-search-wrapper">
+                <input
+                  id="mateSearch"
+                  type="text"
+                  class="th-input"
+                  placeholder="Buscar por nombre de usuario…"
+                  [value]="mateQuery()"
+                  (input)="onMateInput($any($event.target).value)"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                @if (mateSearching()) {
+                  <span class="mate-searching-hint">Buscando…</span>
+                }
+                @if (mateResults().length > 0) {
+                  <ul class="mate-results" role="listbox">
+                    @for (user of mateResults(); track user.id) {
+                      <li class="mate-result-item" role="option" aria-selected="false">
+                        <button type="button" class="mate-result-button" (click)="selectMate(user)">
+                          @if (user.photoUrl) {
+                            <img [src]="user.photoUrl" class="mate-avatar" alt="" />
+                          } @else {
+                            <span class="mate-avatar mate-avatar-placeholder">{{
+                              user.username.charAt(0).toUpperCase()
+                            }}</span>
+                          }
+                          <span>{{ user.username }}</span>
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
             }
           </div>
-        </div>
-      </fieldset>
-
-      <button type="submit" class="th-btn-primary create-post-submit" [disabled]="postForm.invalid || submitting()">
-        @if (submitting()) {
-          Publicando…
-        } @else {
-          Publicar entrenamiento
         }
-      </button>
+
+        <fieldset class="time-fieldset hyrox-fieldset">
+          <legend>Prueba HYROX</legend>
+          <div class="hyrox-table" role="group" aria-label="Tiempos por tramo de carrera y prueba">
+            <div class="hyrox-header-row">
+              <span class="hyrox-col-head"
+                >Carrera <span class="hyrox-format-hint">(mm:ss)</span></span
+              >
+              <span class="hyrox-col-head"
+                >Prueba <span class="hyrox-format-hint">(mm:ss)</span></span
+              >
+            </div>
+            <div formArrayName="segments">
+              @for (row of hyroxRows; track row.stationKey; let i = $index) {
+                <div class="hyrox-row" [formGroupName]="i">
+                  <div class="hyrox-cell hyrox-cell-running">
+                    <label class="running-label" [for]="'run-time-' + i">{{
+                      row.runningLabel
+                    }}</label>
+                    <input
+                      [id]="'run-time-' + i"
+                      type="text"
+                      formControlName="running"
+                      class="th-input time-input-mmss"
+                      placeholder="00:00"
+                      inputmode="numeric"
+                      autocomplete="off"
+                      spellcheck="false"
+                      (input)="onMmSsInput($event, i, 'running')"
+                      [attr.aria-describedby]="'err-run-' + i"
+                    />
+                    @if (
+                      segments.at(i).get('running')?.invalid &&
+                      segments.at(i).get('running')?.touched
+                    ) {
+                      <span class="field-error" [id]="'err-run-' + i">
+                        @if (segments.at(i).get('running')?.hasError('required')) {
+                          Obligatorio
+                        } @else {
+                          Formato mm:ss (segundos 0–59), ej. 5:03
+                        }
+                      </span>
+                    }
+                  </div>
+                  <div class="hyrox-cell hyrox-cell-station">
+                    <label class="station-label" [for]="'st-time-' + i">{{
+                      row.stationLabel
+                    }}</label>
+                    <input
+                      [id]="'st-time-' + i"
+                      type="text"
+                      formControlName="station"
+                      class="th-input time-input-mmss"
+                      placeholder="00:00"
+                      inputmode="numeric"
+                      autocomplete="off"
+                      spellcheck="false"
+                      (input)="onMmSsInput($event, i, 'station')"
+                      [attr.aria-describedby]="'err-st-' + i"
+                    />
+                    @if (
+                      segments.at(i).get('station')?.invalid &&
+                      segments.at(i).get('station')?.touched
+                    ) {
+                      <span class="field-error" [id]="'err-st-' + i">
+                        @if (segments.at(i).get('station')?.hasError('required')) {
+                          Obligatorio
+                        } @else {
+                          Formato mm:ss (segundos 0–59), ej. 5:03
+                        }
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <button
+          type="submit"
+          class="th-btn-primary create-post-submit"
+          [disabled]="hyroxFormInvalid() || submitting()"
+        >
+          @if (submitting()) {
+            Publicando…
+          } @else {
+            Publicar entrenamiento
+          }
+        </button>
+      }
 
       <a routerLink="/feed" class="th-link-info create-post-back">Volver al feed</a>
 

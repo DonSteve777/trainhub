@@ -93,8 +93,8 @@
 
         <!-- Punto de inserción temporal para la futura visualización del post -->
         <div class="post-visualization-placeholder" role="status">
-          <mat-icon aria-hidden="true">insights</mat-icon>
-          <span>Visualización de carrera próximamente</span>
+          <mat-icon aria-hidden="true">{{ getPlaceholderIcon(post) }}</mat-icon>
+          <span>{{ getPlaceholderText(post) }}</span>
         </div>
       </article>
     }

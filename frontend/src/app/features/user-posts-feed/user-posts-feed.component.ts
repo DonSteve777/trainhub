@@ -4,7 +4,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { FeedService, FeedPostDto, LikeToggleDto } from '../../core/services/feed.service';
+import {
+  FeedService,
+  FeedPostDto,
+  FeedPostType,
+  FeedTrainingTag,
+  LikeToggleDto,
+} from '../../core/services/feed.service';
 import {
   CommentsDialogComponent,
   CommentsDialogResult,
@@ -16,6 +22,8 @@ interface FeedPost {
   username: string;
   avatarUrl: string;
   description: string;
+  postType: FeedPostType;
+  trainingTag: FeedTrainingTag | null;
   mateUserId: number | null;
   mateUsername: string | null;
   likes: number;
@@ -109,11 +117,39 @@ export class UserPostsFeedComponent implements OnInit {
       username: dto.username,
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',
+      postType: dto.postType,
+      trainingTag: dto.trainingTag,
       mateUserId: dto.mateId ?? null,
       mateUsername: dto.mateUsername ?? null,
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
     };
+  }
+
+  getPlaceholderIcon(post: FeedPost): string {
+    return post.postType === 'CHECKIN' ? 'fitness_center' : 'insights';
+  }
+
+  getPlaceholderText(post: FeedPost): string {
+    if (post.postType !== 'CHECKIN') {
+      return 'Visualización de resultado próximamente';
+    }
+
+    return post.trainingTag
+      ? `Check-in de ${this.formatTrainingTag(post.trainingTag)}`
+      : 'Check-in de entrenamiento';
+  }
+
+  private formatTrainingTag(tag: FeedTrainingTag): string {
+    const labels: Record<FeedTrainingTag, string> = {
+      HYROX: 'HYROX',
+      FUERZA: 'fuerza',
+      CARRERA: 'carrera',
+      CLASE: 'clase',
+      OTRO: 'entrenamiento',
+    };
+
+    return labels[tag];
   }
 }
