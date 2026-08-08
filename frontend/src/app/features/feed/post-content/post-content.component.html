@@ -1,42 +1,47 @@
 @if (isCheckin()) {
-  <div class="post-visualization-placeholder" role="status">
-    <mat-icon aria-hidden="true">fitness_center</mat-icon>
-    <span>{{ checkinText() }}</span>
+  <div class="post-body" role="status">
+    <p class="post-body__lead">
+      <mat-icon aria-hidden="true">fitness_center</mat-icon>
+      <span>{{ checkinText() }}</span>
+    </p>
+    @if (hasDescription()) {
+      <p class="post-body__description">{{ post().description }}</p>
+    }
   </div>
 } @else if (isBoxTextContent()) {
-  <div class="post-box-content" role="status">
-    <h3 class="post-box-content__title">{{ post().title }}</h3>
-    <p class="post-box-content__description">{{ post().description }}</p>
+  <div class="post-body" role="status">
+    <h3 class="post-body__title">{{ post().title }}</h3>
+    @if (hasDescription()) {
+      <p class="post-body__description">{{ post().description }}</p>
+    }
   </div>
 } @else if (isBoxChallenge()) {
-  <div class="post-box-content post-box-content--challenge" role="status">
-    <h3 class="post-box-content__title">{{ post().title }}</h3>
+  <div class="post-body" role="status">
+    <h3 class="post-body__title">{{ post().title }}</h3>
+    @if (hasDescription()) {
+      <p class="post-body__description">{{ post().description }}</p>
+    }
     @if (formattedDeadline()) {
-      <span class="post-box-content__deadline">
+      <span class="post-body__deadline">
         <mat-icon aria-hidden="true">event</mat-icon>
         Fecha límite: {{ formattedDeadline() }}
       </span>
     }
-    <div class="post-box-content__join-slot">
-      <button
-        type="button"
-        class="post-box-content__join-btn"
-        [class.post-box-content__join-btn--joined]="post().joinedByCurrentUser"
-        mat-stroked-button
-        (click)="onJoinToggle()"
-        [attr.aria-pressed]="post().joinedByCurrentUser"
-      >
-        <mat-icon aria-hidden="true">{{
-          post().joinedByCurrentUser ? 'check_circle' : 'add_circle_outline'
-        }}</mat-icon>
-        <span>{{ post().joinedByCurrentUser ? 'Me borro' : 'Me apunto' }}</span>
-        <span class="post-box-content__join-count">{{ participantsLabel() }}</span>
-      </button>
-    </div>
+  </div>
+} @else if (isResult()) {
+  <div class="post-body" role="status">
+    <p class="post-body__lead">
+      <mat-icon aria-hidden="true">insights</mat-icon>
+      <span>Resultado HYROX</span>
+    </p>
+    @if (hasDescription()) {
+      <p class="post-body__description">{{ post().description }}</p>
+    }
   </div>
 } @else {
-  <div class="post-visualization-placeholder" role="status">
-    <mat-icon aria-hidden="true">insights</mat-icon>
-    <span>Visualización de resultado próximamente</span>
+  <div class="post-body" role="status">
+    @if (hasDescription()) {
+      <p class="post-body__description">{{ post().description }}</p>
+    }
   </div>
 }

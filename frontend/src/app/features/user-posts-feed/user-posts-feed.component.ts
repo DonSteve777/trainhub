@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import {
@@ -29,6 +28,7 @@ interface FeedPost {
   title: string | null;
   trainingTag: FeedTrainingTag | null;
   challengeDeadline: string | null;
+  creationDate: string;
   participantsCount: number;
   joinedByCurrentUser: boolean;
   mateUserId: number | null;
@@ -41,7 +41,7 @@ interface FeedPost {
 @Component({
   selector: 'app-user-posts-feed',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, MatDialogModule, RouterLink, PostContentComponent],
+  imports: [MatIconModule, MatDialogModule, RouterLink, PostContentComponent],
   templateUrl: './user-posts-feed.component.html',
   styleUrl: './user-posts-feed.component.scss',
 })
@@ -137,6 +137,39 @@ export class UserPostsFeedComponent implements OnInit {
     });
   }
 
+  typeLabel(postType: FeedPostType): string {
+    switch (postType) {
+      case 'CHECKIN':
+        return 'Check-in';
+      case 'RESULT':
+        return 'Resultado';
+      case 'BOX_WOD':
+        return 'WOD';
+      case 'BOX_ANNOUNCEMENT':
+        return 'Anuncio';
+      case 'BOX_CHALLENGE':
+        return 'Reto';
+      default:
+        return postType;
+    }
+  }
+
+  participantsLabel(count: number): string {
+    return count === 1 ? '1 participante' : `${count} participantes`;
+  }
+
+  formatPostDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   openComments(post: FeedPost): void {
     const ref = this.dialog.open(CommentsDialogComponent, {
       data: { postId: post.id, username: post.username, avatarUrl: post.avatarUrl },
@@ -167,6 +200,7 @@ export class UserPostsFeedComponent implements OnInit {
       title: dto.title ?? null,
       trainingTag: dto.trainingTag,
       challengeDeadline: dto.challengeDeadline ?? null,
+      creationDate: dto.creationDate,
       participantsCount: dto.participantsCount ?? 0,
       joinedByCurrentUser: dto.joinedByCurrentUser ?? false,
       mateUserId: dto.mateId ?? null,

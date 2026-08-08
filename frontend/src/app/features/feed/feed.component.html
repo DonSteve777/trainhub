@@ -1,30 +1,37 @@
 <div class="feed" #feedContainer>
   @for (post of posts(); track post.id) {
     <article class="post-card">
-      <!-- Bloque 1: Header + Acciones en la misma fila -->
-      <div class="post-top-bar">
-        <div class="post-header">
-          <a class="post-avatar" [routerLink]="['/user', post.userId]">
-            <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
-          </a>
-          <div class="post-meta">
-            <div class="post-username-row">
-              <a class="post-username" [routerLink]="['/user', post.userId]">{{ post.username }}</a>
-              @if (post.mateUsername) {
-                <span class="post-mate-separator">&amp;</span>
-                <a
-                  class="post-username post-username--mate"
-                  [routerLink]="['/user', post.mateUserId]"
-                  >{{ post.mateUsername }}</a
-                >
-              }
-            </div>
-            <p class="post-description">{{ post.description }}</p>
-          </div>
-        </div>
+      <div class="post-card__rail">
+        <a class="post-avatar" [routerLink]="['/user', post.userId]">
+          <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
+        </a>
+        <span class="post-type-badge" [attr.data-type]="post.postType">{{
+          typeLabel(post.postType)
+        }}</span>
+      </div>
 
+      <div class="post-card__main">
+        <div class="post-username-row">
+          <a class="post-username" [routerLink]="['/user', post.userId]">{{ post.username }}</a>
+          @if (post.mateUsername) {
+            <span class="post-mate-separator">&amp;</span>
+            <a
+              class="post-username post-username--mate"
+              [routerLink]="['/user', post.mateUserId]"
+              >{{ post.mateUsername }}</a
+            >
+          }
+          <time class="post-date" [attr.datetime]="post.creationDate">{{
+            formatPostDate(post.creationDate)
+          }}</time>
+        </div>
+        <app-post-content [post]="post" />
+      </div>
+
+      <div class="post-card__aside">
         <div class="post-actions">
           <button
+            type="button"
             class="action-btn"
             (click)="toggleLike(post)"
             [attr.aria-label]="'Me gusta, ' + post.likes + (post.likes === 1 ? ' voto' : ' votos')"
@@ -36,6 +43,7 @@
           </button>
 
           <button
+            type="button"
             class="action-btn"
             (click)="openComments(post)"
             [attr.aria-label]="
@@ -48,9 +56,25 @@
             <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
           </button>
         </div>
-      </div>
 
-      <app-post-content [post]="post" (joinToggle)="toggleJoin(post)" />
+        @if (post.postType === 'BOX_CHALLENGE') {
+          <button
+            type="button"
+            class="join-btn"
+            [class.join-btn--joined]="post.joinedByCurrentUser"
+            (click)="toggleJoin(post)"
+            [attr.aria-pressed]="post.joinedByCurrentUser"
+          >
+            <mat-icon aria-hidden="true">{{
+              post.joinedByCurrentUser ? 'check_circle' : 'add_circle_outline'
+            }}</mat-icon>
+            <span class="join-btn__label">{{
+              post.joinedByCurrentUser ? 'Me borro' : 'Me apunto'
+            }}</span>
+            <span class="join-btn__count">{{ participantsLabel(post.participantsCount) }}</span>
+          </button>
+        }
+      </div>
     </article>
   }
 

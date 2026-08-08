@@ -1,124 +1,64 @@
 :host {
-  display: flex;
-  flex: 1;
-  min-height: 0;
+  display: block;
+  min-width: 0;
 }
 
-// ============================================================
-// RESULT / CHECKIN — placeholder de visualización
-// ============================================================
-.post-visualization-placeholder {
-  flex: 1;
-  min-height: 0;
+.post-body {
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-  gap: 0.75rem;
-  border: 1px dashed color-mix(in srgb, var(--trainhub-accent) 35%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--mat-sys-surface-container) 70%, transparent);
-  color: var(--mat-sys-on-surface-variant);
-  text-align: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.post-body__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--mat-sys-on-surface);
+}
+
+.post-body__lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
 
   mat-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 40px;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
     color: var(--trainhub-accent);
-  }
-
-  span {
-    font-size: 0.9rem;
-    font-weight: 600;
   }
 }
 
-// ============================================================
-// BOX_WOD / BOX_ANNOUNCEMENT / BOX_CHALLENGE
-// ============================================================
-.post-box-content {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--trainhub-accent) 35%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--mat-sys-surface-container) 70%, transparent);
+.post-body__description {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--mat-sys-on-surface-variant);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
+}
 
-  &__title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--mat-sys-on-surface);
-  }
+.post-body__deadline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--trainhub-accent);
 
-  &__description {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--mat-sys-on-surface-variant);
-    overflow-y: auto;
-  }
-
-  &__deadline {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    width: fit-content;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--trainhub-accent);
-
-    mat-icon {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
-    }
-  }
-
-  &--challenge {
-    justify-content: space-between;
-  }
-
-  &__join-slot {
-    flex-shrink: 0;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-
-  &__join-btn {
-    border-color: var(--trainhub-accent);
-    color: var(--trainhub-accent);
-
-    // Material proyecta el contenido en .mdc-button__label; el gap del host no aplica ahí
-    ::ng-deep .mdc-button__label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-
-    mat-icon {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
-      margin-right: 0.15rem;
-    }
-
-    &--joined {
-      background: color-mix(in srgb, var(--trainhub-accent) 15%, transparent);
-    }
-  }
-
-  &__join-count {
-    margin-left: 0.25rem;
-    padding-left: 0.55rem;
-    border-left: 1px solid color-mix(in srgb, var(--trainhub-accent) 45%, transparent);
-    font-size: 0.8rem;
-    font-weight: 500;
-    opacity: 0.8;
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
   }
 }

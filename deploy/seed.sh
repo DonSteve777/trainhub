@@ -61,7 +61,7 @@ echo ""
 # ------------------------------------------------------------
 echo "Insertando posts, amistades, comentarios y likes..."
 
-docker compose exec -T postgres psql -U dev_user -d trainhub_dev_db < "$SCRIPT_DIR/inserts.sql"
+docker compose exec -T postgres psql -U dev_user -d trainhub_dev_db < "$SCRIPT_DIR/../bdd/inserts.sql"
 
 echo ""
 echo "=== Seed completado ==="

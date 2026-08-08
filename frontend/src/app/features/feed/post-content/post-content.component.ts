@@ -1,6 +1,5 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { FeedPostType, FeedTrainingTag } from '../../../core/services/feed.service';
 
 export interface PostContentPost {
@@ -9,8 +8,6 @@ export interface PostContentPost {
   trainingTag: FeedTrainingTag | null;
   title: string | null;
   challengeDeadline: string | null;
-  participantsCount: number;
-  joinedByCurrentUser: boolean;
 }
 
 const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
@@ -24,24 +21,19 @@ const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
 @Component({
   selector: 'app-post-content',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule],
+  imports: [MatIconModule],
   templateUrl: './post-content.component.html',
   styleUrl: './post-content.component.scss',
 })
 export class PostContentComponent {
   post = input.required<PostContentPost>();
-  joinToggle = output<void>();
 
   isCheckin = computed(() => this.post().postType === 'CHECKIN');
   isBoxTextContent = computed(
     () => this.post().postType === 'BOX_WOD' || this.post().postType === 'BOX_ANNOUNCEMENT'
   );
   isBoxChallenge = computed(() => this.post().postType === 'BOX_CHALLENGE');
-
-  participantsLabel = computed(() => {
-    const count = this.post().participantsCount;
-    return count === 1 ? '1 participante' : `${count} participantes`;
-  });
+  isResult = computed(() => this.post().postType === 'RESULT');
 
   checkinText = computed(() => {
     const tag = this.post().trainingTag;
@@ -53,9 +45,7 @@ export class PostContentComponent {
     return deadline ? this.formatDate(deadline) : null;
   });
 
-  onJoinToggle(): void {
-    this.joinToggle.emit();
-  }
+  hasDescription = computed(() => Boolean(this.post().description?.trim()));
 
   private formatTrainingTag(tag: FeedTrainingTag): string {
     return TRAINING_TAG_LABELS[tag];

@@ -355,52 +355,145 @@ JOIN users u ON u.username = v.uname
 JOIN boxes b ON b.name = 'CrossFit Origen';
 
 -- ------------------------------------------------------------
--- 7. Posts de box — CHECKIN, BOX_WOD, BOX_ANNOUNCEMENT, BOX_CHALLENGE
+-- 7. Posts de box y check-ins variados (mezcla realista del feed)
+--    Fechas recientes (jul–ago 2026) para que salgan arriba en el feed
 -- ------------------------------------------------------------
 
--- CHECKIN: sin marcas, con training_tag
+-- CHECKIN: varios usuarios / tags
 INSERT INTO posts (user_id, post_type, training_tag, description, creation_date)
-SELECT u.id, 'CHECKIN', 'CARRERA',
-       'Rodaje suave de 8km antes de la sesión de Hyrox. Sensaciones muy buenas.',
-       TIMESTAMP '2026-05-04 07:00:00'
-FROM users u WHERE u.username = 'pedro_alonso';
+SELECT u.id, 'CHECKIN', v.tag, v.descr, v.cdate
+FROM (VALUES
+  ('pedro_alonso',  'CARRERA', 'Rodaje suave de 8km antes de la sesión de Hyrox. Sensaciones muy buenas.',           TIMESTAMP '2026-05-04 07:00:00'),
+  ('lucia_vega',    'FUERZA',  'Sesión de fuerza en el box: sentadilla, press banca y peso muerto.',                TIMESTAMP '2026-05-09 18:30:00'),
+  ('marcos_gil',    'HYROX',   'Simulación corta de estaciones. Ski + sled + wall balls. Piernas hechas papilla.', TIMESTAMP '2026-07-28 07:15:00'),
+  ('javier_mena',   'CLASE',   'Clase de technique con el coach. Mucho foco en farmers carry.',                    TIMESTAMP '2026-07-29 19:00:00'),
+  ('sofia_ramos',   'CARRERA', 'Intervalos 8x400. Ritmo alto, recuperación activa.',                               TIMESTAMP '2026-07-30 08:00:00'),
+  ('alberto_diaz',  'FUERZA',  'Empuje: press militar + fondos. Buenas sensaciones de hombro.',                    TIMESTAMP '2026-07-31 18:45:00'),
+  ('roberto_santos','OTRO',    'Movilidad y core. Día de descarga después del open workout.',                      TIMESTAMP '2026-08-01 09:30:00'),
+  ('lucia_vega',    'HYROX',   'Circuito HYROX express en el box. 4 estaciones a tope.',                           TIMESTAMP '2026-08-02 10:00:00'),
+  ('nuria_pons',    'CLASE',   'Primera clase de la semana. Motivación al máximo.',                                TIMESTAMP '2026-08-03 07:45:00'),
+  ('miguel_torres', 'CARRERA', 'Fartlek por el parque. 45 minutos sin mirar el reloj.',                            TIMESTAMP '2026-08-04 07:00:00'),
+  ('ana_garcia',    'FUERZA',  'Peso muerto + hip thrust. Volumen moderado.',                                      TIMESTAMP '2026-08-05 18:20:00'),
+  ('pedro_alonso',  'HYROX',   'Ensayo de transición entre estaciones. Cada segundo cuenta.',                      TIMESTAMP '2026-08-06 08:10:00'),
+  ('marcos_gil',    'OTRO',    'Sesión de movilidad y foam roller. Recuperación activa.',                          TIMESTAMP '2026-08-07 20:00:00'),
+  ('javier_mena',   'CARRERA', 'Tempo run 6km. Ritmo cómodo-rápido, buen feeling.',                                TIMESTAMP '2026-08-08 07:30:00')
+) AS v(uname, tag, descr, cdate)
+JOIN users u ON u.username = v.uname;
 
-INSERT INTO posts (user_id, post_type, training_tag, description, creation_date)
-SELECT u.id, 'CHECKIN', 'FUERZA',
-       'Sesión de fuerza en el box: sentadilla, press banca y peso muerto.',
-       TIMESTAMP '2026-05-09 18:30:00'
-FROM users u WHERE u.username = 'lucia_vega';
-
--- BOX_WOD: título, sin marcas
-INSERT INTO posts (user_id, post_type, box_id, title, description, creation_date)
-SELECT u.id, 'BOX_WOD', b.id, 'WOD de la semana: Hyrox Simulation',
-       '8x(500m row + 40 wall balls). Series completas con 2 min de descanso entre rondas.',
-       TIMESTAMP '2026-05-05 06:00:00'
-FROM users u
+-- BOX_WOD
+INSERT INTO posts (user_id, post_type, box_id, title, training_tag, description, creation_date)
+SELECT u.id, 'BOX_WOD', b.id, v.title, v.tag, v.descr, v.cdate
+FROM (VALUES
+  ('WOD de la semana: Hyrox Simulation', 'HYROX',
+   '8x(500m row + 40 wall balls). Series completas con 2 min de descanso entre rondas.',
+   TIMESTAMP '2026-05-05 06:00:00'),
+  ('WOD lunes: Engine day', 'CARRERA',
+   'AMRAP 20: 400m run + 15 burpees + 20 air squats. Ritmo sostenible, sin parar.',
+   TIMESTAMP '2026-07-28 06:30:00'),
+  ('WOD miércoles: Strength + metcon', 'FUERZA',
+   '1) Back squat 5x5  2) 4 rondas: 12 thrusters + 15 cal row + 10 pull-ups.',
+   TIMESTAMP '2026-07-30 06:30:00'),
+  ('WOD viernes: Partner Hyrox', 'HYROX',
+   'Por parejas: 1km run + ski + sled push + burpee BJ. Un atleta trabaja, el otro recupera.',
+   TIMESTAMP '2026-08-01 06:30:00'),
+  ('WOD sábado: Open floor', 'OTRO',
+   'Libre: elige 3 estaciones HYROX y completa 3 rondas. Coach disponible para técnica.',
+   TIMESTAMP '2026-08-02 09:00:00'),
+  ('WOD martes: Wall balls hell', 'HYROX',
+   'E2MOM 16: 20 wall balls + 10 cal ski. Si no terminas a tiempo, el resto es descanso.',
+   TIMESTAMP '2026-08-05 06:30:00'),
+  ('WOD de hoy: Mixed modal', 'CLASE',
+   'For time: 21-15-9 thrusters y pull-ups, luego 400m run. Cap 15 min.',
+   TIMESTAMP '2026-08-07 06:30:00')
+) AS v(title, tag, descr, cdate)
+CROSS JOIN users u
 JOIN boxes b ON b.name = 'CrossFit Origen'
 WHERE u.username = 'carlos_martin';
 
--- BOX_ANNOUNCEMENT: título, sin marcas
+-- BOX_ANNOUNCEMENT
 INSERT INTO posts (user_id, post_type, box_id, title, description, creation_date)
-SELECT u.id, 'BOX_ANNOUNCEMENT', b.id, 'Nuevo horario de clases',
-       'A partir del lunes, la clase de las 19:00 pasa a las 19:30. ¡Gracias por vuestra paciencia!',
-       TIMESTAMP '2026-05-06 09:00:00'
-FROM users u
+SELECT u.id, 'BOX_ANNOUNCEMENT', b.id, v.title, v.descr, v.cdate
+FROM (VALUES
+  ('Nuevo horario de clases',
+   'A partir del lunes, la clase de las 19:00 pasa a las 19:30. ¡Gracias por vuestra paciencia!',
+   TIMESTAMP '2026-05-06 09:00:00'),
+  ('Cerrado el 15 de agosto',
+   'El box permanecerá cerrado el viernes 15 por festivo. Reabrimos el sábado a las 09:00.',
+   TIMESTAMP '2026-07-29 12:00:00'),
+  ('Open day para amig@s',
+   'El domingo 10 trae a un amigo gratis a la clase de las 11:00. Cupo limitado: avisa en recepción.',
+   TIMESTAMP '2026-08-03 10:00:00'),
+  ('Camisetas del box disponibles',
+   'Ya podéis encargar la camiseta oficial 2026 en recepción. Plazo hasta el 20 de agosto.',
+   TIMESTAMP '2026-08-04 16:00:00'),
+  ('Cambio de coach en la clase de las 07:00',
+   'Durante dos semanas, Laura sustituye a Miguel en la clase matinal. ¡Misma energía!',
+   TIMESTAMP '2026-08-06 08:00:00')
+) AS v(title, descr, cdate)
+CROSS JOIN users u
 JOIN boxes b ON b.name = 'CrossFit Origen'
 WHERE u.username = 'carlos_martin';
 
--- BOX_CHALLENGE: título + challenge_deadline
+-- BOX_CHALLENGE
 INSERT INTO posts (user_id, post_type, box_id, title, challenge_deadline, description, creation_date)
-SELECT u.id, 'BOX_CHALLENGE', b.id, 'Reto de mayo: 100 wall balls seguidas',
-       '2026-05-31 23:59:00+02'::timestamptz,
-       'Quien complete 100 wall balls sin soltar la pelota se lleva una camiseta del box. ¡Apuntaos!',
-       TIMESTAMP '2026-05-07 08:00:00'
-FROM users u
+SELECT u.id, 'BOX_CHALLENGE', b.id, v.title, v.deadline::timestamptz, v.descr, v.cdate
+FROM (VALUES
+  ('Reto de mayo: 100 wall balls seguidas',
+   '2026-05-31 23:59:00+02',
+   'Quien complete 100 wall balls sin soltar la pelota se lleva una camiseta del box. ¡Apuntaos!',
+   TIMESTAMP '2026-05-07 08:00:00'),
+  ('Reto de agosto: 5k sub-25',
+   '2026-08-31 23:59:00+02',
+   'Corre 5km por debajo de 25 minutos (o tu marca personal). Sube foto del reloj en comentarios.',
+   TIMESTAMP '2026-08-01 08:00:00'),
+  ('Reto team: 10.000 cal colectivas',
+   '2026-08-20 23:59:00+02',
+   'Entre todos los apuntados sumamos 10.000 calorías en ski/row. Cada uno aporta lo que pueda.',
+   TIMESTAMP '2026-08-03 09:00:00'),
+  ('Reto técnica: unbroken farmers',
+   '2026-09-15 23:59:00+02',
+   '200m farmers carry sin soltar. Peso según categoría. Coach valida en clase.',
+   TIMESTAMP '2026-08-07 11:00:00')
+) AS v(title, deadline, descr, cdate)
+CROSS JOIN users u
 JOIN boxes b ON b.name = 'CrossFit Origen'
 WHERE u.username = 'carlos_martin';
 
+-- RESULTADOS recientes de amigos (para mezclar tipos en el feed)
+INSERT INTO posts (
+    user_id, post_type, box_id,
+    running1, running2, running3, running4, running5, running6, running7, running8,
+    ski_erg, sled_push, sled_pull, burpee_broad_jump, "row",
+    farmers_carry, sandbag_lunges, wall_balls,
+    total_time, description, category, creation_date
+)
+SELECT u.id, 'RESULT', b.id,
+       v.r1,v.r2,v.r3,v.r4,v.r5,v.r6,v.r7,v.r8,
+       v.ski,v.push,v.pull,v.burp,v.row_t,v.farm,v.sand,v.wall,
+       v.r1+v.r2+v.r3+v.r4+v.r5+v.r6+v.r7+v.r8+v.ski+v.push+v.pull+v.burp+v.row_t+v.farm+v.sand+v.wall,
+       v.descr, v.cat, v.cdate
+FROM (VALUES
+  ('marcos_gil',    61,56,70,65,80,75,88,83, 115,46,52,175,290,92,118,148,
+   'Simulación completa de sábado. Mejoría clara en el sled.', 'INDIVIDUAL_MALE',
+   TIMESTAMP '2026-07-26 09:00:00'),
+  ('javier_mena',   64,60,74,69,84,79,86,81, 112,49,55,170,288,96,114,144,
+   'Open workout casero. El row me salvó el total.', 'INDIVIDUAL_MALE',
+   TIMESTAMP '2026-08-02 08:30:00'),
+  ('lucia_vega',    58,53,68,63,78,73,92,87, 122,44,50,182,305,89,122,152,
+   'Segunda simulación del mes. Wall balls más fluidas.', 'INDIVIDUAL_FEMALE',
+   TIMESTAMP '2026-08-04 09:15:00'),
+  ('roberto_santos',63,58,72,67,82,77,87,82, 117,48,54,176,294,93,117,147,
+   'Entrenamiento con marca. Cerca del PB de primavera.', 'INDIVIDUAL_MALE',
+   TIMESTAMP '2026-08-06 07:45:00'),
+  ('alberto_diaz',  62,57,71,66,81,76,89,84, 118,47,53,177,295,92,118,148,
+   'Doble con buen ritmo. Transiciones más limpias.', 'INDIVIDUAL_MALE',
+   TIMESTAMP '2026-08-07 18:00:00')
+) AS v(uname, r1,r2,r3,r4,r5,r6,r7,r8, ski,push,pull,burp,row_t,farm,sand,wall, descr,cat,cdate)
+JOIN users u ON u.username = v.uname
+JOIN boxes b ON b.name = 'CrossFit Origen';
+
 -- ------------------------------------------------------------
--- 8. Participantes del reto de box (post_participants)
+-- 8. Participantes de retos de box
 -- ------------------------------------------------------------
 INSERT INTO post_participants (post_id, user_id, joined_at)
 SELECT p.id, part.id, v.joined
@@ -414,3 +507,42 @@ CROSS JOIN (VALUES
 JOIN users part ON part.username = v.username
 WHERE p.post_type = 'BOX_CHALLENGE'
   AND p.creation_date = TIMESTAMP '2026-05-07 08:00:00';
+
+INSERT INTO post_participants (post_id, user_id, joined_at)
+SELECT p.id, part.id, v.joined
+FROM posts p
+CROSS JOIN (VALUES
+  ('pedro_alonso',  TIMESTAMP '2026-08-01 10:00:00'),
+  ('marcos_gil',    TIMESTAMP '2026-08-01 11:00:00'),
+  ('javier_mena',   TIMESTAMP '2026-08-02 08:00:00'),
+  ('lucia_vega',    TIMESTAMP '2026-08-02 12:00:00'),
+  ('roberto_santos',TIMESTAMP '2026-08-03 09:00:00'),
+  ('ana_garcia',    TIMESTAMP '2026-08-04 18:00:00')
+) AS v(username, joined)
+JOIN users part ON part.username = v.username
+WHERE p.post_type = 'BOX_CHALLENGE'
+  AND p.creation_date = TIMESTAMP '2026-08-01 08:00:00';
+
+INSERT INTO post_participants (post_id, user_id, joined_at)
+SELECT p.id, part.id, v.joined
+FROM posts p
+CROSS JOIN (VALUES
+  ('pedro_alonso', TIMESTAMP '2026-08-03 10:30:00'),
+  ('marcos_gil',   TIMESTAMP '2026-08-03 11:00:00'),
+  ('miguel_torres',TIMESTAMP '2026-08-04 07:30:00'),
+  ('sofia_ramos',  TIMESTAMP '2026-08-05 09:00:00')
+) AS v(username, joined)
+JOIN users part ON part.username = v.username
+WHERE p.post_type = 'BOX_CHALLENGE'
+  AND p.creation_date = TIMESTAMP '2026-08-03 09:00:00';
+
+INSERT INTO post_participants (post_id, user_id, joined_at)
+SELECT p.id, part.id, v.joined
+FROM posts p
+CROSS JOIN (VALUES
+  ('javier_mena', TIMESTAMP '2026-08-07 12:00:00'),
+  ('alberto_diaz',TIMESTAMP '2026-08-07 13:00:00')
+) AS v(username, joined)
+JOIN users part ON part.username = v.username
+WHERE p.post_type = 'BOX_CHALLENGE'
+  AND p.creation_date = TIMESTAMP '2026-08-07 11:00:00';
