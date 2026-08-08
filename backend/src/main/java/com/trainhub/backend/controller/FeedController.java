@@ -47,10 +47,13 @@ public class FeedController {
             @RequestParam(required = false) Integer cursorId) {
 
         Integer userId = userPrincipal.getUser().getId();
+        Integer boxId = userPrincipal.getUser().getBox() != null
+                ? userPrincipal.getUser().getBox().getId()
+                : null;
 
         List<FeedPostResponse> posts = (cursorDate != null && cursorId != null)
-                ? feedService.getNextPage(userId, cursorDate, cursorId, size)
-                : feedService.getFirstPage(userId, size);
+                ? feedService.getNextPage(userId, boxId, cursorDate, cursorId, size)
+                : feedService.getFirstPage(userId, boxId, size);
 
         return ResponseEntity.ok(posts);
     }

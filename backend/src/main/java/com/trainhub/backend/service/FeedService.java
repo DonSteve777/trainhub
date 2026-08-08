@@ -49,13 +49,13 @@ public class FeedService {
         this.userRepository = userRepository;
     }
 
-    public List<FeedPostResponse> getFirstPage(Integer userId, int size) {
-        List<Post> posts = postRepository.findFeedFirstPage(userId, PageRequest.of(0, size));
+    public List<FeedPostResponse> getFirstPage(Integer userId, Integer boxId, int size) {
+        List<Post> posts = postRepository.findFeedFirstPage(userId, boxId, PageRequest.of(0, size));
         return toResponseList(posts, userId);
     }
 
-    public List<FeedPostResponse> getNextPage(Integer userId, LocalDateTime cursorDate, Integer cursorId, int size) {
-        List<Post> posts = postRepository.findFeedWithCursor(userId, cursorDate, cursorId, PageRequest.of(0, size));
+    public List<FeedPostResponse> getNextPage(Integer userId, Integer boxId, LocalDateTime cursorDate, Integer cursorId, int size) {
+        List<Post> posts = postRepository.findFeedWithCursor(userId, boxId, cursorDate, cursorId, PageRequest.of(0, size));
         return toResponseList(posts, userId);
     }
 
@@ -176,6 +176,11 @@ public class FeedService {
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())
                 .photoUrl(post.getUser().getPhotoUrl())
+                .postType(post.getPostType())
+                .boxId(post.getBox() != null ? post.getBox().getId() : null)
+                .title(post.getTitle())
+                .trainingTag(post.getTrainingTag())
+                .challengeDeadline(post.getChallengeDeadline())
                 .r1Time(post.getRunning1())
                 .r2Time(post.getRunning2())
                 .r3Time(post.getRunning3())

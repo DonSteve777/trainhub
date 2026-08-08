@@ -18,25 +18,51 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
     /**
-     * Devuelve los posts de amigos del usuario (primera página, sin cursor).
+     * Devuelve los posts de amigos y el contenido del box del usuario (primera página, sin cursor).
      * El orden es creation_date DESC, id DESC para un cursor estable.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate
-            WHERE EXISTS (
-                SELECT f FROM Friendship f
-                WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
-                AND (
-                    (f.id.userAId = :userId AND f.id.userBId = p.user.id)
-                    OR
-                    (f.id.userBId = :userId AND f.id.userAId = p.user.id)
+            SELECT p FROM Post p
+            JOIN FETCH p.user u
+            LEFT JOIN FETCH p.mate
+            LEFT JOIN FETCH p.box
+            WHERE p.user.id <> :userId
+            AND (
+                (
+                    p.postType IN (
+                        com.trainhub.backend.enums.PostType.CHECKIN,
+                        com.trainhub.backend.enums.PostType.RESULT
+                    )
+                    AND EXISTS (
+                        SELECT f FROM Friendship f
+                        WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
+                        AND (
+                            (f.id.userAId = :userId AND f.id.userBId = p.user.id)
+                            OR
+                            (f.id.userBId = :userId AND f.id.userAId = p.user.id)
+                        )
+                    )
+                )
+                OR (
+                    :boxId IS NOT NULL
+                    AND p.box.id = :boxId
+                    AND p.postType IN (
+                        com.trainhub.backend.enums.PostType.BOX_WOD,
+                        com.trainhub.backend.enums.PostType.BOX_CHALLENGE,
+                        com.trainhub.backend.enums.PostType.BOX_ANNOUNCEMENT
+                    )
                 )
             )
             ORDER BY p.creationDate DESC, p.id DESC
             """)
     List<Post> findFeedFirstPage(
             @Param("userId") Integer userId,
+            @Param("boxId") Integer boxId,
             Pageable pageable);
+
+    default List<Post> findFeedFirstPage(Integer userId, Pageable pageable) {
+        return findFeedFirstPage(userId, null, pageable);
+    }
 
     /**
      * Devuelve los tiempos de cada post del propio usuario ,
@@ -119,18 +145,39 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Object[]> findAllUserPostTimes(@Param("userId") Integer userId);
 
     /**
-     * Devuelve los posts de amigos del usuario después del cursor dado (paginación keyset).
+     * Devuelve los posts de amigos y el contenido del box después del cursor dado (paginación keyset).
      * El cursor es (creationDate, id): se traen posts anteriores en el tiempo al cursor.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate
-            WHERE EXISTS (
-                SELECT f FROM Friendship f
-                WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
-                AND (
-                    (f.id.userAId = :userId AND f.id.userBId = p.user.id)
-                    OR
-                    (f.id.userBId = :userId AND f.id.userAId = p.user.id)
+            SELECT p FROM Post p
+            JOIN FETCH p.user u
+            LEFT JOIN FETCH p.mate
+            LEFT JOIN FETCH p.box
+            WHERE p.user.id <> :userId
+            AND (
+                (
+                    p.postType IN (
+                        com.trainhub.backend.enums.PostType.CHECKIN,
+                        com.trainhub.backend.enums.PostType.RESULT
+                    )
+                    AND EXISTS (
+                        SELECT f FROM Friendship f
+                        WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
+                        AND (
+                            (f.id.userAId = :userId AND f.id.userBId = p.user.id)
+                            OR
+                            (f.id.userBId = :userId AND f.id.userAId = p.user.id)
+                        )
+                    )
+                )
+                OR (
+                    :boxId IS NOT NULL
+                    AND p.box.id = :boxId
+                    AND p.postType IN (
+                        com.trainhub.backend.enums.PostType.BOX_WOD,
+                        com.trainhub.backend.enums.PostType.BOX_CHALLENGE,
+                        com.trainhub.backend.enums.PostType.BOX_ANNOUNCEMENT
+                    )
                 )
             )
             AND (p.creationDate < :cursorDate
@@ -139,7 +186,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             """)
     List<Post> findFeedWithCursor(
             @Param("userId") Integer userId,
+            @Param("boxId") Integer boxId,
             @Param("cursorDate") LocalDateTime cursorDate,
             @Param("cursorId") Integer cursorId,
             Pageable pageable);
+
+    default List<Post> findFeedWithCursor(
+            Integer userId,
+            LocalDateTime cursorDate,
+            Integer cursorId,
+            Pageable pageable) {
+        return findFeedWithCursor(userId, null, cursorDate, cursorId, pageable);
+    }
 }

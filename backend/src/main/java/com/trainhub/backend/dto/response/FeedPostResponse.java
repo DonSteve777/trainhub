@@ -1,7 +1,10 @@
 package com.trainhub.backend.dto.response;
 
 import com.trainhub.backend.enums.PostCategory;
+import com.trainhub.backend.enums.PostType;
+import com.trainhub.backend.enums.TrainingTag;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * DTO que representa un post en el feed del usuario.
@@ -12,6 +15,11 @@ public class FeedPostResponse {
     private Integer userId;
     private String username;
     private String photoUrl;
+    private PostType postType;
+    private Integer boxId;
+    private String title;
+    private TrainingTag trainingTag;
+    private OffsetDateTime challengeDeadline;
 
     private String r1Time;
     private String r2Time;
@@ -88,6 +96,21 @@ public class FeedPostResponse {
 
     public String getPhotoUrl() { return photoUrl; }
     public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
+    public PostType getPostType() { return postType; }
+    public void setPostType(PostType postType) { this.postType = postType; }
+
+    public Integer getBoxId() { return boxId; }
+    public void setBoxId(Integer boxId) { this.boxId = boxId; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public TrainingTag getTrainingTag() { return trainingTag; }
+    public void setTrainingTag(TrainingTag trainingTag) { this.trainingTag = trainingTag; }
+
+    public OffsetDateTime getChallengeDeadline() { return challengeDeadline; }
+    public void setChallengeDeadline(OffsetDateTime challengeDeadline) { this.challengeDeadline = challengeDeadline; }
 
     public String getR1Time() { return r1Time; }
     public void setR1Time(String r1Time) { this.r1Time = r1Time; }
@@ -179,26 +202,31 @@ public class FeedPostResponse {
         public Builder userId(Integer v)           { r.userId = v;            return this; }
         public Builder username(String v)          { r.username = v;          return this; }
         public Builder photoUrl(String v)          { r.photoUrl = v;          return this; }
+        public Builder postType(PostType v)        { r.postType = v;          return this; }
+        public Builder boxId(Integer v)            { r.boxId = v;             return this; }
+        public Builder title(String v)             { r.title = v;             return this; }
+        public Builder trainingTag(TrainingTag v)  { r.trainingTag = v;       return this; }
+        public Builder challengeDeadline(OffsetDateTime v) { r.challengeDeadline = v; return this; }
 
-        public Builder r1Time(Integer v)           { r.r1Time = v.toString(); return this; }
-        public Builder r2Time(Integer v)           { r.r2Time = v.toString(); return this; }
-        public Builder r3Time(Integer v)           { r.r3Time = v.toString(); return this; }
-        public Builder r4Time(Integer v)           { r.r4Time = v.toString(); return this; }
-        public Builder r5Time(Integer v)           { r.r5Time = v.toString(); return this; }
-        public Builder r6Time(Integer v)           { r.r6Time = v.toString(); return this; }
-        public Builder r7Time(Integer v)           { r.r7Time = v.toString(); return this; }
-        public Builder r8Time(Integer v)           { r.r8Time = v.toString(); return this; }
+        public Builder r1Time(Integer v)           { r.r1Time = toStringOrNull(v); return this; }
+        public Builder r2Time(Integer v)           { r.r2Time = toStringOrNull(v); return this; }
+        public Builder r3Time(Integer v)           { r.r3Time = toStringOrNull(v); return this; }
+        public Builder r4Time(Integer v)           { r.r4Time = toStringOrNull(v); return this; }
+        public Builder r5Time(Integer v)           { r.r5Time = toStringOrNull(v); return this; }
+        public Builder r6Time(Integer v)           { r.r6Time = toStringOrNull(v); return this; }
+        public Builder r7Time(Integer v)           { r.r7Time = toStringOrNull(v); return this; }
+        public Builder r8Time(Integer v)           { r.r8Time = toStringOrNull(v); return this; }
 
-        public Builder skiErgTime(Integer v)       { r.skiErgTime = v.toString();       return this; }
-        public Builder sledPushTime(Integer v)     { r.sledPushTime = v.toString();     return this; }
-        public Builder sledPullTime(Integer v)     { r.sledPullTime = v.toString();     return this; }
-        public Builder burpeeBjTime(Integer v)     { r.burpeeBjTime = v.toString();     return this; }
-        public Builder rowTime(Integer v)          { r.rowTime = v.toString();          return this; }
-        public Builder farmersCarryTime(Integer v) { r.farmersCarryTime = v.toString(); return this; }
-        public Builder sandbagLungesTime(Integer v){ r.sandbagLungesTime = v.toString();return this; }
-        public Builder wallBallsTime(Integer v)    { r.wallBallsTime = v.toString();    return this; }
+        public Builder skiErgTime(Integer v)       { r.skiErgTime = toStringOrNull(v);       return this; }
+        public Builder sledPushTime(Integer v)     { r.sledPushTime = toStringOrNull(v);     return this; }
+        public Builder sledPullTime(Integer v)     { r.sledPullTime = toStringOrNull(v);     return this; }
+        public Builder burpeeBjTime(Integer v)     { r.burpeeBjTime = toStringOrNull(v);     return this; }
+        public Builder rowTime(Integer v)          { r.rowTime = toStringOrNull(v);          return this; }
+        public Builder farmersCarryTime(Integer v) { r.farmersCarryTime = toStringOrNull(v); return this; }
+        public Builder sandbagLungesTime(Integer v){ r.sandbagLungesTime = toStringOrNull(v);return this; }
+        public Builder wallBallsTime(Integer v)    { r.wallBallsTime = toStringOrNull(v);    return this; }
 
-        public Builder totalTime(Integer v)        { r.totalTime = v.toString(); return this; }
+        public Builder totalTime(Integer v)        { r.totalTime = toStringOrNull(v); return this; }
         public Builder description(String v)       { r.description = v;          return this; }
         public Builder category(PostCategory v)      { r.category = v;         return this; }
         public Builder mateId(Integer v)             { r.mateId = v;           return this; }
@@ -208,5 +236,9 @@ public class FeedPostResponse {
         public Builder joinedByCurrentUser(boolean v) { r.joinedByCurrentUser = v; return this; }
 
         public FeedPostResponse build() { return r; }
+
+        private static String toStringOrNull(Integer v) {
+            return v == null ? null : v.toString();
+        }
     }
 }
