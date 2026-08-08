@@ -1,0 +1,27 @@
+@if (isCheckin()) {
+  <div class="post-visualization-placeholder" role="status">
+    <mat-icon aria-hidden="true">fitness_center</mat-icon>
+    <span>{{ checkinText() }}</span>
+  </div>
+} @else if (isBoxTextContent()) {
+  <div class="post-box-content" role="status">
+    <h3 class="post-box-content__title">{{ post().title }}</h3>
+    <p class="post-box-content__description">{{ post().description }}</p>
+  </div>
+} @else if (isBoxChallenge()) {
+  <div class="post-box-content post-box-content--challenge" role="status">
+    <h3 class="post-box-content__title">{{ post().title }}</h3>
+    @if (formattedDeadline()) {
+      <span class="post-box-content__deadline">
+        <mat-icon aria-hidden="true">event</mat-icon>
+        Fecha límite: {{ formattedDeadline() }}
+      </span>
+    }
+    <div class="post-box-content__join-slot"></div>
+  </div>
+} @else {
+  <div class="post-visualization-placeholder" role="status">
+    <mat-icon aria-hidden="true">insights</mat-icon>
+    <span>Visualización de resultado próximamente</span>
+  </div>
+}

@@ -23,6 +23,7 @@ import {
   CommentsDialogComponent,
   CommentsDialogResult,
 } from './comments-dialog/comments-dialog.component';
+import { PostContentComponent } from './post-content/post-content.component';
 
 interface FeedPost {
   id: number;
@@ -31,7 +32,12 @@ interface FeedPost {
   avatarUrl: string;
   description: string;
   postType: FeedPostType;
+  boxId: number | null;
+  title: string | null;
   trainingTag: FeedTrainingTag | null;
+  challengeDeadline: string | null;
+  participantsCount: number;
+  joinedByCurrentUser: boolean;
   mateUserId: number | null;
   mateUsername: string | null;
   likes: number;
@@ -44,7 +50,7 @@ const PAGE_SIZE = 5;
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [RouterLink, MatIconModule, MatButtonModule, MatDialogModule],
+  imports: [RouterLink, MatIconModule, MatButtonModule, MatDialogModule, PostContentComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
@@ -168,38 +174,17 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       avatarUrl: dto.photoUrl ?? `https://i.pravatar.cc/48?u=${dto.userId}`,
       description: dto.description ?? '',
       postType: dto.postType,
+      boxId: dto.boxId ?? null,
+      title: dto.title ?? null,
       trainingTag: dto.trainingTag,
+      challengeDeadline: dto.challengeDeadline ?? null,
+      participantsCount: dto.participantsCount ?? 0,
+      joinedByCurrentUser: dto.joinedByCurrentUser ?? false,
       mateUserId: dto.mateId ?? null,
       mateUsername: dto.mateUsername ?? null,
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
     };
-  }
-
-  getPlaceholderIcon(post: FeedPost): string {
-    return post.postType === 'CHECKIN' ? 'fitness_center' : 'insights';
-  }
-
-  getPlaceholderText(post: FeedPost): string {
-    if (post.postType !== 'CHECKIN') {
-      return 'Visualización de resultado próximamente';
-    }
-
-    return post.trainingTag
-      ? `Check-in de ${this.formatTrainingTag(post.trainingTag)}`
-      : 'Check-in de entrenamiento';
-  }
-
-  private formatTrainingTag(tag: FeedTrainingTag): string {
-    const labels: Record<FeedTrainingTag, string> = {
-      HYROX: 'HYROX',
-      FUERZA: 'fuerza',
-      CARRERA: 'carrera',
-      CLASE: 'clase',
-      OTRO: 'entrenamiento',
-    };
-
-    return labels[tag];
   }
 }

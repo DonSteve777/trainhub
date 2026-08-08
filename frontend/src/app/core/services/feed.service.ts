@@ -12,6 +12,8 @@ export interface FeedPostDto {
   username: string;
   photoUrl: string | null;
   postType: FeedPostType;
+  boxId: number | null;
+  title: string | null;
   r1Time: string | null;
   r2Time: string | null;
   r3Time: string | null;
@@ -30,6 +32,7 @@ export interface FeedPostDto {
   wallBallsTime: string | null;
   totalTime: string | null;
   trainingTag: FeedTrainingTag | null;
+  challengeDeadline: string | null;
   description: string | null;
   category: string | null;
   mateId: number | null;
@@ -38,6 +41,8 @@ export interface FeedPostDto {
   commentsCount: number;
   likesCount: number;
   likedByCurrentUser: boolean;
+  participantsCount: number;
+  joinedByCurrentUser: boolean;
 }
 
 export interface LikeToggleDto {
