@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -156,6 +157,20 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             ORDER BY CAST(p.creation_date AS date) DESC
             """, nativeQuery = true)
     List<LocalDate> findActivityDatesForUser(@Param("userId") Integer userId);
+
+    /**
+     * Devuelve pares (userId, fecha) de días distintos con actividad CHECKIN/RESULT
+     * para varios usuarios en una sola query (evita N+1 en el feed).
+     * Cada fila: [userId, date].
+     */
+    @Query(value = """
+            SELECT DISTINCT p.user_id, CAST(p.creation_date AS date)
+            FROM posts p
+            WHERE p.user_id IN (:userIds)
+            AND p.post_type IN ('CHECKIN', 'RESULT')
+            ORDER BY p.user_id, CAST(p.creation_date AS date) DESC
+            """, nativeQuery = true)
+    List<Object[]> findActivityDatesForUsers(@Param("userIds") Collection<Integer> userIds);
 
     /**
      * Devuelve los posts de amigos y el contenido del box después del cursor dado (paginación keyset).

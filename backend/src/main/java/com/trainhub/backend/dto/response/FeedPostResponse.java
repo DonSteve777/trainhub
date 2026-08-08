@@ -5,6 +5,7 @@ import com.trainhub.backend.enums.PostType;
 import com.trainhub.backend.enums.TrainingTag;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /**
  * DTO que representa un post en el feed del usuario.
@@ -51,6 +52,11 @@ public class FeedPostResponse {
     private boolean likedByCurrentUser;
     private Integer participantsCount;
     private boolean joinedByCurrentUser;
+
+    /** Solo en CHECKIN: semanas ISO consecutivas con ≥ N días de actividad. Null en el resto. */
+    private Integer streakWeeks;
+    /** Solo en CHECKIN: 7 booleans L→D de la semana ISO actual. Null en el resto. */
+    private List<Boolean> weekActiveDays;
 
     public FeedPostResponse() {}
 
@@ -193,6 +199,12 @@ public class FeedPostResponse {
     public boolean isJoinedByCurrentUser() { return joinedByCurrentUser; }
     public void setJoinedByCurrentUser(boolean joinedByCurrentUser) { this.joinedByCurrentUser = joinedByCurrentUser; }
 
+    public Integer getStreakWeeks() { return streakWeeks; }
+    public void setStreakWeeks(Integer streakWeeks) { this.streakWeeks = streakWeeks; }
+
+    public List<Boolean> getWeekActiveDays() { return weekActiveDays; }
+    public void setWeekActiveDays(List<Boolean> weekActiveDays) { this.weekActiveDays = weekActiveDays; }
+
     public static Builder builder() { return new Builder(); }
 
     public static final class Builder {
@@ -234,6 +246,8 @@ public class FeedPostResponse {
         public Builder creationDate(java.time.LocalDateTime v) { r.creationDate = v; return this; }
         public Builder participantsCount(Integer v)  { r.participantsCount = v; return this; }
         public Builder joinedByCurrentUser(boolean v) { r.joinedByCurrentUser = v; return this; }
+        public Builder streakWeeks(Integer v)        { r.streakWeeks = v;        return this; }
+        public Builder weekActiveDays(List<Boolean> v) { r.weekActiveDays = v;  return this; }
 
         public FeedPostResponse build() { return r; }
 

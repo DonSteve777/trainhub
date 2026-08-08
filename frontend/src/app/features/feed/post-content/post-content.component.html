@@ -7,6 +7,40 @@
     @if (hasDescription()) {
       <p class="post-body__description">{{ post().description }}</p>
     }
+    <div
+      class="constancy"
+      [class.constancy--empty]="streakWeeks() === 0"
+      [attr.aria-label]="
+        streakLabel() +
+        (streakWeeks() > 0 ? ' de constancia' : '') +
+        '. Esta semana, ' +
+        weekActiveCount() +
+        (weekActiveCount() === 1 ? ' día' : ' días')
+      "
+    >
+      <div class="constancy__streak">
+        <mat-icon class="constancy__flame" aria-hidden="true">local_fire_department</mat-icon>
+        <span class="constancy__weeks">{{ streakLabel() }}</span>
+        @if (streakWeeks() > 0) {
+          <span class="constancy__weeks-hint">de constancia</span>
+        }
+      </div>
+      <div class="constancy__week" aria-hidden="true">
+        @for (label of weekDayLabels; track label; let i = $index) {
+          <div class="constancy__day">
+            <span class="constancy__day-label">{{ label }}</span>
+            <span
+              class="constancy__dot"
+              [class.constancy__dot--active]="weekActiveDays()[i]"
+            ></span>
+          </div>
+        }
+      </div>
+      <p class="constancy__caption">
+        Esta semana · {{ weekActiveCount() }}
+        {{ weekActiveCount() === 1 ? 'día' : 'días' }}
+      </p>
+    </div>
   </div>
 } @else if (isBoxTextContent()) {
   <div class="post-body" role="status">

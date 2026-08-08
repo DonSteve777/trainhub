@@ -8,6 +8,8 @@ export interface PostContentPost {
   trainingTag: FeedTrainingTag | null;
   title: string | null;
   challengeDeadline: string | null;
+  streakWeeks: number | null;
+  weekActiveDays: boolean[] | null;
 }
 
 const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
@@ -18,6 +20,8 @@ const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
   OTRO: 'entrenamiento',
 };
 
+const WEEK_DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'] as const;
+
 @Component({
   selector: 'app-post-content',
   standalone: true,
@@ -26,6 +30,8 @@ const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
   styleUrl: './post-content.component.scss',
 })
 export class PostContentComponent {
+  readonly weekDayLabels = WEEK_DAY_LABELS;
+
   post = input.required<PostContentPost>();
 
   isCheckin = computed(() => this.post().postType === 'CHECKIN');
@@ -46,6 +52,26 @@ export class PostContentComponent {
   });
 
   hasDescription = computed(() => Boolean(this.post().description?.trim()));
+
+  streakWeeks = computed(() => this.post().streakWeeks ?? 0);
+
+  weekActiveDays = computed(() => {
+    const days = this.post().weekActiveDays;
+    if (!days || days.length !== 7) {
+      return [false, false, false, false, false, false, false];
+    }
+    return days;
+  });
+
+  weekActiveCount = computed(() => this.weekActiveDays().filter(Boolean).length);
+
+  streakLabel = computed(() => {
+    const weeks = this.streakWeeks();
+    if (weeks <= 0) {
+      return 'Sin racha aún';
+    }
+    return weeks === 1 ? '1 semana' : `${weeks} semanas`;
+  });
 
   private formatTrainingTag(tag: FeedTrainingTag): string {
     return TRAINING_TAG_LABELS[tag];

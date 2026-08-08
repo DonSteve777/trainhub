@@ -380,6 +380,51 @@ FROM (VALUES
 ) AS v(uname, tag, descr, cdate)
 JOIN users u ON u.username = v.uname;
 
+-- Constancia semanal de demo (javier_mena): ≥3 días/semana en W29–W32
+-- Semana actual (W32, 3–9 ago 2026): L–J + S → dots parciales y racha visible en el feed
+INSERT INTO posts (user_id, post_type, training_tag, description, creation_date)
+SELECT u.id, 'CHECKIN', v.tag, v.descr, v.cdate
+FROM (VALUES
+  -- W29 (13–19 jul)
+  ('javier_mena', 'FUERZA',  'Fuerza: sentadilla + press. Semana de volumen.',           TIMESTAMP '2026-07-14 18:30:00'),
+  ('javier_mena', 'HYROX',   'Circuito corto de estaciones en el box.',                  TIMESTAMP '2026-07-15 07:15:00'),
+  ('javier_mena', 'CARRERA', 'Rodaje 7km zona 2.',                                       TIMESTAMP '2026-07-17 07:00:00'),
+  -- W30 (20–26 jul)
+  ('javier_mena', 'CLASE',   'Clase de technique. Farmers y lunges.',                    TIMESTAMP '2026-07-21 19:00:00'),
+  ('javier_mena', 'FUERZA',  'Peso muerto + hip thrust.',                                TIMESTAMP '2026-07-22 18:45:00'),
+  ('javier_mena', 'CARRERA', 'Intervalos 6x400.',                                        TIMESTAMP '2026-07-24 08:00:00'),
+  -- W31 (27 jul–2 ago) — Jul 29 ya existe arriba; sumamos 2 más para llegar a N
+  ('javier_mena', 'HYROX',   'Ski + sled + wall balls. Piernas hechas.',                 TIMESTAMP '2026-07-28 07:20:00'),
+  ('javier_mena', 'OTRO',    'Movilidad y core. Descarga activa.',                       TIMESTAMP '2026-07-31 09:00:00'),
+  -- W32 (3–9 ago) — Aug 8 ya existe; dots L M X J · · S
+  ('javier_mena', 'FUERZA',  'Empuje: press militar + fondos.',                          TIMESTAMP '2026-08-03 18:30:00'),
+  ('javier_mena', 'CARRERA', 'Fartlek 40 min por el parque.',                            TIMESTAMP '2026-08-04 07:10:00'),
+  ('javier_mena', 'HYROX',   'Simulación de transiciones entre estaciones.',             TIMESTAMP '2026-08-05 08:00:00'),
+  ('javier_mena', 'CLASE',   'Clase matinal. Buen feeling de piernas.',                  TIMESTAMP '2026-08-06 07:40:00')
+) AS v(uname, tag, descr, cdate)
+JOIN users u ON u.username = v.uname;
+
+-- Constancia semanal de demo (marcos_gil): 3 días/semana en W29–W32 (racha 4 semanas)
+-- Reutiliza Jul 26 (RESULT), Jul 28 y Aug 7 (CHECKIN) ya insertados arriba
+INSERT INTO posts (user_id, post_type, training_tag, description, creation_date)
+SELECT u.id, 'CHECKIN', v.tag, v.descr, v.cdate
+FROM (VALUES
+  -- W29 (13–19 jul)
+  ('marcos_gil', 'FUERZA',  'Fuerza: sentadilla y press. Arranque de bloque.',          TIMESTAMP '2026-07-13 18:30:00'),
+  ('marcos_gil', 'CARRERA', 'Rodaje 8km zona 2. Piernas frescas.',                      TIMESTAMP '2026-07-15 07:00:00'),
+  ('marcos_gil', 'HYROX',   'Circuito corto: ski + sled + wall balls.',                 TIMESTAMP '2026-07-17 07:20:00'),
+  -- W30 (20–26 jul) — Jul 26 ya existe como RESULT
+  ('marcos_gil', 'CLASE',   'Clase de technique. Farmers y lunges.',                    TIMESTAMP '2026-07-21 19:00:00'),
+  ('marcos_gil', 'FUERZA',  'Peso muerto + hip thrust. Volumen moderado.',              TIMESTAMP '2026-07-23 18:45:00'),
+  -- W31 (27 jul–2 ago) — Jul 28 ya existe como CHECKIN
+  ('marcos_gil', 'CARRERA', 'Intervalos 6x400. Ritmo alto.',                            TIMESTAMP '2026-07-30 08:00:00'),
+  ('marcos_gil', 'HYROX',   'Simulación de transiciones entre estaciones.',             TIMESTAMP '2026-08-01 09:00:00'),
+  -- W32 (3–9 ago) — Aug 7 ya existe; hoy (sáb 8) cierra la semana
+  ('marcos_gil', 'FUERZA',  'Empuje: press militar + fondos.',                          TIMESTAMP '2026-08-04 18:30:00'),
+  ('marcos_gil', 'CARRERA', 'Tempo run 6km. Buen feeling hasta hoy.',                   TIMESTAMP '2026-08-08 08:15:00')
+) AS v(uname, tag, descr, cdate)
+JOIN users u ON u.username = v.uname;
+
 -- BOX_WOD
 INSERT INTO posts (user_id, post_type, box_id, title, training_tag, description, creation_date)
 SELECT u.id, 'BOX_WOD', b.id, v.title, v.tag, v.descr, v.cdate

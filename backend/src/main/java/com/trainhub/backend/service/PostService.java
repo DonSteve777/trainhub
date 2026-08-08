@@ -9,6 +9,7 @@ import com.trainhub.backend.dto.response.PersonalRecordsResponse.RecordEntry;
 import com.trainhub.backend.dto.response.StreakResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse.TimeEntry;
+import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
 import com.trainhub.backend.enums.PostType;
 import com.trainhub.backend.enums.Role;
 import com.trainhub.backend.model.Post;
@@ -16,17 +17,25 @@ import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.PostRepository;
 import com.trainhub.backend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,12 +44,23 @@ import java.util.stream.Collectors;
 @Service
 public class PostService {
 
+    private static final WeekFields ISO_WEEK = WeekFields.ISO;
+    private static final List<Boolean> EMPTY_WEEK_DAYS = List.of(
+            false, false, false, false, false, false, false
+    );
+
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final int minDaysPerWeek;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public PostService(
+            PostRepository postRepository,
+            UserRepository userRepository,
+            @Value("${trainhub.streak.min-days-per-week:3}") int minDaysPerWeek
+    ) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.minDaysPerWeek = minDaysPerWeek;
     }
 
     /**
@@ -201,6 +221,72 @@ public class PostService {
     }
 
     /**
+     * Constancia semanal del usuario a partir de su actividad en BD.
+     *
+     * @param userId id del usuario
+     * @return semanas consecutivas, dots L–D de la semana ISO actual y conteo
+     */
+    public WeeklyConstancyResponse getWeeklyConstancy(Integer userId) {
+        return calculateWeeklyConstancy(postRepository.findActivityDatesForUser(userId));
+    }
+
+    /**
+     * Calcula constancia semanal a partir de fechas de actividad (días distintos con CHECKIN/RESULT).
+     * <p>
+     * Semanas ISO (L–D). Una semana cuenta si tiene ≥ {@code minDaysPerWeek} días distintos.
+     * Si la semana actual aún no llega al mínimo, la racha se ancla en la anterior.
+     *
+     * @param activityDates fechas distintas de actividad (cualquier orden)
+     * @return streakWeeks, weekActiveDays (L→D) y weekActiveCount
+     */
+    public WeeklyConstancyResponse calculateWeeklyConstancy(List<LocalDate> activityDates) {
+        if (activityDates == null || activityDates.isEmpty()) {
+            return new WeeklyConstancyResponse(0, EMPTY_WEEK_DAYS, 0);
+        }
+
+        LocalDate today = LocalDate.now();
+        IsoWeek currentWeek = IsoWeek.of(today);
+
+        Map<IsoWeek, Set<LocalDate>> daysByWeek = new HashMap<>();
+        boolean[] weekActiveDays = new boolean[7];
+
+        for (LocalDate date : activityDates) {
+            IsoWeek week = IsoWeek.of(date);
+            daysByWeek.computeIfAbsent(week, ignored -> new HashSet<>()).add(date);
+
+            if (week.equals(currentWeek)) {
+                weekActiveDays[date.getDayOfWeek().getValue() - 1] = true;
+            }
+        }
+
+        int weekActiveCount = 0;
+        List<Boolean> weekActiveDaysList = new ArrayList<>(7);
+        for (boolean active : weekActiveDays) {
+            if (active) {
+                weekActiveCount++;
+            }
+            weekActiveDaysList.add(active);
+        }
+
+        IsoWeek anchor = daysInWeek(daysByWeek, currentWeek) >= minDaysPerWeek
+                ? currentWeek
+                : currentWeek.minusWeeks(1);
+
+        int streakWeeks = 0;
+        IsoWeek cursor = anchor;
+        while (daysInWeek(daysByWeek, cursor) >= minDaysPerWeek) {
+            streakWeeks++;
+            cursor = cursor.minusWeeks(1);
+        }
+
+        return new WeeklyConstancyResponse(
+                streakWeeks,
+                Collections.unmodifiableList(weekActiveDaysList),
+                weekActiveCount
+        );
+    }
+
+    /**
      * Devuelve el histórico de tiempos del usuario agrupado en tres colecciones:
      * total, workouts (suma de las 8 estaciones) y runs (suma de las 8 carreras).
      * Cada entrada incluye el tiempo en segundos y la fecha del entrenamiento.
@@ -348,6 +434,31 @@ public class PostService {
         return builders.values().stream()
                 .map(b -> new FriendTimeHistoryResponse(b.username, b.totalHistory, b.workoutsHistory, b.runsHistory))
                 .collect(Collectors.toList());
+    }
+
+    private static int daysInWeek(Map<IsoWeek, Set<LocalDate>> daysByWeek, IsoWeek week) {
+        Set<LocalDate> days = daysByWeek.get(week);
+        return days == null ? 0 : days.size();
+    }
+
+    /**
+     * Semana ISO identificada por año basado en semana y número de semana.
+     */
+    private record IsoWeek(int weekBasedYear, int weekOfYear) {
+
+        static IsoWeek of(LocalDate date) {
+            return new IsoWeek(
+                    date.get(ISO_WEEK.weekBasedYear()),
+                    date.get(ISO_WEEK.weekOfWeekBasedYear())
+            );
+        }
+
+        IsoWeek minusWeeks(int weeks) {
+            LocalDate monday = LocalDate.of(weekBasedYear, 1, 4)
+                    .with(ISO_WEEK.weekOfWeekBasedYear(), weekOfYear)
+                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            return of(monday.minusWeeks(weeks));
+        }
     }
 
     private static class FriendBuilder {

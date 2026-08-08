@@ -44,6 +44,8 @@ interface FeedPost {
   likes: number;
   liked: boolean;
   commentsCount: number;
+  streakWeeks: number | null;
+  weekActiveDays: boolean[] | null;
 }
 
 const PAGE_SIZE = 5;
@@ -258,6 +260,8 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
+      streakWeeks: dto.streakWeeks ?? null,
+      weekActiveDays: dto.weekActiveDays ?? null,
     };
   }
 }

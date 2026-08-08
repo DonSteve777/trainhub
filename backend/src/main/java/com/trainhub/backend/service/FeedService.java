@@ -3,6 +3,7 @@ package com.trainhub.backend.service;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
 import com.trainhub.backend.dto.response.ParticipationToggleResponse;
+import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
 import com.trainhub.backend.enums.PostType;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.PostLike;
@@ -21,7 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,15 +43,18 @@ public class FeedService {
     private final PostParticipantRepository postParticipantRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final PostService postService;
 
     public FeedService(PostRepository postRepository, PostLikeRepository postLikeRepository,
                        PostParticipantRepository postParticipantRepository,
-                       CommentRepository commentRepository, UserRepository userRepository) {
+                       CommentRepository commentRepository, UserRepository userRepository,
+                       PostService postService) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
         this.postParticipantRepository = postParticipantRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+        this.postService = postService;
     }
 
     public List<FeedPostResponse> getFirstPage(Integer userId, Integer boxId, int size) {
@@ -157,6 +165,8 @@ public class FeedService {
         Set<Integer> likedByUser = Set.copyOf(postLikeRepository.findLikedPostIds(postIds, userId));
         Set<Integer> joinedByUser = Set.copyOf(postParticipantRepository.findJoinedPostIds(postIds, userId));
 
+        Map<Integer, WeeklyConstancyResponse> constancyByUserId = loadConstancyForCheckinAuthors(posts);
+
         return posts.stream()
                 .map(post -> {
                     FeedPostResponse response = toResponse(post);
@@ -165,9 +175,60 @@ public class FeedService {
                     response.setLikedByCurrentUser(likedByUser.contains(post.getId()));
                     response.setParticipantsCount(participantCountByPostId.getOrDefault(post.getId(), 0));
                     response.setJoinedByCurrentUser(joinedByUser.contains(post.getId()));
+                    if (post.getPostType() == PostType.CHECKIN) {
+                        WeeklyConstancyResponse constancy = constancyByUserId.get(post.getUser().getId());
+                        if (constancy != null) {
+                            response.setStreakWeeks(constancy.getStreakWeeks());
+                            response.setWeekActiveDays(constancy.getWeekActiveDays());
+                        }
+                    }
                     return response;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Una sola query de actividad para los autores de posts CHECKIN de la página,
+     * y cálculo de constancia semanal por usuario.
+     */
+    private Map<Integer, WeeklyConstancyResponse> loadConstancyForCheckinAuthors(List<Post> posts) {
+        Set<Integer> checkinAuthorIds = posts.stream()
+                .filter(post -> post.getPostType() == PostType.CHECKIN)
+                .map(post -> post.getUser().getId())
+                .collect(Collectors.toSet());
+
+        if (checkinAuthorIds.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<Integer, List<LocalDate>> datesByUserId = new HashMap<>();
+        for (Object[] row : postRepository.findActivityDatesForUsers(checkinAuthorIds)) {
+            Integer authorId = ((Number) row[0]).intValue();
+            LocalDate date = toLocalDate(row[1]);
+            datesByUserId.computeIfAbsent(authorId, ignored -> new ArrayList<>()).add(date);
+        }
+
+        Map<Integer, WeeklyConstancyResponse> constancyByUserId = new HashMap<>();
+        for (Integer authorId : checkinAuthorIds) {
+            constancyByUserId.put(
+                    authorId,
+                    postService.calculateWeeklyConstancy(datesByUserId.getOrDefault(authorId, List.of()))
+            );
+        }
+        return constancyByUserId;
+    }
+
+    private static LocalDate toLocalDate(Object value) {
+        if (value instanceof LocalDate localDate) {
+            return localDate;
+        }
+        if (value instanceof Date sqlDate) {
+            return sqlDate.toLocalDate();
+        }
+        if (value instanceof java.util.Date utilDate) {
+            return new Date(utilDate.getTime()).toLocalDate();
+        }
+        throw new IllegalArgumentException("No se puede convertir a LocalDate: " + value);
     }
 
     private FeedPostResponse toResponse(Post post) {

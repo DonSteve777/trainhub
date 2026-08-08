@@ -43,6 +43,10 @@ export interface FeedPostDto {
   likedByCurrentUser: boolean;
   participantsCount: number;
   joinedByCurrentUser: boolean;
+  /** Semanas ISO consecutivas de constancia; solo en CHECKIN, null en el resto. */
+  streakWeeks: number | null;
+  /** Días activos L→D de la semana ISO actual; solo en CHECKIN, null en el resto. */
+  weekActiveDays: boolean[] | null;
 }
 
 export interface LikeToggleDto {

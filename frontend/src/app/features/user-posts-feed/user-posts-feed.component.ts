@@ -36,6 +36,8 @@ interface FeedPost {
   likes: number;
   liked: boolean;
   commentsCount: number;
+  streakWeeks: number | null;
+  weekActiveDays: boolean[] | null;
 }
 
 @Component({
@@ -208,6 +210,8 @@ export class UserPostsFeedComponent implements OnInit {
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
+      streakWeeks: dto.streakWeeks ?? null,
+      weekActiveDays: dto.weekActiveDays ?? null,
     };
   }
 }
