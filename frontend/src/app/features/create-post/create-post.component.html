@@ -43,27 +43,12 @@
             <span class="checkin-kicker">Check-in rápido</span>
             <h2>Publica que has entrenado sin completar una prueba HYROX</h2>
             <p>
-              Comparte la sesión con una etiqueta, una nota opcional y, si quieres, menciona a un
-              compañero.
+              Elige el WOD del box para rellenar el tipo y la descripción, o completa el check-in a
+              mano. Puedes mencionar a un compañero.
             </p>
           </div>
 
           <div class="checkin-fields">
-            <div class="form-field checkin-field">
-              <label class="th-label" for="trainingTag">Tipo de entrenamiento</label>
-              <select id="trainingTag" formControlName="trainingTag" class="th-input th-select">
-                <option value="" disabled>Selecciona una etiqueta</option>
-                @for (tag of trainingTagOptions; track tag.value) {
-                  <option [value]="tag.value">{{ tag.label }}</option>
-                }
-              </select>
-              @if (
-                checkinForm.get('trainingTag')?.invalid && checkinForm.get('trainingTag')?.touched
-              ) {
-                <span class="field-error">Debes elegir un tipo de entrenamiento</span>
-              }
-            </div>
-
             <div class="form-field checkin-field">
               <label class="th-label" for="wodPostId">
                 WOD del box <span class="optional-hint">(opcional)</span>
@@ -78,6 +63,21 @@
                 <span class="optional-hint">Cargando WODs…</span>
               } @else if (boxWods().length === 0) {
                 <span class="optional-hint">No hay WODs recientes en tu box</span>
+              }
+            </div>
+
+            <div class="form-field checkin-field">
+              <label class="th-label" for="trainingTag">Tipo de entrenamiento</label>
+              <select id="trainingTag" formControlName="trainingTag" class="th-input th-select">
+                <option value="" disabled>Selecciona una etiqueta</option>
+                @for (tag of trainingTagOptions; track tag.value) {
+                  <option [value]="tag.value">{{ tag.label }}</option>
+                }
+              </select>
+              @if (
+                checkinForm.get('trainingTag')?.invalid && checkinForm.get('trainingTag')?.touched
+              ) {
+                <span class="field-error">Debes elegir un tipo de entrenamiento</span>
               }
             </div>
 
