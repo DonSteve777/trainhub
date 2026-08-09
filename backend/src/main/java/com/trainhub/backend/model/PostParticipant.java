@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 /**
  * Entidad que representa la participación de un usuario en un post
- * (por ejemplo, en un reto de box). Mapeada a la tabla "post_participants".
+ * (reto o WOD de box). Mapeada a la tabla "post_participants".
  */
 @Entity
 @Table(name = "post_participants")

@@ -47,4 +47,30 @@ public interface PostParticipantRepository extends JpaRepository<PostParticipant
      */
     @Query("SELECT COUNT(pp) FROM PostParticipant pp WHERE pp.id.postId = :postId")
     long countByPostId(@Param("postId") Integer postId);
+
+    /**
+     * Participantes de varios posts, más recientes primero.
+     * Cada fila: [postId, userId, username, photoUrl].
+     */
+    @Query("""
+            SELECT pp.id.postId, u.id, u.username, u.photoUrl
+            FROM PostParticipant pp
+            JOIN pp.user u
+            WHERE pp.id.postId IN :postIds
+            ORDER BY pp.joinedAt DESC
+            """)
+    List<Object[]> findParticipantAuthorsByPostIds(@Param("postIds") List<Integer> postIds);
+
+    /**
+     * Lista completa de participantes de un post.
+     * Cada fila: [userId, username, photoUrl, joinedAt].
+     */
+    @Query("""
+            SELECT u.id, u.username, u.photoUrl, pp.joinedAt
+            FROM PostParticipant pp
+            JOIN pp.user u
+            WHERE pp.id.postId = :postId
+            ORDER BY pp.joinedAt DESC
+            """)
+    List<Object[]> findParticipantAuthorsByPostId(@Param("postId") Integer postId);
 }

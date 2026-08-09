@@ -70,9 +70,9 @@ export class PostContentComponent {
   wodMuroLabel = computed(() => {
     const count = this.wodCheckinsCount();
     if (count <= 0) {
-      return 'Sé el primero en hacerlo';
+      return 'Sé el primero en apuntarte';
     }
-    return count === 1 ? '1 del box ya lo ha hecho' : `${count} del box ya lo han hecho`;
+    return count === 1 ? '1 del box va a participar' : `${count} del box van a participar`;
   });
 
   formattedDeadline = computed(() => {

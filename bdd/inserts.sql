@@ -455,7 +455,7 @@ CROSS JOIN users u
 JOIN boxes b ON b.name = 'CrossFit Origen'
 WHERE u.username = 'carlos_martin';
 
--- CHECKIN vinculados al muro del WOD (WOD de hoy: Mixed modal)
+-- CHECKIN vinculados al WOD (sigue existiendo el vínculo; el muro muestra participantes)
 UPDATE posts p
 SET wod_post_id = w.id,
     box_id = w.box_id
@@ -476,6 +476,20 @@ FROM (VALUES
 ) AS v(uname, tag, descr, cdate)
 JOIN users u ON u.username = v.uname
 JOIN posts w ON w.post_type = 'BOX_WOD' AND w.title = 'WOD de hoy: Mixed modal';
+
+-- Participantes del WOD de hoy (muro RSVP)
+INSERT INTO post_participants (post_id, user_id, joined_at)
+SELECT w.id, part.id, v.joined
+FROM posts w
+CROSS JOIN (VALUES
+  ('marcos_gil',   TIMESTAMP '2026-08-07 07:00:00'),
+  ('lucia_vega',   TIMESTAMP '2026-08-07 07:15:00'),
+  ('pedro_alonso', TIMESTAMP '2026-08-07 07:30:00'),
+  ('javier_mena',  TIMESTAMP '2026-08-07 08:00:00')
+) AS v(username, joined)
+JOIN users part ON part.username = v.username
+WHERE w.post_type = 'BOX_WOD'
+  AND w.title = 'WOD de hoy: Mixed modal';
 
 -- BOX_ANNOUNCEMENT
 INSERT INTO posts (user_id, post_type, box_id, title, description, creation_date)

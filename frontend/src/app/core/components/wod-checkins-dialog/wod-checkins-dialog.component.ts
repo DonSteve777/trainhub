@@ -27,7 +27,7 @@ export class WodCheckinsDialogComponent implements OnInit {
   error = signal(false);
 
   ngOnInit(): void {
-    this.feedService.getWodCheckinAuthors(this.data.wodPostId).subscribe({
+    this.feedService.getWodParticipants(this.data.wodPostId).subscribe({
       next: authors => {
         this.authors.set(authors);
         this.loading.set(false);

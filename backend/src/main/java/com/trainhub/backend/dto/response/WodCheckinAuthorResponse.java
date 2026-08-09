@@ -3,7 +3,8 @@ package com.trainhub.backend.dto.response;
 import java.time.LocalDateTime;
 
 /**
- * Autor de un check-in vinculado a un WOD (muro del WOD).
+ * Participante apuntado a un WOD (muro del WOD).
+ * {@code checkedInAt} representa la fecha de apuntarse ({@code joined_at}).
  */
 public class WodCheckinAuthorResponse {
 

@@ -76,7 +76,7 @@ public class FeedController {
     }
 
     /**
-     * Apunta o desapunta al usuario autenticado del reto de box indicado (toggle).
+     * Apunta o desapunta al usuario autenticado del reto o WOD de box indicado (toggle).
      *
      * @return nuevo estado de participación y conteo actualizado
      */
@@ -91,12 +91,12 @@ public class FeedController {
     }
 
     /**
-     * Lista de usuarios que han hecho check-in vinculado al WOD indicado.
+     * Lista de usuarios apuntados al WOD indicado.
      */
-    @GetMapping("/posts/{postId}/wod-checkins")
-    public ResponseEntity<List<WodCheckinAuthorResponse>> getWodCheckinAuthors(
+    @GetMapping("/posts/{postId}/wod-participants")
+    public ResponseEntity<List<WodCheckinAuthorResponse>> getWodParticipants(
             @PathVariable Integer postId) {
 
-        return ResponseEntity.ok(feedService.getWodCheckinAuthors(postId));
+        return ResponseEntity.ok(feedService.getWodParticipants(postId));
     }
 }

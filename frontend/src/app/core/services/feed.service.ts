@@ -50,7 +50,7 @@ export interface FeedPostDto {
   /** CHECKIN vinculado a WOD. */
   wodPostId: number | null;
   wodTitle: string | null;
-  /** BOX_WOD: muro de check-ins. */
+  /** BOX_WOD: muro de participantes. */
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
 }
@@ -59,6 +59,7 @@ export interface WodCheckinAuthorDto {
   userId: number;
   username: string;
   photoUrl: string | null;
+  /** Fecha de apuntarse (joined_at). */
   checkedInAt?: string | null;
 }
 
@@ -90,8 +91,8 @@ export class FeedService {
     return this.api.get<FeedPostDto[]>(`/user/${userId}/posts`);
   }
 
-  getWodCheckinAuthors(wodPostId: number): Observable<WodCheckinAuthorDto[]> {
-    return this.api.get<WodCheckinAuthorDto[]>(`/feed/posts/${wodPostId}/wod-checkins`);
+  getWodParticipants(wodPostId: number): Observable<WodCheckinAuthorDto[]> {
+    return this.api.get<WodCheckinAuthorDto[]>(`/feed/posts/${wodPostId}/wod-participants`);
   }
 
   toggleLike(postId: number): Observable<LikeToggleDto> {

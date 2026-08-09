@@ -109,7 +109,7 @@ public class FeedService {
     }
 
     /**
-     * Apunta o desapunta al usuario de un reto de box (toggle).
+     * Apunta o desapunta al usuario de un reto o WOD de box (toggle).
      *
      * @return estado nuevo de la participación y el conteo actualizado.
      */
@@ -121,8 +121,8 @@ public class FeedService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
-        if (post.getPostType() != PostType.BOX_CHALLENGE) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se puede participar en retos de box");
+        if (post.getPostType() != PostType.BOX_CHALLENGE && post.getPostType() != PostType.BOX_WOD) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo se puede participar en retos o WOD de box");
         }
 
         PostParticipantId participantId = new PostParticipantId(postId, userId);
@@ -139,17 +139,17 @@ public class FeedService {
     }
 
     /**
-     * Lista completa de usuarios que han hecho check-in vinculado a un BOX_WOD.
+     * Lista completa de usuarios apuntados a un BOX_WOD.
      */
-    public List<WodCheckinAuthorResponse> getWodCheckinAuthors(Integer wodPostId) {
+    public List<WodCheckinAuthorResponse> getWodParticipants(Integer wodPostId) {
         Post post = postRepository.findById(wodPostId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post no encontrado"));
 
         if (post.getPostType() != PostType.BOX_WOD) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo los WOD tienen muro de check-ins");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo los WOD tienen muro de participantes");
         }
 
-        return postRepository.findCheckinAuthorsByWodId(wodPostId).stream()
+        return postParticipantRepository.findParticipantAuthorsByPostId(wodPostId).stream()
                 .map(row -> new WodCheckinAuthorResponse(
                         (Integer) row[0],
                         (String) row[1],
@@ -207,7 +207,7 @@ public class FeedService {
                         }
                     }
                     if (post.getPostType() == PostType.BOX_WOD) {
-                        response.setWodCheckinsCount(wodMuro.counts().getOrDefault(post.getId(), 0));
+                        response.setWodCheckinsCount(participantCountByPostId.getOrDefault(post.getId(), 0));
                         response.setWodCheckinAuthors(
                                 wodMuro.authors().getOrDefault(post.getId(), List.of())
                         );
@@ -218,7 +218,7 @@ public class FeedService {
     }
 
     /**
-     * Batch de conteos y avatares del muro para los BOX_WOD de la página.
+     * Batch de avatares del muro de participantes para los BOX_WOD de la página.
      */
     private WodMuroData loadWodMuroData(List<Post> posts) {
         List<Integer> wodIds = posts.stream()
@@ -227,20 +227,13 @@ public class FeedService {
                 .collect(Collectors.toList());
 
         if (wodIds.isEmpty()) {
-            return new WodMuroData(Map.of(), Map.of());
+            return new WodMuroData(Map.of());
         }
-
-        Map<Integer, Integer> counts = postRepository.countCheckinsByWodIds(wodIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        row -> (Integer) row[0],
-                        row -> ((Long) row[1]).intValue()
-                ));
 
         Map<Integer, List<WodCheckinAuthorResponse>> authorsByWod = new HashMap<>();
         Map<Integer, Set<Integer>> seenUsersByWod = new HashMap<>();
 
-        for (Object[] row : postRepository.findCheckinAuthorsByWodIds(wodIds)) {
+        for (Object[] row : postParticipantRepository.findParticipantAuthorsByPostIds(wodIds)) {
             Integer wodId = (Integer) row[0];
             Integer authorUserId = (Integer) row[1];
             Set<Integer> seen = seenUsersByWod.computeIfAbsent(wodId, ignored -> new HashSet<>());
@@ -258,13 +251,10 @@ public class FeedService {
             ));
         }
 
-        return new WodMuroData(counts, authorsByWod);
+        return new WodMuroData(authorsByWod);
     }
 
-    private record WodMuroData(
-            Map<Integer, Integer> counts,
-            Map<Integer, List<WodCheckinAuthorResponse>> authors
-    ) {}
+    private record WodMuroData(Map<Integer, List<WodCheckinAuthorResponse>> authors) {}
 
     /**
      * Una sola query de actividad para los autores de posts CHECKIN de la página,

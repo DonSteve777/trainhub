@@ -63,9 +63,9 @@ public class FeedPostResponse {
     /** Solo en CHECKIN vinculado: título del BOX_WOD. */
     private String wodTitle;
 
-    /** Solo en BOX_WOD: número de check-ins vinculados. */
+    /** Solo en BOX_WOD: número de participantes apuntados. */
     private Integer wodCheckinsCount;
-    /** Solo en BOX_WOD: hasta 8 autores de check-in (muro). */
+    /** Solo en BOX_WOD: hasta 8 participantes (muro). */
     private List<WodCheckinAuthorResponse> wodCheckinAuthors;
 
     public FeedPostResponse() {}

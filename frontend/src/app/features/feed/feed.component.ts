@@ -186,7 +186,13 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     this.posts.update(posts =>
       posts.map(p =>
         p.id === post.id
-          ? { ...p, joinedByCurrentUser: optimisticJoined, participantsCount: optimisticCount }
+          ? {
+              ...p,
+              joinedByCurrentUser: optimisticJoined,
+              participantsCount: optimisticCount,
+              wodCheckinsCount:
+                p.postType === 'BOX_WOD' ? optimisticCount : p.wodCheckinsCount,
+            }
           : p
       )
     );
@@ -196,7 +202,13 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         this.posts.update(posts =>
           posts.map(p =>
             p.id === post.id
-              ? { ...p, joinedByCurrentUser: res.joined, participantsCount: res.participantsCount }
+              ? {
+                  ...p,
+                  joinedByCurrentUser: res.joined,
+                  participantsCount: res.participantsCount,
+                  wodCheckinsCount:
+                    p.postType === 'BOX_WOD' ? res.participantsCount : p.wodCheckinsCount,
+                }
               : p
           )
         );
@@ -209,6 +221,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
                   ...p,
                   joinedByCurrentUser: post.joinedByCurrentUser,
                   participantsCount: post.participantsCount,
+                  wodCheckinsCount: post.wodCheckinsCount,
                 }
               : p
           )
