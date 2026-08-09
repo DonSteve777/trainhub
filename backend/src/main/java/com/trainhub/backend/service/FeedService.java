@@ -77,42 +77,8 @@ public class FeedService {
      * @param currentUserId id del usuario autenticado que hace la petición
      */
     public List<FeedPostResponse> getUserPosts(Integer targetUserId, Integer currentUserId) {
-        // #region agent log
-        long _dbgT0 = System.currentTimeMillis();
-        // #endregion
-        try {
-            List<Post> posts = postRepository.findPostsByUserId(targetUserId);
-            List<FeedPostResponse> result = toResponseList(posts, currentUserId);
-            // #region agent log
-            try {
-                String line = "{\"sessionId\":\"9971ba\",\"hypothesisId\":\"A\",\"location\":\"FeedService.getUserPosts\",\"message\":\"user posts ok\",\"data\":{\"targetUserId\":"
-                        + targetUserId + ",\"rawCount\":" + posts.size() + ",\"responseCount\":" + result.size()
-                        + ",\"ms\":" + (System.currentTimeMillis() - _dbgT0)
-                        + "},\"timestamp\":" + System.currentTimeMillis() + "}\n";
-                java.nio.file.Files.writeString(
-                        java.nio.file.Path.of("c:/xxx/tfg/trainhub/debug-9971ba.log"),
-                        line,
-                        java.nio.file.StandardOpenOption.CREATE,
-                        java.nio.file.StandardOpenOption.APPEND);
-            } catch (Exception ignored) {}
-            // #endregion
-            return result;
-        } catch (Exception e) {
-            // #region agent log
-            try {
-                String msg = e.getClass().getSimpleName() + ": " + String.valueOf(e.getMessage()).replace("\"", "'");
-                String line = "{\"sessionId\":\"9971ba\",\"hypothesisId\":\"A\",\"location\":\"FeedService.getUserPosts\",\"message\":\"user posts failed\",\"data\":{\"targetUserId\":"
-                        + targetUserId + ",\"error\":\"" + msg + "\",\"ms\":" + (System.currentTimeMillis() - _dbgT0)
-                        + "},\"timestamp\":" + System.currentTimeMillis() + "}\n";
-                java.nio.file.Files.writeString(
-                        java.nio.file.Path.of("c:/xxx/tfg/trainhub/debug-9971ba.log"),
-                        line,
-                        java.nio.file.StandardOpenOption.CREATE,
-                        java.nio.file.StandardOpenOption.APPEND);
-            } catch (Exception ignored) {}
-            // #endregion
-            throw e;
-        }
+        List<Post> posts = postRepository.findPostsByUserId(targetUserId);
+        return toResponseList(posts, currentUserId);
     }
 
     /**
