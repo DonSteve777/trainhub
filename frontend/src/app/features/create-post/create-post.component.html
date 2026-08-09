@@ -8,8 +8,8 @@
           <span class="checkin-kicker">Check-in rápido</span>
           <h2>Publica que has entrenado</h2>
           <p>
-            Elige el WOD del box para rellenar el tipo y la descripción, o completa el check-in a
-            mano.
+            Elige el WOD del box para fijar el tipo y precargar la descripción, o completa el
+            check-in a mano sin vincular WOD.
           </p>
         </div>
 
@@ -39,7 +39,9 @@
                 <option [value]="tag.value">{{ tag.label }}</option>
               }
             </select>
-            @if (
+            @if (checkinForm.get('wodPostId')?.value && checkinForm.get('trainingTag')?.disabled) {
+              <span class="optional-hint">Fijado por el WOD seleccionado</span>
+            } @else if (
               checkinForm.get('trainingTag')?.invalid && checkinForm.get('trainingTag')?.touched
             ) {
               <span class="field-error">Debes elegir un tipo de entrenamiento</span>
@@ -64,7 +66,7 @@
         <button
           type="submit"
           class="th-btn-primary create-post-submit"
-          [disabled]="checkinForm.invalid || submitting()"
+          [disabled]="checkinForm.invalid || !checkinForm.getRawValue().trainingTag || submitting()"
         >
           @if (submitting()) {
             Publicando…
