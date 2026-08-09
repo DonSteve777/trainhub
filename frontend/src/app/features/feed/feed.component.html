@@ -1,4 +1,13 @@
 <div class="feed" #feedContainer>
+  @if (myConstancy(); as constancy) {
+    <div class="feed-constancy">
+      <app-constancy-block
+        [streakWeeks]="constancy.streakWeeks"
+        [weekDayTags]="constancy.weekDayTags"
+      />
+    </div>
+  }
+
   @for (post of posts(); track post.id) {
     <article class="post-card">
       <div class="post-card__rail">
@@ -72,6 +81,13 @@
               post.joinedByCurrentUser ? 'Me borro' : 'Me apunto'
             }}</span>
             <span class="join-btn__count">{{ participantsLabel(post.participantsCount) }}</span>
+          </button>
+        }
+
+        @if (post.postType === 'BOX_WOD') {
+          <button type="button" class="join-btn" (click)="checkInWod(post)">
+            <mat-icon aria-hidden="true">fitness_center</mat-icon>
+            <span class="join-btn__label">He hecho este WOD</span>
           </button>
         }
       </div>

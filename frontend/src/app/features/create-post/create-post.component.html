@@ -65,6 +65,23 @@
             </div>
 
             <div class="form-field checkin-field">
+              <label class="th-label" for="wodPostId">
+                WOD del box <span class="optional-hint">(opcional)</span>
+              </label>
+              <select id="wodPostId" formControlName="wodPostId" class="th-input th-select">
+                <option value="">Sin vincular a un WOD</option>
+                @for (wod of boxWods(); track wod.id) {
+                  <option [value]="wod.id">{{ wod.title }}</option>
+                }
+              </select>
+              @if (boxWodsLoading()) {
+                <span class="optional-hint">Cargando WODs…</span>
+              } @else if (boxWods().length === 0) {
+                <span class="optional-hint">No hay WODs recientes en tu box</span>
+              }
+            </div>
+
+            <div class="form-field checkin-field">
               <label class="th-label" for="checkinDescription">
                 Descripción <span class="optional-hint">(opcional)</span>
               </label>

@@ -65,6 +65,12 @@ export interface PersonalRecordsDto {
   bestWallBalls:      PersonalRecordEntryDto | null;
 }
 
+export interface WeeklyConstancyDto {
+  streakWeeks: number;
+  weekDayTags: Array<'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO' | null>;
+  weekActiveCount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly api = inject(ApiService);
@@ -81,6 +87,10 @@ export class UserService {
   getPersonalRecords(userId?: number): Observable<PersonalRecordsDto> {
     const url = userId != null ? `/user/${userId}/personal-records` : '/user/personal-records';
     return this.api.get<PersonalRecordsDto>(url);
+  }
+
+  getWeeklyConstancy(): Observable<WeeklyConstancyDto> {
+    return this.api.get<WeeklyConstancyDto>('/user/constancy');
   }
 
   getProfile(userId?: number): Observable<UserProfileDto> {

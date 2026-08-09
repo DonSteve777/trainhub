@@ -1,15 +1,30 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { FeedPostType, FeedTrainingTag } from '../../../core/services/feed.service';
+import {
+  FeedPostType,
+  FeedTrainingTag,
+  WodCheckinAuthorDto,
+} from '../../../core/services/feed.service';
+import { ConstancyBlockComponent } from '../../../core/components/constancy-block/constancy-block.component';
+import {
+  WodCheckinsDialogComponent,
+  WodCheckinsDialogData,
+} from '../../../core/components/wod-checkins-dialog/wod-checkins-dialog.component';
 
 export interface PostContentPost {
+  id: number;
   postType: FeedPostType;
   description: string;
   trainingTag: FeedTrainingTag | null;
   title: string | null;
   challengeDeadline: string | null;
   streakWeeks: number | null;
-  weekActiveDays: boolean[] | null;
+  weekDayTags: Array<FeedTrainingTag | null> | null;
+  wodPostId: number | null;
+  wodTitle: string | null;
+  wodCheckinsCount: number | null;
+  wodCheckinAuthors: WodCheckinAuthorDto[] | null;
 }
 
 const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
@@ -17,33 +32,47 @@ const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
   FUERZA: 'fuerza',
   CARRERA: 'carrera',
   CLASE: 'clase',
+  DESCANSO_ACTIVO: 'descanso activo',
   OTRO: 'entrenamiento',
 };
-
-const WEEK_DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'] as const;
 
 @Component({
   selector: 'app-post-content',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [MatIconModule, MatDialogModule, ConstancyBlockComponent],
   templateUrl: './post-content.component.html',
   styleUrl: './post-content.component.scss',
 })
 export class PostContentComponent {
-  readonly weekDayLabels = WEEK_DAY_LABELS;
+  private readonly dialog = inject(MatDialog);
 
   post = input.required<PostContentPost>();
 
   isCheckin = computed(() => this.post().postType === 'CHECKIN');
-  isBoxTextContent = computed(
-    () => this.post().postType === 'BOX_WOD' || this.post().postType === 'BOX_ANNOUNCEMENT'
-  );
+  isBoxWod = computed(() => this.post().postType === 'BOX_WOD');
+  isBoxAnnouncement = computed(() => this.post().postType === 'BOX_ANNOUNCEMENT');
   isBoxChallenge = computed(() => this.post().postType === 'BOX_CHALLENGE');
   isResult = computed(() => this.post().postType === 'RESULT');
 
   checkinText = computed(() => {
     const tag = this.post().trainingTag;
     return tag ? `Check-in de ${this.formatTrainingTag(tag)}` : 'Check-in de entrenamiento';
+  });
+
+  wodTitle = computed(() => this.post().wodTitle?.trim() || null);
+
+  wodCheckinsCount = computed(() => this.post().wodCheckinsCount ?? 0);
+
+  wodCheckinAuthors = computed(() => this.post().wodCheckinAuthors ?? []);
+
+  canOpenWodMuro = computed(() => this.isBoxWod() && this.wodCheckinsCount() > 0);
+
+  wodMuroLabel = computed(() => {
+    const count = this.wodCheckinsCount();
+    if (count <= 0) {
+      return 'Sé el primero en hacerlo';
+    }
+    return count === 1 ? '1 del box ya lo ha hecho' : `${count} del box ya lo han hecho`;
   });
 
   formattedDeadline = computed(() => {
@@ -55,23 +84,28 @@ export class PostContentComponent {
 
   streakWeeks = computed(() => this.post().streakWeeks ?? 0);
 
-  weekActiveDays = computed(() => {
-    const days = this.post().weekActiveDays;
-    if (!days || days.length !== 7) {
-      return [false, false, false, false, false, false, false];
-    }
-    return days;
-  });
+  weekDayTags = computed(() => this.post().weekDayTags);
 
-  weekActiveCount = computed(() => this.weekActiveDays().filter(Boolean).length);
+  authorAvatarUrl(author: WodCheckinAuthorDto): string {
+    return author.photoUrl ?? `https://i.pravatar.cc/48?u=${author.userId}`;
+  }
 
-  streakLabel = computed(() => {
-    const weeks = this.streakWeeks();
-    if (weeks <= 0) {
-      return 'Sin racha aún';
+  openWodCheckins(): void {
+    if (!this.canOpenWodMuro()) {
+      return;
     }
-    return weeks === 1 ? '1 semana' : `${weeks} semanas`;
-  });
+    const data: WodCheckinsDialogData = {
+      wodPostId: this.post().id,
+      wodTitle: this.post().title,
+    };
+    this.dialog.open(WodCheckinsDialogComponent, {
+      data,
+      width: '420px',
+      maxWidth: '95vw',
+      maxHeight: '85vh',
+      panelClass: 'th-wod-checkins-panel',
+    });
+  }
 
   private formatTrainingTag(tag: FeedTrainingTag): string {
     return TRAINING_TAG_LABELS[tag];

@@ -1,8 +1,10 @@
 package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
+import com.trainhub.backend.enums.TrainingTag;
 import com.trainhub.backend.repository.PostRepository;
 import com.trainhub.backend.repository.UserRepository;
+import com.trainhub.backend.service.PostService.ActivityDay;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
@@ -23,10 +25,18 @@ class PostServiceTest {
     private final UserRepository userRepository = mock(UserRepository.class);
     private final PostService postService = new PostService(postRepository, userRepository, MIN_DAYS_PER_WEEK);
 
+    private static ActivityDay day(LocalDate date, TrainingTag tag) {
+        return new ActivityDay(date, tag);
+    }
+
+    private static Object[] row(LocalDate date, TrainingTag tag, String postType) {
+        return new Object[]{date, tag.name(), postType};
+    }
+
     @Test
     void getStreakReturnsZeroWhenUserHasNoActivity() {
         Integer userId = 1;
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of());
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of());
 
         assertThat(postService.getStreak(userId).getCurrentStreak()).isZero();
     }
@@ -35,7 +45,9 @@ class PostServiceTest {
     void getStreakCountsActivityOnlyToday() {
         Integer userId = 1;
         LocalDate today = LocalDate.now();
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of(today));
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.<Object[]>of(
+                row(today, TrainingTag.CLASE, "CHECKIN")
+        ));
 
         assertThat(postService.getStreak(userId).getCurrentStreak()).isEqualTo(1);
     }
@@ -44,9 +56,9 @@ class PostServiceTest {
     void getStreakCountsYesterdayAndPreviousDayWhenTodayHasNoActivity() {
         Integer userId = 1;
         LocalDate today = LocalDate.now();
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of(
-                today.minusDays(1),
-                today.minusDays(2)
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of(
+                row(today.minusDays(1), TrainingTag.FUERZA, "CHECKIN"),
+                row(today.minusDays(2), TrainingTag.CLASE, "CHECKIN")
         ));
 
         assertThat(postService.getStreak(userId).getCurrentStreak()).isEqualTo(2);
@@ -56,9 +68,9 @@ class PostServiceTest {
     void getStreakStopsAtGapBetweenTodayAndPreviousDay() {
         Integer userId = 1;
         LocalDate today = LocalDate.now();
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of(
-                today,
-                today.minusDays(2)
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of(
+                row(today, TrainingTag.HYROX, "RESULT"),
+                row(today.minusDays(2), TrainingTag.FUERZA, "CHECKIN")
         ));
 
         assertThat(postService.getStreak(userId).getCurrentStreak()).isEqualTo(1);
@@ -68,7 +80,9 @@ class PostServiceTest {
     void getStreakReturnsZeroWhenLatestActivityIsBeforeYesterday() {
         Integer userId = 1;
         LocalDate today = LocalDate.now();
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of(today.minusDays(2)));
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.<Object[]>of(
+                row(today.minusDays(2), TrainingTag.CLASE, "CHECKIN")
+        ));
 
         assertThat(postService.getStreak(userId).getCurrentStreak()).isZero();
     }
@@ -77,9 +91,9 @@ class PostServiceTest {
     void getStreakIgnoresBoxContentBecauseRepositoryOnlyReturnsOwnTrainingActivity() {
         Integer userId = 1;
         LocalDate today = LocalDate.now();
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of(
-                today.minusDays(1),
-                today.minusDays(2)
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of(
+                row(today.minusDays(1), TrainingTag.FUERZA, "CHECKIN"),
+                row(today.minusDays(2), TrainingTag.CLASE, "CHECKIN")
         ));
 
         assertThat(postService.getStreak(userId).getCurrentStreak()).isEqualTo(2);
@@ -91,19 +105,23 @@ class PostServiceTest {
 
         assertThat(result.getStreakWeeks()).isZero();
         assertThat(result.getWeekActiveCount()).isZero();
-        assertThat(result.getWeekActiveDays()).containsExactly(false, false, false, false, false, false, false);
+        assertThat(result.getWeekDayTags()).containsExactly(null, null, null, null, null, null, null);
     }
 
     @Test
-    void weeklyConstancyMarksActiveDaysOfCurrentIsoWeek() {
+    void weeklyConstancyMarksTagsOfCurrentIsoWeek() {
         LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate wednesday = monday.plusDays(2);
         LocalDate friday = monday.plusDays(4);
 
-        WeeklyConstancyResponse result = postService.calculateWeeklyConstancy(List.of(monday, wednesday, friday));
+        WeeklyConstancyResponse result = postService.calculateWeeklyConstancy(List.of(
+                day(monday, TrainingTag.CLASE),
+                day(wednesday, TrainingTag.FUERZA),
+                day(friday, TrainingTag.HYROX)
+        ));
 
-        assertThat(result.getWeekActiveDays()).containsExactly(
-                true, false, true, false, true, false, false
+        assertThat(result.getWeekDayTags()).containsExactly(
+                TrainingTag.CLASE, null, TrainingTag.FUERZA, null, TrainingTag.HYROX, null, null
         );
         assertThat(result.getWeekActiveCount()).isEqualTo(3);
         assertThat(result.getStreakWeeks()).isEqualTo(1);
@@ -114,10 +132,9 @@ class PostServiceTest {
         LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate prevMonday = monday.minusWeeks(1);
 
-        // Semana anterior: solo 2 días (< N=3) → no cuenta
         WeeklyConstancyResponse result = postService.calculateWeeklyConstancy(List.of(
-                prevMonday,
-                prevMonday.plusDays(1)
+                day(prevMonday, TrainingTag.CLASE),
+                day(prevMonday.plusDays(1), TrainingTag.FUERZA)
         ));
 
         assertThat(result.getStreakWeeks()).isZero();
@@ -129,17 +146,16 @@ class PostServiceTest {
         LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate prevMonday = monday.minusWeeks(1);
 
-        // Semana actual: 1 día (< N); semana anterior: 3 días
         WeeklyConstancyResponse result = postService.calculateWeeklyConstancy(List.of(
-                monday,
-                prevMonday,
-                prevMonday.plusDays(1),
-                prevMonday.plusDays(2)
+                day(monday, TrainingTag.CLASE),
+                day(prevMonday, TrainingTag.FUERZA),
+                day(prevMonday.plusDays(1), TrainingTag.HYROX),
+                day(prevMonday.plusDays(2), TrainingTag.CARRERA)
         ));
 
         assertThat(result.getStreakWeeks()).isEqualTo(1);
         assertThat(result.getWeekActiveCount()).isEqualTo(1);
-        assertThat(result.getWeekActiveDays().get(0)).isTrue();
+        assertThat(result.getWeekDayTags().get(0)).isEqualTo(TrainingTag.CLASE);
     }
 
     @Test
@@ -149,14 +165,23 @@ class PostServiceTest {
         LocalDate week2 = monday.minusWeeks(2);
         LocalDate week4 = monday.minusWeeks(4);
 
-        List<LocalDate> dates = new ArrayList<>();
-        // Semana actual en curso (< N): no ancla
-        dates.add(monday);
-        // Semanas -1 y -2 con ≥ N
-        dates.addAll(List.of(week1, week1.plusDays(1), week1.plusDays(2)));
-        dates.addAll(List.of(week2, week2.plusDays(2), week2.plusDays(4)));
-        // Semana -3 vacía (hueco); semana -4 con ≥ N no se suma
-        dates.addAll(List.of(week4, week4.plusDays(1), week4.plusDays(3)));
+        List<ActivityDay> dates = new ArrayList<>();
+        dates.add(day(monday, TrainingTag.CLASE));
+        dates.addAll(List.of(
+                day(week1, TrainingTag.FUERZA),
+                day(week1.plusDays(1), TrainingTag.HYROX),
+                day(week1.plusDays(2), TrainingTag.CLASE)
+        ));
+        dates.addAll(List.of(
+                day(week2, TrainingTag.CARRERA),
+                day(week2.plusDays(2), TrainingTag.FUERZA),
+                day(week2.plusDays(4), TrainingTag.OTRO)
+        ));
+        dates.addAll(List.of(
+                day(week4, TrainingTag.CLASE),
+                day(week4.plusDays(1), TrainingTag.FUERZA),
+                day(week4.plusDays(3), TrainingTag.HYROX)
+        ));
 
         WeeklyConstancyResponse result = postService.calculateWeeklyConstancy(dates);
 
@@ -169,12 +194,12 @@ class PostServiceTest {
         LocalDate prevMonday = monday.minusWeeks(1);
 
         WeeklyConstancyResponse result = postService.calculateWeeklyConstancy(List.of(
-                monday,
-                monday.plusDays(1),
-                monday.plusDays(2),
-                prevMonday,
-                prevMonday.plusDays(1),
-                prevMonday.plusDays(3)
+                day(monday, TrainingTag.CLASE),
+                day(monday.plusDays(1), TrainingTag.FUERZA),
+                day(monday.plusDays(2), TrainingTag.HYROX),
+                day(prevMonday, TrainingTag.CARRERA),
+                day(prevMonday.plusDays(1), TrainingTag.OTRO),
+                day(prevMonday.plusDays(3), TrainingTag.CLASE)
         ));
 
         assertThat(result.getStreakWeeks()).isEqualTo(2);
@@ -187,10 +212,10 @@ class PostServiceTest {
         LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate prevMonday = monday.minusWeeks(1);
 
-        List<LocalDate> threeDaysPrevWeek = List.of(
-                prevMonday,
-                prevMonday.plusDays(1),
-                prevMonday.plusDays(2)
+        List<ActivityDay> threeDaysPrevWeek = List.of(
+                day(prevMonday, TrainingTag.CLASE),
+                day(prevMonday.plusDays(1), TrainingTag.FUERZA),
+                day(prevMonday.plusDays(2), TrainingTag.HYROX)
         );
 
         assertThat(postService.calculateWeeklyConstancy(threeDaysPrevWeek).getStreakWeeks()).isEqualTo(1);
@@ -198,15 +223,22 @@ class PostServiceTest {
     }
 
     @Test
-    void getWeeklyConstancyLoadsActivityDatesFromRepository() {
+    void getWeeklyConstancyLoadsActivityDaysFromRepository() {
         Integer userId = 7;
         LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        when(postRepository.findActivityDatesForUser(userId)).thenReturn(List.of(
-                monday.minusWeeks(1),
-                monday.minusWeeks(1).plusDays(1),
-                monday.minusWeeks(1).plusDays(2)
+        when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of(
+                row(monday.minusWeeks(1), TrainingTag.CLASE, "CHECKIN"),
+                row(monday.minusWeeks(1).plusDays(1), TrainingTag.FUERZA, "CHECKIN"),
+                new Object[]{monday.minusWeeks(1).plusDays(2), null, "RESULT"}
         ));
 
-        assertThat(postService.getWeeklyConstancy(userId).getStreakWeeks()).isEqualTo(1);
+        WeeklyConstancyResponse result = postService.getWeeklyConstancy(userId);
+        assertThat(result.getStreakWeeks()).isEqualTo(1);
+    }
+
+    @Test
+    void resultWithoutTagResolvesToHyrox() {
+        ActivityDay day = PostService.toActivityDay(LocalDate.now(), null, "RESULT");
+        assertThat(day.tag()).isEqualTo(TrainingTag.HYROX);
     }
 }

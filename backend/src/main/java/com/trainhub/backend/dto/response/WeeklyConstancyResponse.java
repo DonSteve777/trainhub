@@ -1,5 +1,7 @@
 package com.trainhub.backend.dto.response;
 
+import com.trainhub.backend.enums.TrainingTag;
+
 import java.util.List;
 
 /**
@@ -8,12 +10,13 @@ import java.util.List;
 public class WeeklyConstancyResponse {
 
     private final int streakWeeks;
-    private final List<Boolean> weekActiveDays;
+    /** Tags L→D de la semana ISO actual; {@code null} = día inactivo. */
+    private final List<TrainingTag> weekDayTags;
     private final int weekActiveCount;
 
-    public WeeklyConstancyResponse(int streakWeeks, List<Boolean> weekActiveDays, int weekActiveCount) {
+    public WeeklyConstancyResponse(int streakWeeks, List<TrainingTag> weekDayTags, int weekActiveCount) {
         this.streakWeeks = streakWeeks;
-        this.weekActiveDays = weekActiveDays;
+        this.weekDayTags = weekDayTags;
         this.weekActiveCount = weekActiveCount;
     }
 
@@ -21,8 +24,8 @@ public class WeeklyConstancyResponse {
         return streakWeeks;
     }
 
-    public List<Boolean> getWeekActiveDays() {
-        return weekActiveDays;
+    public List<TrainingTag> getWeekDayTags() {
+        return weekDayTags;
     }
 
     public int getWeekActiveCount() {

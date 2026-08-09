@@ -8,10 +8,11 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import {
   PostService,
+  type BoxWodSummaryDto,
   type NewCheckinRequest,
   type TrainingTag,
 } from '../../core/services/post.service';
@@ -87,6 +88,7 @@ export class CreatePostComponent implements OnInit {
   private readonly postService = inject(PostService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly userGender = signal<'MALE' | 'FEMALE' | null>(null);
 
@@ -94,11 +96,15 @@ export class CreatePostComponent implements OnInit {
   readonly isCheckinPost = computed(() => this.postMode() === 'CHECKIN');
   readonly isHyroxPost = computed(() => this.postMode() === 'HYROX');
 
+  readonly boxWods = signal<BoxWodSummaryDto[]>([]);
+  readonly boxWodsLoading = signal(false);
+
   readonly trainingTagOptions: readonly TrainingTagOption[] = [
     { value: 'HYROX', label: 'HYROX' },
     { value: 'FUERZA', label: 'Fuerza' },
     { value: 'CARRERA', label: 'Carrera' },
     { value: 'CLASE', label: 'Clase' },
+    { value: 'DESCANSO_ACTIVO', label: 'Descanso activo' },
     { value: 'OTRO', label: 'Otro' },
   ];
 
@@ -199,6 +205,7 @@ export class CreatePostComponent implements OnInit {
       checkin: this.fb.group({
         trainingTag: ['', Validators.required],
         description: [''],
+        wodPostId: [''],
       }),
       category: ['', Validators.required],
       segments: this.fb.array(this.hyroxRows.map(() => this.createSegmentGroup())),
@@ -214,6 +221,55 @@ export class CreatePostComponent implements OnInit {
         this.clearMate();
       }
     });
+
+    const wodPostIdParam = this.route.snapshot.queryParamMap.get('wodPostId');
+    if (wodPostIdParam) {
+      this.selectPostMode('CHECKIN');
+      this.checkinForm.get('wodPostId')!.setValue(wodPostIdParam);
+    }
+
+    this.checkinForm.get('wodPostId')!.valueChanges.subscribe((wodId: string) => {
+      this.applyWodDefaults(wodId);
+    });
+
+    this.loadBoxWods();
+  }
+
+  private loadBoxWods(): void {
+    this.boxWodsLoading.set(true);
+    this.postService.listRecentBoxWods().subscribe({
+      next: wods => {
+        this.boxWods.set(wods);
+        this.boxWodsLoading.set(false);
+        const selected = this.checkinForm.get('wodPostId')?.value;
+        if (selected && !wods.some(w => String(w.id) === String(selected))) {
+          this.checkinForm.get('wodPostId')!.setValue('');
+          return;
+        }
+        if (selected) {
+          this.applyWodDefaults(String(selected));
+        }
+      },
+      error: () => {
+        this.boxWods.set([]);
+        this.boxWodsLoading.set(false);
+      },
+    });
+  }
+
+  /** Precarga tag y descripción del WOD seleccionado en el formulario de check-in. */
+  private applyWodDefaults(wodId: string | null | undefined): void {
+    if (!wodId) {
+      return;
+    }
+    const wod = this.boxWods().find(w => String(w.id) === String(wodId));
+    if (!wod) {
+      return;
+    }
+    if (wod.trainingTag) {
+      this.checkinForm.get('trainingTag')!.setValue(wod.trainingTag);
+    }
+    this.checkinForm.get('description')!.setValue(wod.description?.trim() ?? '');
   }
 
   selectPostMode(mode: PostMode): void {
@@ -353,6 +409,7 @@ export class CreatePostComponent implements OnInit {
     const formValue = this.checkinForm.getRawValue() as {
       trainingTag: TrainingTag;
       description?: string;
+      wodPostId?: string;
     };
     const payload: NewCheckinRequest = {
       trainingTag: formValue.trainingTag,
@@ -361,6 +418,8 @@ export class CreatePostComponent implements OnInit {
     if (description) payload.description = description;
     const mate = this.selectedCheckinMate();
     if (mate) payload.mateUsername = mate.username;
+    const wodPostId = formValue.wodPostId?.trim();
+    if (wodPostId) payload.wodPostId = Number(wodPostId);
     return payload;
   }
 

@@ -10,6 +10,7 @@ import {
   FeedTrainingTag,
   LikeToggleDto,
   JoinToggleDto,
+  WodCheckinAuthorDto,
 } from '../../core/services/feed.service';
 import {
   CommentsDialogComponent,
@@ -37,7 +38,11 @@ interface FeedPost {
   liked: boolean;
   commentsCount: number;
   streakWeeks: number | null;
-  weekActiveDays: boolean[] | null;
+  weekDayTags: Array<FeedTrainingTag | null> | null;
+  wodPostId: number | null;
+  wodTitle: string | null;
+  wodCheckinsCount: number | null;
+  wodCheckinAuthors: WodCheckinAuthorDto[] | null;
 }
 
 @Component({
@@ -163,12 +168,10 @@ export class UserPostsFeedComponent implements OnInit {
   formatPostDate(dateStr: string): string {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleString('es-ES', {
+    return d.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   }
 
@@ -211,7 +214,11 @@ export class UserPostsFeedComponent implements OnInit {
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
       streakWeeks: dto.streakWeeks ?? null,
-      weekActiveDays: dto.weekActiveDays ?? null,
+      weekDayTags: dto.weekDayTags ?? null,
+      wodPostId: dto.wodPostId ?? null,
+      wodTitle: dto.wodTitle ?? null,
+      wodCheckinsCount: dto.wodCheckinsCount ?? null,
+      wodCheckinAuthors: dto.wodCheckinAuthors ?? null,
     };
   }
 }

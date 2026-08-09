@@ -8,7 +8,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
@@ -18,7 +18,10 @@ import {
   FeedTrainingTag,
   LikeToggleDto,
   JoinToggleDto,
+  WodCheckinAuthorDto,
 } from '../../core/services/feed.service';
+import { UserService, WeeklyConstancyDto } from '../../core/services/user.service';
+import { ConstancyBlockComponent } from '../../core/components/constancy-block/constancy-block.component';
 import {
   CommentsDialogComponent,
   CommentsDialogResult,
@@ -45,7 +48,11 @@ interface FeedPost {
   liked: boolean;
   commentsCount: number;
   streakWeeks: number | null;
-  weekActiveDays: boolean[] | null;
+  weekDayTags: Array<FeedTrainingTag | null> | null;
+  wodPostId: number | null;
+  wodTitle: string | null;
+  wodCheckinsCount: number | null;
+  wodCheckinAuthors: WodCheckinAuthorDto[] | null;
 }
 
 const PAGE_SIZE = 5;
@@ -53,7 +60,13 @@ const PAGE_SIZE = 5;
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [RouterLink, MatIconModule, MatDialogModule, PostContentComponent],
+  imports: [
+    RouterLink,
+    MatIconModule,
+    MatDialogModule,
+    PostContentComponent,
+    ConstancyBlockComponent,
+  ],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
@@ -63,16 +76,21 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly dialog = inject(MatDialog);
   private readonly feedService = inject(FeedService);
+  private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
 
   posts = signal<FeedPost[]>([]);
   hasMore = signal(true);
   loading = signal(false);
+
+  myConstancy = signal<WeeklyConstancyDto | null>(null);
 
   private cursorDate: string | null = null;
   private cursorId: number | null = null;
   private observer: IntersectionObserver | null = null;
 
   ngOnInit(): void {
+    this.loadMyConstancy();
     this.feedService.getFeed(PAGE_SIZE).subscribe({
       next: feed => {
         if (feed.length === 0) {
@@ -85,6 +103,16 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: err => {
         console.error('Feed HTTP error', err);
+      },
+    });
+  }
+
+  private loadMyConstancy(): void {
+    this.userService.getWeeklyConstancy().subscribe({
+      next: constancy => this.myConstancy.set(constancy),
+      error: err => {
+        console.error('Constancy HTTP error', err);
+        this.myConstancy.set(null);
       },
     });
   }
@@ -189,6 +217,13 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  checkInWod(post: FeedPost): void {
+    if (post.postType !== 'BOX_WOD') return;
+    void this.router.navigate(['/create-post'], {
+      queryParams: { wodPostId: post.id },
+    });
+  }
+
   typeLabel(postType: FeedPostType): string {
     switch (postType) {
       case 'CHECKIN':
@@ -213,12 +248,10 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   formatPostDate(dateStr: string): string {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleString('es-ES', {
+    return d.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   }
 
@@ -261,7 +294,11 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
       streakWeeks: dto.streakWeeks ?? null,
-      weekActiveDays: dto.weekActiveDays ?? null,
+      weekDayTags: dto.weekDayTags ?? null,
+      wodPostId: dto.wodPostId ?? null,
+      wodTitle: dto.wodTitle ?? null,
+      wodCheckinsCount: dto.wodCheckinsCount ?? null,
+      wodCheckinAuthors: dto.wodCheckinAuthors ?? null,
     };
   }
 }

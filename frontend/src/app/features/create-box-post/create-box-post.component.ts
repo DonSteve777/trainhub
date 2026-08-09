@@ -54,6 +54,7 @@ export class CreateBoxPostComponent implements OnInit {
     { value: 'FUERZA', label: 'Fuerza' },
     { value: 'CARRERA', label: 'Carrera' },
     { value: 'CLASE', label: 'Clase' },
+    { value: 'DESCANSO_ACTIVO', label: 'Descanso activo' },
     { value: 'OTRO', label: 'Otro' },
   ];
 

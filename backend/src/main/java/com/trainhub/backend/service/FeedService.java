@@ -4,6 +4,7 @@ import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
 import com.trainhub.backend.dto.response.ParticipationToggleResponse;
 import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
+import com.trainhub.backend.dto.response.WodCheckinAuthorResponse;
 import com.trainhub.backend.enums.PostType;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.PostLike;
@@ -22,11 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class FeedService {
+
+    private static final int WOD_MURO_AUTHORS_LIMIT = 8;
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
@@ -136,6 +138,27 @@ public class FeedService {
         return new ParticipationToggleResponse(!alreadyJoined, newCount);
     }
 
+    /**
+     * Lista completa de usuarios que han hecho check-in vinculado a un BOX_WOD.
+     */
+    public List<WodCheckinAuthorResponse> getWodCheckinAuthors(Integer wodPostId) {
+        Post post = postRepository.findById(wodPostId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post no encontrado"));
+
+        if (post.getPostType() != PostType.BOX_WOD) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo los WOD tienen muro de check-ins");
+        }
+
+        return postRepository.findCheckinAuthorsByWodId(wodPostId).stream()
+                .map(row -> new WodCheckinAuthorResponse(
+                        (Integer) row[0],
+                        (String) row[1],
+                        (String) row[2],
+                        (LocalDateTime) row[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
     private List<FeedPostResponse> toResponseList(List<Post> posts, Integer userId) {
         if (posts.isEmpty()) return List.of();
 
@@ -166,6 +189,7 @@ public class FeedService {
         Set<Integer> joinedByUser = Set.copyOf(postParticipantRepository.findJoinedPostIds(postIds, userId));
 
         Map<Integer, WeeklyConstancyResponse> constancyByUserId = loadConstancyForCheckinAuthors(posts);
+        WodMuroData wodMuro = loadWodMuroData(posts);
 
         return posts.stream()
                 .map(post -> {
@@ -179,13 +203,68 @@ public class FeedService {
                         WeeklyConstancyResponse constancy = constancyByUserId.get(post.getUser().getId());
                         if (constancy != null) {
                             response.setStreakWeeks(constancy.getStreakWeeks());
-                            response.setWeekActiveDays(constancy.getWeekActiveDays());
+                            response.setWeekDayTags(constancy.getWeekDayTags());
                         }
+                    }
+                    if (post.getPostType() == PostType.BOX_WOD) {
+                        response.setWodCheckinsCount(wodMuro.counts().getOrDefault(post.getId(), 0));
+                        response.setWodCheckinAuthors(
+                                wodMuro.authors().getOrDefault(post.getId(), List.of())
+                        );
                     }
                     return response;
                 })
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Batch de conteos y avatares del muro para los BOX_WOD de la página.
+     */
+    private WodMuroData loadWodMuroData(List<Post> posts) {
+        List<Integer> wodIds = posts.stream()
+                .filter(post -> post.getPostType() == PostType.BOX_WOD)
+                .map(Post::getId)
+                .collect(Collectors.toList());
+
+        if (wodIds.isEmpty()) {
+            return new WodMuroData(Map.of(), Map.of());
+        }
+
+        Map<Integer, Integer> counts = postRepository.countCheckinsByWodIds(wodIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Integer) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
+
+        Map<Integer, List<WodCheckinAuthorResponse>> authorsByWod = new HashMap<>();
+        Map<Integer, Set<Integer>> seenUsersByWod = new HashMap<>();
+
+        for (Object[] row : postRepository.findCheckinAuthorsByWodIds(wodIds)) {
+            Integer wodId = (Integer) row[0];
+            Integer authorUserId = (Integer) row[1];
+            Set<Integer> seen = seenUsersByWod.computeIfAbsent(wodId, ignored -> new HashSet<>());
+            if (!seen.add(authorUserId)) {
+                continue;
+            }
+            List<WodCheckinAuthorResponse> authors = authorsByWod.computeIfAbsent(wodId, ignored -> new ArrayList<>());
+            if (authors.size() >= WOD_MURO_AUTHORS_LIMIT) {
+                continue;
+            }
+            authors.add(new WodCheckinAuthorResponse(
+                    authorUserId,
+                    (String) row[2],
+                    (String) row[3]
+            ));
+        }
+
+        return new WodMuroData(counts, authorsByWod);
+    }
+
+    private record WodMuroData(
+            Map<Integer, Integer> counts,
+            Map<Integer, List<WodCheckinAuthorResponse>> authors
+    ) {}
 
     /**
      * Una sola query de actividad para los autores de posts CHECKIN de la página,
@@ -201,34 +280,22 @@ public class FeedService {
             return Map.of();
         }
 
-        Map<Integer, List<LocalDate>> datesByUserId = new HashMap<>();
-        for (Object[] row : postRepository.findActivityDatesForUsers(checkinAuthorIds)) {
+        Map<Integer, List<PostService.ActivityDay>> daysByUserId = new HashMap<>();
+        for (Object[] row : postRepository.findActivityDaysForUsers(checkinAuthorIds)) {
             Integer authorId = ((Number) row[0]).intValue();
-            LocalDate date = toLocalDate(row[1]);
-            datesByUserId.computeIfAbsent(authorId, ignored -> new ArrayList<>()).add(date);
+            daysByUserId
+                    .computeIfAbsent(authorId, ignored -> new ArrayList<>())
+                    .add(PostService.toActivityDay(row[1], row[2], row[3]));
         }
 
         Map<Integer, WeeklyConstancyResponse> constancyByUserId = new HashMap<>();
         for (Integer authorId : checkinAuthorIds) {
             constancyByUserId.put(
                     authorId,
-                    postService.calculateWeeklyConstancy(datesByUserId.getOrDefault(authorId, List.of()))
+                    postService.calculateWeeklyConstancy(daysByUserId.getOrDefault(authorId, List.of()))
             );
         }
         return constancyByUserId;
-    }
-
-    private static LocalDate toLocalDate(Object value) {
-        if (value instanceof LocalDate localDate) {
-            return localDate;
-        }
-        if (value instanceof Date sqlDate) {
-            return sqlDate.toLocalDate();
-        }
-        if (value instanceof java.util.Date utilDate) {
-            return new Date(utilDate.getTime()).toLocalDate();
-        }
-        throw new IllegalArgumentException("No se puede convertir a LocalDate: " + value);
     }
 
     private FeedPostResponse toResponse(Post post) {
@@ -264,6 +331,8 @@ public class FeedService {
                 .mateId(post.getMate() != null ? post.getMate().getId() : null)
                 .mateUsername(post.getMate() != null ? post.getMate().getUsername() : null)
                 .creationDate(post.getCreationDate())
+                .wodPostId(post.getWodPost() != null ? post.getWodPost().getId() : null)
+                .wodTitle(post.getWodPost() != null ? post.getWodPost().getTitle() : null)
                 .build();
     }
 }

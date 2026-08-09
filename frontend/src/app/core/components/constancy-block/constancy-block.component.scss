@@ -1,0 +1,142 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.constancy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--trainhub-accent) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--trainhub-accent) 22%, transparent);
+}
+
+:host-context(.feed-constancy) .constancy,
+:host-context(.feed-constancy) .constancy--empty {
+  background: var(--trainhub-surface-dark);
+  border-color: transparent;
+}
+
+.constancy--empty {
+  background: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent);
+  border-color: color-mix(in srgb, var(--mat-sys-outline-variant) 55%, transparent);
+
+  .constancy__flame,
+  .constancy__weeks {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.constancy__streak {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.4rem;
+}
+
+.constancy__flame {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: var(--trainhub-accent);
+  translate: 0 2px;
+}
+
+.constancy__weeks {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.constancy__weeks-hint {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.constancy__week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.2rem;
+  max-width: 14rem;
+}
+
+.constancy__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: default;
+}
+
+.constancy__day-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.constancy__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--mat-sys-outline) 70%, transparent);
+  background: transparent;
+}
+
+.constancy__dot--active {
+  border-color: var(--trainhub-accent);
+  background: var(--trainhub-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--trainhub-accent) 22%, transparent);
+
+  &[data-tag='HYROX'] {
+    --dot: #e85d04;
+    border-color: var(--dot);
+    background: var(--dot);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+  }
+
+  &[data-tag='FUERZA'] {
+    --dot: #2a9d8f;
+    border-color: var(--dot);
+    background: var(--dot);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+  }
+
+  &[data-tag='CARRERA'] {
+    --dot: #3a86ff;
+    border-color: var(--dot);
+    background: var(--dot);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+  }
+
+  &[data-tag='CLASE'] {
+    --dot: #f4a261;
+    border-color: var(--dot);
+    background: var(--dot);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+  }
+
+  &[data-tag='DESCANSO_ACTIVO'] {
+    --dot: #6a994e;
+    border-color: var(--dot);
+    background: var(--dot);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+  }
+
+  &[data-tag='OTRO'] {
+    --dot: #9aa0a6;
+    border-color: var(--dot);
+    background: var(--dot);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+  }
+}
+
+.constancy__caption {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}

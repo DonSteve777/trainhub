@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
-export type TrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'OTRO';
+export type TrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO';
 
 export type BoxPostType = 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
 
@@ -10,6 +10,15 @@ export interface NewCheckinRequest {
   trainingTag: TrainingTag;
   description?: string;
   mateUsername?: string;
+  wodPostId?: number;
+}
+
+export interface BoxWodSummaryDto {
+  id: number;
+  title: string;
+  description: string | null;
+  trainingTag: TrainingTag | null;
+  creationDate: string;
 }
 
 export interface NewBoxPostRequest {
@@ -26,6 +35,10 @@ export class PostService {
 
   createCheckin(payload: NewCheckinRequest): Observable<void> {
     return this.api.post<void>('/posts/checkin', payload);
+  }
+
+  listRecentBoxWods(): Observable<BoxWodSummaryDto[]> {
+    return this.api.get<BoxWodSummaryDto[]>('/posts/box/wods');
   }
 
   createBoxPost(payload: NewBoxPostRequest): Observable<void> {

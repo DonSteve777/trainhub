@@ -1,0 +1,60 @@
+<div class="wod-checkins-dialog">
+  <div class="wod-checkins-header">
+    <div class="wod-checkins-header__info">
+      <mat-icon class="wod-checkins-header__icon">fitness_center</mat-icon>
+      <div>
+        <span class="wod-checkins-header__title">Quién lo ha hecho</span>
+        @if (data.wodTitle) {
+          <span class="wod-checkins-header__subtitle">{{ data.wodTitle }}</span>
+        }
+      </div>
+    </div>
+    <button class="wod-checkins-header__close" type="button" (click)="close()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="wod-checkins-body">
+    @if (loading()) {
+      <div class="wod-checkins-state">
+        <div class="wod-checkins-loading">
+          <span class="wod-checkins-loading__dot"></span>
+          <span class="wod-checkins-loading__dot"></span>
+          <span class="wod-checkins-loading__dot"></span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="wod-checkins-state">
+        <mat-icon class="wod-checkins-state__icon">error_outline</mat-icon>
+        <p>No se pudieron cargar los datos.</p>
+      </div>
+    } @else if (authors().length === 0) {
+      <div class="wod-checkins-state">
+        <mat-icon class="wod-checkins-state__icon">sports_gymnastics</mat-icon>
+        <p>Nadie ha hecho este WOD todavía.</p>
+      </div>
+    } @else {
+      <ul class="wod-checkins-list">
+        @for (author of authors(); track author.userId) {
+          <li class="wod-checkin-item">
+            <a class="wod-checkin-item__link" [routerLink]="['/user', author.userId]" (click)="close()">
+              <img
+                class="wod-checkin-item__avatar"
+                [src]="avatarUrl(author)"
+                [alt]="author.username"
+              />
+              <div class="wod-checkin-item__info">
+                <span class="wod-checkin-item__username">{{ author.username }}</span>
+                @if (author.checkedInAt) {
+                  <span class="wod-checkin-item__date">{{
+                    author.checkedInAt | date: 'd MMM y, HH:mm'
+                  }}</span>
+                }
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

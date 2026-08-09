@@ -8,6 +8,7 @@ import com.trainhub.backend.dto.response.StreakResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
 import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
+import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
 import com.trainhub.backend.enums.FriendshipStatus;
 import com.trainhub.backend.model.Friendship;
 import com.trainhub.backend.model.FriendshipId;
@@ -225,6 +226,19 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Integer userId = userPrincipal.getUser().getId();
         return ResponseEntity.ok(postService.getStreak(userId));
+    }
+
+    /**
+     * Constancia semanal del usuario autenticado (semanas ISO + dots L–D).
+     *
+     * @param userPrincipal El usuario autenticado actual
+     * @return Constancia semanal del usuario
+     */
+    @GetMapping("/constancy")
+    public ResponseEntity<WeeklyConstancyResponse> getWeeklyConstancy(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(postService.getWeeklyConstancy(userId));
     }
 
     /**

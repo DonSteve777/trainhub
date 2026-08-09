@@ -103,6 +103,11 @@ public class Post {
     @JoinColumn(name = "mate")
     private User mate;
 
+    /** WOD de box al que se vincula un CHECKIN (opcional). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "wod_post_id")
+    private Post wodPost;
+
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
@@ -303,6 +308,9 @@ public class Post {
 
     public User getMate() { return mate; }
     public void setMate(User mate) { this.mate = mate; }
+
+    public Post getWodPost() { return wodPost; }
+    public void setWodPost(Post wodPost) { this.wodPost = wodPost; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }

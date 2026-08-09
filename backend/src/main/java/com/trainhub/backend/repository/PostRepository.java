@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             JOIN FETCH p.user u
             LEFT JOIN FETCH p.mate
             LEFT JOIN FETCH p.box
+            LEFT JOIN FETCH p.wodPost
             WHERE p.user.id <> :userId
             AND (
                 (
@@ -121,7 +121,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
      * Sin límite de fecha: se devuelve el historial completo.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate
+            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate LEFT JOIN FETCH p.wodPost
             WHERE p.user.id = :targetUserId
             ORDER BY p.creationDate DESC, p.id DESC
             """)
@@ -147,30 +147,37 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Object[]> findAllUserPostTimes(@Param("userId") Integer userId);
 
     /**
-     * Devuelve los días únicos en los que el usuario tuvo actividad propia.
+     * Días de actividad propios (CHECKIN/RESULT): como máximo uno por fecha.
+     * Cada fila: [date, training_tag, post_type].
      */
     @Query(value = """
-            SELECT DISTINCT CAST(p.creation_date AS date)
+            SELECT DISTINCT ON (CAST(p.creation_date AS date))
+                   CAST(p.creation_date AS date),
+                   p.training_tag,
+                   p.post_type
             FROM posts p
             WHERE p.user_id = :userId
             AND p.post_type IN ('CHECKIN', 'RESULT')
-            ORDER BY CAST(p.creation_date AS date) DESC
+            ORDER BY CAST(p.creation_date AS date) DESC, p.creation_date DESC
             """, nativeQuery = true)
-    List<LocalDate> findActivityDatesForUser(@Param("userId") Integer userId);
+    List<Object[]> findActivityDaysForUser(@Param("userId") Integer userId);
 
     /**
-     * Devuelve pares (userId, fecha) de días distintos con actividad CHECKIN/RESULT
-     * para varios usuarios en una sola query (evita N+1 en el feed).
-     * Cada fila: [userId, date].
+     * Días de actividad para varios usuarios (batch feed).
+     * Cada fila: [userId, date, training_tag, post_type].
      */
     @Query(value = """
-            SELECT DISTINCT p.user_id, CAST(p.creation_date AS date)
+            SELECT DISTINCT ON (p.user_id, CAST(p.creation_date AS date))
+                   p.user_id,
+                   CAST(p.creation_date AS date),
+                   p.training_tag,
+                   p.post_type
             FROM posts p
             WHERE p.user_id IN (:userIds)
             AND p.post_type IN ('CHECKIN', 'RESULT')
-            ORDER BY p.user_id, CAST(p.creation_date AS date) DESC
+            ORDER BY p.user_id, CAST(p.creation_date AS date) DESC, p.creation_date DESC
             """, nativeQuery = true)
-    List<Object[]> findActivityDatesForUsers(@Param("userIds") Collection<Integer> userIds);
+    List<Object[]> findActivityDaysForUsers(@Param("userIds") Collection<Integer> userIds);
 
     /**
      * Devuelve los posts de amigos y el contenido del box después del cursor dado (paginación keyset).
@@ -181,6 +188,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             JOIN FETCH p.user u
             LEFT JOIN FETCH p.mate
             LEFT JOIN FETCH p.box
+            LEFT JOIN FETCH p.wodPost
             WHERE p.user.id <> :userId
             AND (
                 (
@@ -226,4 +234,73 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             Pageable pageable) {
         return findFeedWithCursor(userId, null, cursorDate, cursorId, pageable);
     }
+
+    /**
+     * Indica si el usuario ya tiene un check-in vinculado al WOD dado.
+     */
+    @Query("""
+            SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END
+            FROM Post p
+            WHERE p.user.id = :userId
+            AND p.wodPost.id = :wodPostId
+            AND p.postType = com.trainhub.backend.enums.PostType.CHECKIN
+            """)
+    boolean existsByUserIdAndWodPostId(
+            @Param("userId") Integer userId,
+            @Param("wodPostId") Integer wodPostId);
+
+    /**
+     * WODs recientes del box (últimos {@code since} o tope por pageable).
+     */
+    @Query("""
+            SELECT p FROM Post p
+            WHERE p.box.id = :boxId
+            AND p.postType = com.trainhub.backend.enums.PostType.BOX_WOD
+            AND p.creationDate >= :since
+            ORDER BY p.creationDate DESC, p.id DESC
+            """)
+    List<Post> findRecentBoxWods(
+            @Param("boxId") Integer boxId,
+            @Param("since") LocalDateTime since,
+            Pageable pageable);
+
+    /**
+     * Conteos de check-ins vinculados por WOD. Cada fila: [wodPostId, count].
+     */
+    @Query("""
+            SELECT p.wodPost.id, COUNT(p)
+            FROM Post p
+            WHERE p.wodPost.id IN :wodIds
+            AND p.postType = com.trainhub.backend.enums.PostType.CHECKIN
+            GROUP BY p.wodPost.id
+            """)
+    List<Object[]> countCheckinsByWodIds(@Param("wodIds") Collection<Integer> wodIds);
+
+    /**
+     * Autores de check-ins vinculados a WODs, más recientes primero.
+     * Cada fila: [wodPostId, userId, username, photoUrl].
+     */
+    @Query("""
+            SELECT p.wodPost.id, u.id, u.username, u.photoUrl
+            FROM Post p
+            JOIN p.user u
+            WHERE p.wodPost.id IN :wodIds
+            AND p.postType = com.trainhub.backend.enums.PostType.CHECKIN
+            ORDER BY p.creationDate DESC, p.id DESC
+            """)
+    List<Object[]> findCheckinAuthorsByWodIds(@Param("wodIds") Collection<Integer> wodIds);
+
+    /**
+     * Lista completa de autores de check-in de un WOD.
+     * Cada fila: [userId, username, photoUrl, creationDate].
+     */
+    @Query("""
+            SELECT u.id, u.username, u.photoUrl, p.creationDate
+            FROM Post p
+            JOIN p.user u
+            WHERE p.wodPost.id = :wodId
+            AND p.postType = com.trainhub.backend.enums.PostType.CHECKIN
+            ORDER BY p.creationDate DESC, p.id DESC
+            """)
+    List<Object[]> findCheckinAuthorsByWodId(@Param("wodId") Integer wodId);
 }

@@ -1,0 +1,35 @@
+<div
+  class="constancy"
+  [class.constancy--empty]="resolvedStreakWeeks() === 0"
+  [attr.aria-label]="ariaLabel()"
+>
+  <div class="constancy__streak">
+    <mat-icon class="constancy__flame" aria-hidden="true">local_fire_department</mat-icon>
+    <span class="constancy__weeks">{{ streakLabel() }}</span>
+    @if (resolvedStreakWeeks() > 0) {
+      <span class="constancy__weeks-hint">de constancia</span>
+    }
+  </div>
+  <div class="constancy__week">
+    @for (label of weekDayLabels; track label; let i = $index) {
+      <div
+        class="constancy__day"
+        [matTooltip]="dayTooltip(i)"
+        matTooltipClass="constancy-tooltip"
+        matTooltipPosition="above"
+        matTooltipShowDelay="150"
+      >
+        <span class="constancy__day-label">{{ label }}</span>
+        <span
+          class="constancy__dot"
+          [class.constancy__dot--active]="resolvedWeekDayTags()[i] != null"
+          [attr.data-tag]="resolvedWeekDayTags()[i]"
+        ></span>
+      </div>
+    }
+  </div>
+  <p class="constancy__caption">
+    Esta semana · {{ weekActiveCount() }}
+    {{ weekActiveCount() === 1 ? 'día' : 'días' }}
+  </p>
+</div>

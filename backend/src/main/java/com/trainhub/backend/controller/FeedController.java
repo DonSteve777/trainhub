@@ -3,6 +3,7 @@ package com.trainhub.backend.controller;
 import com.trainhub.backend.dto.response.FeedPostResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
 import com.trainhub.backend.dto.response.ParticipationToggleResponse;
+import com.trainhub.backend.dto.response.WodCheckinAuthorResponse;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.FeedService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -87,5 +88,15 @@ public class FeedController {
         Integer userId = userPrincipal.getUser().getId();
         ParticipationToggleResponse response = feedService.toggleParticipation(postId, userId);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Lista de usuarios que han hecho check-in vinculado al WOD indicado.
+     */
+    @GetMapping("/posts/{postId}/wod-checkins")
+    public ResponseEntity<List<WodCheckinAuthorResponse>> getWodCheckinAuthors(
+            @PathVariable Integer postId) {
+
+        return ResponseEntity.ok(feedService.getWodCheckinAuthors(postId));
     }
 }

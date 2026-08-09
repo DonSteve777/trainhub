@@ -380,3 +380,15 @@ app-root {
     transform: translateY(0);
   }
 }
+
+/* Tooltip de constancia: fondo opaco (overlay CDK fuera del componente) */
+.constancy-tooltip {
+  --mdc-plain-tooltip-container-color: #1e1e2e;
+  --mat-tooltip-container-color: #1e1e2e;
+
+  .mdc-tooltip__surface {
+    background-color: #1e1e2e !important;
+    opacity: 1 !important;
+    color: #f5f5f5;
+  }
+}

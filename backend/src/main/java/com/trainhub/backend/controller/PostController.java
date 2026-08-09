@@ -3,6 +3,7 @@ package com.trainhub.backend.controller;
 import com.trainhub.backend.dto.request.NewBoxPostRequest;
 import com.trainhub.backend.dto.request.NewCheckinRequest;
 import com.trainhub.backend.dto.request.NewPostRequest;
+import com.trainhub.backend.dto.response.BoxWodSummaryResponse;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.PostService;
 import jakarta.validation.Valid;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Controlador REST para la gestión de posts (entrenamientos).
@@ -56,6 +59,20 @@ public class PostController {
         Integer userId = userPrincipal.getUser().getId();
         postService.createCheckin(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    /**
+     * Lista WODs recientes del box del usuario (selector de check-in).
+     *
+     * @param userPrincipal usuario autenticado
+     * @return lista de resúmenes de WOD
+     */
+    @GetMapping("/box/wods")
+    public ResponseEntity<List<BoxWodSummaryResponse>> listRecentBoxWods(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        Integer userId = userPrincipal.getUser().getId();
+        return ResponseEntity.ok(postService.listRecentBoxWods(userId));
     }
 
     /**

@@ -4,7 +4,7 @@ import { ApiService } from './api.service';
 
 export type FeedPostType = 'CHECKIN' | 'RESULT' | 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
 
-export type FeedTrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'OTRO';
+export type FeedTrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO';
 
 export interface FeedPostDto {
   id: number;
@@ -45,8 +45,21 @@ export interface FeedPostDto {
   joinedByCurrentUser: boolean;
   /** Semanas ISO consecutivas de constancia; solo en CHECKIN, null en el resto. */
   streakWeeks: number | null;
-  /** Días activos L→D de la semana ISO actual; solo en CHECKIN, null en el resto. */
-  weekActiveDays: boolean[] | null;
+  /** Tags L→D de la semana ISO actual (null = inactivo); solo en CHECKIN. */
+  weekDayTags: Array<FeedTrainingTag | null> | null;
+  /** CHECKIN vinculado a WOD. */
+  wodPostId: number | null;
+  wodTitle: string | null;
+  /** BOX_WOD: muro de check-ins. */
+  wodCheckinsCount: number | null;
+  wodCheckinAuthors: WodCheckinAuthorDto[] | null;
+}
+
+export interface WodCheckinAuthorDto {
+  userId: number;
+  username: string;
+  photoUrl: string | null;
+  checkedInAt?: string | null;
 }
 
 export interface LikeToggleDto {
@@ -75,6 +88,10 @@ export class FeedService {
 
   getUserPosts(userId: number): Observable<FeedPostDto[]> {
     return this.api.get<FeedPostDto[]>(`/user/${userId}/posts`);
+  }
+
+  getWodCheckinAuthors(wodPostId: number): Observable<WodCheckinAuthorDto[]> {
+    return this.api.get<WodCheckinAuthorDto[]>(`/feed/posts/${wodPostId}/wod-checkins`);
   }
 
   toggleLike(postId: number): Observable<LikeToggleDto> {

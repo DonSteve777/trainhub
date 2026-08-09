@@ -65,12 +65,17 @@ CREATE TABLE "posts" (
   "category" varchar(20),
   "creation_date" timestamp NOT NULL DEFAULT (now()),
   "mate" int,
+  "wod_post_id" int,
   CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id"),
   CONSTRAINT "fk_posts_mate" FOREIGN KEY ("mate") REFERENCES "users" ("id") ON DELETE SET NULL,
   CONSTRAINT "fk_posts_box" FOREIGN KEY ("box_id") REFERENCES "boxes" ("id"),
+  CONSTRAINT "fk_posts_wod" FOREIGN KEY ("wod_post_id") REFERENCES "posts" ("id") ON DELETE SET NULL,
   CONSTRAINT "chk_posts_category" CHECK ("category" IN ('INDIVIDUAL_MALE', 'INDIVIDUAL_FEMALE', 'DOUBLES_MIXED', 'DOUBLES_MALE', 'DOUBLES_FEMALE')),
   CONSTRAINT "chk_posts_post_type" CHECK ("post_type" IN ('CHECKIN', 'RESULT', 'BOX_WOD', 'BOX_CHALLENGE', 'BOX_ANNOUNCEMENT'))
 );
+
+CREATE INDEX "idx_posts_wod_post_id" ON "posts" ("wod_post_id");
+CREATE UNIQUE INDEX "uq_posts_user_wod_checkin" ON "posts" ("user_id", "wod_post_id") WHERE "wod_post_id" IS NOT NULL;
 
 
 CREATE TABLE "post_participants" (

@@ -369,13 +369,13 @@ FROM (VALUES
   ('javier_mena',   'CLASE',   'Clase de technique con el coach. Mucho foco en farmers carry.',                    TIMESTAMP '2026-07-29 19:00:00'),
   ('sofia_ramos',   'CARRERA', 'Intervalos 8x400. Ritmo alto, recuperación activa.',                               TIMESTAMP '2026-07-30 08:00:00'),
   ('alberto_diaz',  'FUERZA',  'Empuje: press militar + fondos. Buenas sensaciones de hombro.',                    TIMESTAMP '2026-07-31 18:45:00'),
-  ('roberto_santos','OTRO',    'Movilidad y core. Día de descarga después del open workout.',                      TIMESTAMP '2026-08-01 09:30:00'),
+  ('roberto_santos','DESCANSO_ACTIVO', 'Movilidad y core. Día de descarga después del open workout.',                      TIMESTAMP '2026-08-01 09:30:00'),
   ('lucia_vega',    'HYROX',   'Circuito HYROX express en el box. 4 estaciones a tope.',                           TIMESTAMP '2026-08-02 10:00:00'),
   ('nuria_pons',    'CLASE',   'Primera clase de la semana. Motivación al máximo.',                                TIMESTAMP '2026-08-03 07:45:00'),
   ('miguel_torres', 'CARRERA', 'Fartlek por el parque. 45 minutos sin mirar el reloj.',                            TIMESTAMP '2026-08-04 07:00:00'),
   ('ana_garcia',    'FUERZA',  'Peso muerto + hip thrust. Volumen moderado.',                                      TIMESTAMP '2026-08-05 18:20:00'),
   ('pedro_alonso',  'HYROX',   'Ensayo de transición entre estaciones. Cada segundo cuenta.',                      TIMESTAMP '2026-08-06 08:10:00'),
-  ('marcos_gil',    'OTRO',    'Sesión de movilidad y foam roller. Recuperación activa.',                          TIMESTAMP '2026-08-07 20:00:00'),
+  ('marcos_gil',    'DESCANSO_ACTIVO', 'Sesión de movilidad y foam roller. Recuperación activa.',                          TIMESTAMP '2026-08-07 20:00:00'),
   ('javier_mena',   'CARRERA', 'Tempo run 6km. Ritmo cómodo-rápido, buen feeling.',                                TIMESTAMP '2026-08-08 07:30:00')
 ) AS v(uname, tag, descr, cdate)
 JOIN users u ON u.username = v.uname;
@@ -395,7 +395,7 @@ FROM (VALUES
   ('javier_mena', 'CARRERA', 'Intervalos 6x400.',                                        TIMESTAMP '2026-07-24 08:00:00'),
   -- W31 (27 jul–2 ago) — Jul 29 ya existe arriba; sumamos 2 más para llegar a N
   ('javier_mena', 'HYROX',   'Ski + sled + wall balls. Piernas hechas.',                 TIMESTAMP '2026-07-28 07:20:00'),
-  ('javier_mena', 'OTRO',    'Movilidad y core. Descarga activa.',                       TIMESTAMP '2026-07-31 09:00:00'),
+  ('javier_mena', 'DESCANSO_ACTIVO', 'Movilidad y core. Descarga activa.',                       TIMESTAMP '2026-07-31 09:00:00'),
   -- W32 (3–9 ago) — Aug 8 ya existe; dots L M X J · · S
   ('javier_mena', 'FUERZA',  'Empuje: press militar + fondos.',                          TIMESTAMP '2026-08-03 18:30:00'),
   ('javier_mena', 'CARRERA', 'Fartlek 40 min por el parque.',                            TIMESTAMP '2026-08-04 07:10:00'),
@@ -454,6 +454,28 @@ FROM (VALUES
 CROSS JOIN users u
 JOIN boxes b ON b.name = 'CrossFit Origen'
 WHERE u.username = 'carlos_martin';
+
+-- CHECKIN vinculados al muro del WOD (WOD de hoy: Mixed modal)
+UPDATE posts p
+SET wod_post_id = w.id,
+    box_id = w.box_id
+FROM posts w, users u
+WHERE w.post_type = 'BOX_WOD'
+  AND w.title = 'WOD de hoy: Mixed modal'
+  AND p.post_type = 'CHECKIN'
+  AND p.user_id = u.id
+  AND u.username = 'marcos_gil'
+  AND p.creation_date = TIMESTAMP '2026-08-07 20:00:00';
+
+INSERT INTO posts (user_id, post_type, box_id, training_tag, description, wod_post_id, creation_date)
+SELECT u.id, 'CHECKIN', w.box_id, v.tag, v.descr, w.id, v.cdate
+FROM (VALUES
+  ('pedro_alonso', 'CLASE',  'Hecho el Mixed modal del box. Cap en 14:20.', TIMESTAMP '2026-08-07 19:15:00'),
+  ('lucia_vega',   'HYROX',  'Mixed modal con Lucia. Buenas sensaciones.',  TIMESTAMP '2026-08-07 19:45:00'),
+  ('javier_mena',  'CLASE',  'WOD Mixed modal completado. Cap justo.',      TIMESTAMP '2026-08-07 18:30:00')
+) AS v(uname, tag, descr, cdate)
+JOIN users u ON u.username = v.uname
+JOIN posts w ON w.post_type = 'BOX_WOD' AND w.title = 'WOD de hoy: Mixed modal';
 
 -- BOX_ANNOUNCEMENT
 INSERT INTO posts (user_id, post_type, box_id, title, description, creation_date)

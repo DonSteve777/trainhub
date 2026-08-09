@@ -55,8 +55,18 @@ public class FeedPostResponse {
 
     /** Solo en CHECKIN: semanas ISO consecutivas con ≥ N días de actividad. Null en el resto. */
     private Integer streakWeeks;
-    /** Solo en CHECKIN: 7 booleans L→D de la semana ISO actual. Null en el resto. */
-    private List<Boolean> weekActiveDays;
+    /** Solo en CHECKIN: 7 tags L→D (null = inactivo) de la semana ISO actual. Null en el resto. */
+    private List<TrainingTag> weekDayTags;
+
+    /** Solo en CHECKIN vinculado: id del BOX_WOD. */
+    private Integer wodPostId;
+    /** Solo en CHECKIN vinculado: título del BOX_WOD. */
+    private String wodTitle;
+
+    /** Solo en BOX_WOD: número de check-ins vinculados. */
+    private Integer wodCheckinsCount;
+    /** Solo en BOX_WOD: hasta 8 autores de check-in (muro). */
+    private List<WodCheckinAuthorResponse> wodCheckinAuthors;
 
     public FeedPostResponse() {}
 
@@ -202,8 +212,22 @@ public class FeedPostResponse {
     public Integer getStreakWeeks() { return streakWeeks; }
     public void setStreakWeeks(Integer streakWeeks) { this.streakWeeks = streakWeeks; }
 
-    public List<Boolean> getWeekActiveDays() { return weekActiveDays; }
-    public void setWeekActiveDays(List<Boolean> weekActiveDays) { this.weekActiveDays = weekActiveDays; }
+    public List<TrainingTag> getWeekDayTags() { return weekDayTags; }
+    public void setWeekDayTags(List<TrainingTag> weekDayTags) { this.weekDayTags = weekDayTags; }
+
+    public Integer getWodPostId() { return wodPostId; }
+    public void setWodPostId(Integer wodPostId) { this.wodPostId = wodPostId; }
+
+    public String getWodTitle() { return wodTitle; }
+    public void setWodTitle(String wodTitle) { this.wodTitle = wodTitle; }
+
+    public Integer getWodCheckinsCount() { return wodCheckinsCount; }
+    public void setWodCheckinsCount(Integer wodCheckinsCount) { this.wodCheckinsCount = wodCheckinsCount; }
+
+    public List<WodCheckinAuthorResponse> getWodCheckinAuthors() { return wodCheckinAuthors; }
+    public void setWodCheckinAuthors(List<WodCheckinAuthorResponse> wodCheckinAuthors) {
+        this.wodCheckinAuthors = wodCheckinAuthors;
+    }
 
     public static Builder builder() { return new Builder(); }
 
@@ -247,7 +271,14 @@ public class FeedPostResponse {
         public Builder participantsCount(Integer v)  { r.participantsCount = v; return this; }
         public Builder joinedByCurrentUser(boolean v) { r.joinedByCurrentUser = v; return this; }
         public Builder streakWeeks(Integer v)        { r.streakWeeks = v;        return this; }
-        public Builder weekActiveDays(List<Boolean> v) { r.weekActiveDays = v;  return this; }
+        public Builder weekDayTags(List<TrainingTag> v) { r.weekDayTags = v;  return this; }
+        public Builder wodPostId(Integer v)          { r.wodPostId = v;         return this; }
+        public Builder wodTitle(String v)            { r.wodTitle = v;          return this; }
+        public Builder wodCheckinsCount(Integer v)   { r.wodCheckinsCount = v;  return this; }
+        public Builder wodCheckinAuthors(List<WodCheckinAuthorResponse> v) {
+            r.wodCheckinAuthors = v;
+            return this;
+        }
 
         public FeedPostResponse build() { return r; }
 
