@@ -15,6 +15,16 @@ const TAG_LABELS: Record<ConstancyTrainingTag, string> = {
   OTRO: 'Otro',
 };
 
+/** Material Icons (ligature) por tipo de entrenamiento. */
+const TAG_ICONS: Record<ConstancyTrainingTag, string> = {
+  HYROX: 'emoji_events',
+  FUERZA: 'fitness_center',
+  CARRERA: 'directions_run',
+  CLASE: 'groups',
+  DESCANSO_ACTIVO: 'self_improvement',
+  OTRO: 'sports',
+};
+
 @Component({
   selector: 'app-constancy-block',
   standalone: true,
@@ -71,5 +81,10 @@ export class ConstancyBlockComponent {
       return 'Sin entrenamiento';
     }
     return TAG_LABELS[tag];
+  }
+
+  dayIcon(index: number): string | null {
+    const tag = this.resolvedWeekDayTags()[index];
+    return tag ? TAG_ICONS[tag] : null;
   }
 }

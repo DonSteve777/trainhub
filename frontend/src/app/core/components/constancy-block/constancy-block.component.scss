@@ -69,6 +69,7 @@
   align-items: center;
   gap: 0.25rem;
   cursor: default;
+  min-height: 2.05rem;
 }
 
 .constancy__day-label {
@@ -81,56 +82,41 @@
 .constancy__dot {
   width: 0.55rem;
   height: 0.55rem;
+  margin-block: 0.2rem;
   border-radius: 50%;
   border: 1.5px solid color-mix(in srgb, var(--mat-sys-outline) 70%, transparent);
   background: transparent;
 }
 
-.constancy__dot--active {
-  border-color: var(--trainhub-accent);
-  background: var(--trainhub-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--trainhub-accent) 22%, transparent);
+.constancy__tag-icon {
+  --tag: var(--trainhub-accent);
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  color: var(--tag);
 
   &[data-tag='HYROX'] {
-    --dot: #e85d04;
-    border-color: var(--dot);
-    background: var(--dot);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+    --tag: #e85d04;
   }
 
   &[data-tag='FUERZA'] {
-    --dot: #2a9d8f;
-    border-color: var(--dot);
-    background: var(--dot);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+    --tag: #2a9d8f;
   }
 
   &[data-tag='CARRERA'] {
-    --dot: #3a86ff;
-    border-color: var(--dot);
-    background: var(--dot);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+    --tag: #3a86ff;
   }
 
   &[data-tag='CLASE'] {
-    --dot: #f4a261;
-    border-color: var(--dot);
-    background: var(--dot);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+    --tag: #f4a261;
   }
 
   &[data-tag='DESCANSO_ACTIVO'] {
-    --dot: #6a994e;
-    border-color: var(--dot);
-    background: var(--dot);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+    --tag: #6a994e;
   }
 
   &[data-tag='OTRO'] {
-    --dot: #9aa0a6;
-    border-color: var(--dot);
-    background: var(--dot);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dot) 28%, transparent);
+    --tag: #9aa0a6;
   }
 }
 

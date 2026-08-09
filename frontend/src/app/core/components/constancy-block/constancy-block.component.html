@@ -20,11 +20,15 @@
         matTooltipShowDelay="150"
       >
         <span class="constancy__day-label">{{ label }}</span>
-        <span
-          class="constancy__dot"
-          [class.constancy__dot--active]="resolvedWeekDayTags()[i] != null"
-          [attr.data-tag]="resolvedWeekDayTags()[i]"
-        ></span>
+        @if (dayIcon(i); as icon) {
+          <mat-icon
+            class="constancy__tag-icon"
+            [attr.data-tag]="resolvedWeekDayTags()[i]"
+            aria-hidden="true"
+          >{{ icon }}</mat-icon>
+        } @else {
+          <span class="constancy__dot" aria-hidden="true"></span>
+        }
       </div>
     }
   </div>
