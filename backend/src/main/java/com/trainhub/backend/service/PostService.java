@@ -112,10 +112,10 @@ public class PostService {
     }
 
     /**
-     * Lista WODs recientes del box del usuario para el selector de check-in.
+     * Lista WODs de la semana ISO actual (L–D) del box del usuario para el selector de check-in.
      *
      * @param userId id del usuario autenticado
-     * @return resumen de hasta 10 WODs (más recientes primero); lista vacía sin box
+     * @return resumen de hasta 10 WODs de esta semana (más recientes primero); lista vacía sin box
      */
     public List<BoxWodSummaryResponse> listRecentBoxWods(Integer userId) {
         User user = userRepository.findById(userId)
@@ -125,7 +125,9 @@ public class PostService {
             return List.of();
         }
 
-        LocalDateTime since = LocalDateTime.of(2000, 1, 1, 0, 0);
+        LocalDateTime since = LocalDate.now()
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .atStartOfDay();
         return postRepository
                 .findRecentBoxWods(user.getBox().getId(), since, PageRequest.of(0, 10))
                 .stream()

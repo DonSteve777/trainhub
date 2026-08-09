@@ -70,10 +70,16 @@ export class UserPostsFeedComponent implements OnInit {
 
     this.feedService.getUserPosts(userId).subscribe({
       next: feed => {
+        // #region agent log
+        fetch('http://127.0.0.1:7276/ingest/5d8934ba-b284-461b-918f-bda8d35250fc',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9971ba'},body:JSON.stringify({sessionId:'9971ba',runId:'post-fix',hypothesisId:'A',location:'user-posts-feed.component.ts:next',message:'getUserPosts ok',data:{userId,count:feed?.length??0,types:(feed??[]).slice(0,5).map(p=>p.postType)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         this.posts.set(feed.map(dto => this.mapDto(dto)));
         this.loading.set(false);
       },
       error: err => {
+        // #region agent log
+        fetch('http://127.0.0.1:7276/ingest/5d8934ba-b284-461b-918f-bda8d35250fc',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'9971ba'},body:JSON.stringify({sessionId:'9971ba',runId:'post-fix',hypothesisId:'A',location:'user-posts-feed.component.ts:error',message:'getUserPosts error',data:{userId,status:err?.status,body:err?.error?.message??err?.message},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         console.error('UserPostsFeed error', err);
         this.loading.set(false);
       },

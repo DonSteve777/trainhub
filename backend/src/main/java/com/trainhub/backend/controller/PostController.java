@@ -44,7 +44,7 @@ public class PostController {
     }
 
     /**
-     * Lista WODs recientes del box del usuario (selector de check-in).
+     * Lista WODs de la semana ISO actual del box del usuario (selector de check-in).
      *
      * @param userPrincipal usuario autenticado
      * @return lista de resúmenes de WOD

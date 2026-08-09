@@ -63,12 +63,19 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     }
 
     /**
-     * Devuelve todos los posts de un usuario concreto, ordenados del más reciente al más antiguo.
+     * Devuelve los posts visibles de un usuario concreto, ordenados del más reciente al más antiguo.
+     * Solo tipos del modelo actual (excluye restos legacy como RESULT en BD).
      * Sin límite de fecha: se devuelve el historial completo.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.wodPost
+            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.box LEFT JOIN FETCH p.wodPost
             WHERE p.user.id = :targetUserId
+            AND p.postType IN (
+                com.trainhub.backend.enums.PostType.CHECKIN,
+                com.trainhub.backend.enums.PostType.BOX_WOD,
+                com.trainhub.backend.enums.PostType.BOX_CHALLENGE,
+                com.trainhub.backend.enums.PostType.BOX_ANNOUNCEMENT
+            )
             ORDER BY p.creationDate DESC, p.id DESC
             """)
     List<Post> findPostsByUserId(@Param("targetUserId") Integer targetUserId);
@@ -173,7 +180,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("wodPostId") Integer wodPostId);
 
     /**
-     * WODs recientes del box (últimos {@code since} o tope por pageable).
+     * WODs del box desde {@code since} (p. ej. lunes de la semana ISO actual), tope por pageable.
      */
     @Query("""
             SELECT p FROM Post p
