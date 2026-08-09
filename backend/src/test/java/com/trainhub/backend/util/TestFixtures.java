@@ -1,6 +1,8 @@
 package com.trainhub.backend.util;
 
 import com.trainhub.backend.enums.AccountStatus;
+import com.trainhub.backend.enums.PostType;
+import com.trainhub.backend.enums.TrainingTag;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.User;
 
@@ -21,14 +23,12 @@ public final class TestFixtures {
     }
 
     public static Post aPost(Integer id, User user, LocalDateTime creationDate) {
-        Post post = new Post(
-                user,
-                60, 60, 60, 60, 60, 60, 60, 60,  // running 1-8
-                60, 60, 60, 60, 60, 60, 60, 60,  // skiErg, sledPush, sledPull, burpeeBroadJump, row, farmersCarry, sandbagLunges, wallBalls
-                480,
-                creationDate
-        );
+        Post post = new Post();
         post.setId(id);
+        post.setUser(user);
+        post.setPostType(PostType.CHECKIN);
+        post.setTrainingTag(TrainingTag.HYROX);
+        post.setCreationDate(creationDate);
         return post;
     }
 

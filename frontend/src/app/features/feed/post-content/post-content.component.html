@@ -68,16 +68,6 @@
       </span>
     }
   </div>
-} @else if (isResult()) {
-  <div class="post-body" role="status">
-    <p class="post-body__lead">
-      <mat-icon aria-hidden="true">insights</mat-icon>
-      <span>Resultado HYROX</span>
-    </p>
-    @if (hasDescription()) {
-      <p class="post-body__description">{{ post().description }}</p>
-    }
-  </div>
 } @else {
   <div class="post-body" role="status">
     @if (hasDescription()) {

@@ -69,7 +69,7 @@ class PostServiceTest {
         Integer userId = 1;
         LocalDate today = LocalDate.now();
         when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of(
-                row(today, TrainingTag.HYROX, "RESULT"),
+                row(today, TrainingTag.HYROX, "CHECKIN"),
                 row(today.minusDays(2), TrainingTag.FUERZA, "CHECKIN")
         ));
 
@@ -229,7 +229,7 @@ class PostServiceTest {
         when(postRepository.findActivityDaysForUser(userId)).thenReturn(List.of(
                 row(monday.minusWeeks(1), TrainingTag.CLASE, "CHECKIN"),
                 row(monday.minusWeeks(1).plusDays(1), TrainingTag.FUERZA, "CHECKIN"),
-                new Object[]{monday.minusWeeks(1).plusDays(2), null, "RESULT"}
+                row(monday.minusWeeks(1).plusDays(2), TrainingTag.HYROX, "CHECKIN")
         ));
 
         WeeklyConstancyResponse result = postService.getWeeklyConstancy(userId);
@@ -237,8 +237,8 @@ class PostServiceTest {
     }
 
     @Test
-    void resultWithoutTagResolvesToHyrox() {
-        ActivityDay day = PostService.toActivityDay(LocalDate.now(), null, "RESULT");
-        assertThat(day.tag()).isEqualTo(TrainingTag.HYROX);
+    void checkinWithoutTagResolvesToOtro() {
+        ActivityDay day = PostService.toActivityDay(LocalDate.now(), null, "CHECKIN");
+        assertThat(day.tag()).isEqualTo(TrainingTag.OTRO);
     }
 }

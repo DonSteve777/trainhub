@@ -2,12 +2,9 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
 import com.trainhub.backend.dto.response.FeedPostResponse;
-import com.trainhub.backend.dto.response.FriendTimeHistoryResponse;
-import com.trainhub.backend.dto.response.PersonalRecordsResponse;
 import com.trainhub.backend.dto.response.StreakResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
-import com.trainhub.backend.dto.response.UserTimeHistoryResponse;
 import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
 import com.trainhub.backend.enums.FriendshipStatus;
 import com.trainhub.backend.model.Friendship;
@@ -171,48 +168,6 @@ public class UserController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(results);
-    }
-
-    /**
-     * Devuelve el histórico de tiempos de todos los amigos del usuario autenticado,
-     * agrupado por amigo. Sin límite de fecha.
-     *
-     * @param userPrincipal El usuario autenticado actual
-     * @return Lista de históricos de tiempos, uno por amigo
-     */
-    @GetMapping("/friends/time-history")
-    public ResponseEntity<List<FriendTimeHistoryResponse>> getFriendsTimeHistory(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Integer userId = userPrincipal.getUser().getId();
-        return ResponseEntity.ok(postService.getFriendsTimeHistory(userId));
-    }
-
-    /**
-     * Devuelve el histórico de tiempos del usuario autenticado agrupado en tres colecciones:
-     * total, workouts y runs, cada una con pares (tiempo, fecha) ordenados cronológicamente.
-     *
-     * @param userPrincipal El usuario autenticado actual
-     * @return Histórico de tiempos del usuario
-     */
-    @GetMapping("/time-history")
-    public ResponseEntity<UserTimeHistoryResponse> getTimeHistory(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Integer userId = userPrincipal.getUser().getId();
-        return ResponseEntity.ok(postService.getUserTimeHistory(userId));
-    }
-
-    /**
-     * Devuelve los records personales all-time del usuario autenticado para cada segmento HYROX:
-     * tiempo total, suma de runs y cada una de las 8 estaciones por separado.
-     *
-     * @param userPrincipal El usuario autenticado actual
-     * @return Records personales del usuario
-     */
-    @GetMapping("/personal-records")
-    public ResponseEntity<PersonalRecordsResponse> getPersonalRecords(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Integer userId = userPrincipal.getUser().getId();
-        return ResponseEntity.ok(postService.getUserPersonalRecords(userId));
     }
 
     /**
@@ -412,36 +367,6 @@ public class UserController {
                 user.getGender()
         );
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Devuelve el histórico de tiempos de cualquier usuario por id.
-     *
-     * @param userId id del usuario a consultar
-     * @return histórico de tiempos del usuario
-     */
-    @GetMapping("/{userId}/time-history")
-    public ResponseEntity<UserTimeHistoryResponse> getUserTimeHistory(
-            @PathVariable Integer userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
-        }
-        return ResponseEntity.ok(postService.getUserTimeHistory(userId));
-    }
-
-    /**
-     * Devuelve los records personales de cualquier usuario por id.
-     *
-     * @param userId id del usuario a consultar
-     * @return records personales del usuario
-     */
-    @GetMapping("/{userId}/personal-records")
-    public ResponseEntity<PersonalRecordsResponse> getUserPersonalRecords(
-            @PathVariable Integer userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
-        }
-        return ResponseEntity.ok(postService.getUserPersonalRecords(userId));
     }
 
     /**

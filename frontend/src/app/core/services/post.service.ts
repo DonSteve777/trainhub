@@ -9,7 +9,6 @@ export type BoxPostType = 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
 export interface NewCheckinRequest {
   trainingTag: TrainingTag;
   description?: string;
-  mateUsername?: string;
   wodPostId?: number;
 }
 

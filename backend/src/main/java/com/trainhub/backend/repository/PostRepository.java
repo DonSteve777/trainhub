@@ -25,16 +25,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("""
             SELECT p FROM Post p
             JOIN FETCH p.user u
-            LEFT JOIN FETCH p.mate
             LEFT JOIN FETCH p.box
             LEFT JOIN FETCH p.wodPost
             WHERE p.user.id <> :userId
             AND (
                 (
-                    p.postType IN (
-                        com.trainhub.backend.enums.PostType.CHECKIN,
-                        com.trainhub.backend.enums.PostType.RESULT
-                    )
+                    p.postType = com.trainhub.backend.enums.PostType.CHECKIN
                     AND EXISTS (
                         SELECT f FROM Friendship f
                         WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
@@ -67,87 +63,18 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     }
 
     /**
-     * Devuelve los tiempos de cada post del propio usuario ,
-     * ordenados por fecha ascendente.
-     * Cada fila: [totalTime, r1..r8, w1..w8, creationDate] (18 columnas).
-     */
-    @Query("""
-            SELECT p.totalTime,
-                   p.running1, p.running2, p.running3, p.running4,
-                   p.running5, p.running6, p.running7, p.running8,
-                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
-                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls,
-                   p.creationDate
-            FROM Post p
-            WHERE p.user.id = :userId
-            AND p.postType = com.trainhub.backend.enums.PostType.RESULT
-            AND p.creationDate >= :since
-            ORDER BY p.creationDate ASC
-            """)
-    List<Object[]> findUserPostTimes(
-            @Param("userId") Integer userId,
-            @Param("since") LocalDateTime since);
-
-    /**
-     * Devuelve los tiempos de todos los posts de los amigos del usuario, con su nombre de usuario
-     * y fecha, sin límite de fecha. Se usa para pintar los marcadores de amigos en las gráficas
-     * de progresión.
-     * Cada fila: [username, totalTime, r1..r8, w1..w8, creationDate] (19 columnas).
-     */
-    @Query("""
-            SELECT p.user.username, p.totalTime,
-                   p.running1, p.running2, p.running3, p.running4,
-                   p.running5, p.running6, p.running7, p.running8,
-                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
-                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls,
-                   p.creationDate
-            FROM Post p
-            WHERE p.postType = com.trainhub.backend.enums.PostType.RESULT
-            AND EXISTS (
-                SELECT f FROM Friendship f
-                WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
-                AND (
-                    (f.id.userAId = :userId AND f.id.userBId = p.user.id)
-                    OR
-                    (f.id.userBId = :userId AND f.id.userAId = p.user.id)
-                )
-            )
-            ORDER BY p.user.username ASC, p.creationDate ASC
-            """)
-    List<Object[]> findFriendsPostTimesWithUser(@Param("userId") Integer userId);
-
-    /**
      * Devuelve todos los posts de un usuario concreto, ordenados del más reciente al más antiguo.
      * Sin límite de fecha: se devuelve el historial completo.
      */
     @Query("""
-            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.mate LEFT JOIN FETCH p.wodPost
+            SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.wodPost
             WHERE p.user.id = :targetUserId
             ORDER BY p.creationDate DESC, p.id DESC
             """)
     List<Post> findPostsByUserId(@Param("targetUserId") Integer targetUserId);
 
     /**
-     * Devuelve los tiempos individuales de todos los posts del usuario (sin filtro de fecha),
-     * ordenados cronológicamente. Se usa para calcular records personales all-time.
-     * Cada fila: [totalTime, r1..r8, w1..w8, creationDate] (18 columnas).
-     */
-    @Query("""
-            SELECT p.totalTime,
-                   p.running1, p.running2, p.running3, p.running4,
-                   p.running5, p.running6, p.running7, p.running8,
-                   p.skiErg, p.sledPush, p.sledPull, p.burpeeBroadJump,
-                   p.row, p.farmersCarry, p.sandbagLunges, p.wallBalls,
-                   p.creationDate
-            FROM Post p
-            WHERE p.user.id = :userId
-            AND p.postType = com.trainhub.backend.enums.PostType.RESULT
-            ORDER BY p.creationDate ASC
-            """)
-    List<Object[]> findAllUserPostTimes(@Param("userId") Integer userId);
-
-    /**
-     * Días de actividad propios (CHECKIN/RESULT): como máximo uno por fecha.
+     * Días de actividad propios (CHECKIN): como máximo uno por fecha.
      * Cada fila: [date, training_tag, post_type].
      */
     @Query(value = """
@@ -157,7 +84,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                    p.post_type
             FROM posts p
             WHERE p.user_id = :userId
-            AND p.post_type IN ('CHECKIN', 'RESULT')
+            AND p.post_type = 'CHECKIN'
             ORDER BY CAST(p.creation_date AS date) DESC, p.creation_date DESC
             """, nativeQuery = true)
     List<Object[]> findActivityDaysForUser(@Param("userId") Integer userId);
@@ -174,7 +101,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                    p.post_type
             FROM posts p
             WHERE p.user_id IN (:userIds)
-            AND p.post_type IN ('CHECKIN', 'RESULT')
+            AND p.post_type = 'CHECKIN'
             ORDER BY p.user_id, CAST(p.creation_date AS date) DESC, p.creation_date DESC
             """, nativeQuery = true)
     List<Object[]> findActivityDaysForUsers(@Param("userIds") Collection<Integer> userIds);
@@ -186,16 +113,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("""
             SELECT p FROM Post p
             JOIN FETCH p.user u
-            LEFT JOIN FETCH p.mate
             LEFT JOIN FETCH p.box
             LEFT JOIN FETCH p.wodPost
             WHERE p.user.id <> :userId
             AND (
                 (
-                    p.postType IN (
-                        com.trainhub.backend.enums.PostType.CHECKIN,
-                        com.trainhub.backend.enums.PostType.RESULT
-                    )
+                    p.postType = com.trainhub.backend.enums.PostType.CHECKIN
                     AND EXISTS (
                         SELECT f FROM Friendship f
                         WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND

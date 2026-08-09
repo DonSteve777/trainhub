@@ -3,29 +3,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
-export interface TimeEntryDto {
-  time: number;
-  date: string;
-}
-
-export interface FriendTimeEntryDto {
-  time: number;
-  date: string;
-}
-
-export interface FriendTimeHistoryDto {
-  username: string;
-  totalHistory: FriendTimeEntryDto[];
-  workoutsHistory: FriendTimeEntryDto[];
-  runsHistory: FriendTimeEntryDto[];
-}
-
-export interface UserTimeHistoryDto {
-  totalHistory:    TimeEntryDto[];
-  workoutsHistory: TimeEntryDto[];
-  runsHistory:     TimeEntryDto[];
-}
-
 export type UserRole = 'USER' | 'BOX_ADMIN';
 
 export interface UserProfileDto {
@@ -47,24 +24,6 @@ export interface UserSearchResultDto {
   friendshipStatus: 'NONE' | 'PENDING' | 'FRIEND';
 }
 
-export interface PersonalRecordEntryDto {
-  time: number;
-  date: string;
-}
-
-export interface PersonalRecordsDto {
-  bestTotal:          PersonalRecordEntryDto | null;
-  bestRunning:        PersonalRecordEntryDto | null;
-  bestSkiErg:         PersonalRecordEntryDto | null;
-  bestSledPush:       PersonalRecordEntryDto | null;
-  bestSledPull:       PersonalRecordEntryDto | null;
-  bestBurpeeBj:       PersonalRecordEntryDto | null;
-  bestRow:            PersonalRecordEntryDto | null;
-  bestFarmersCarry:   PersonalRecordEntryDto | null;
-  bestSandbagLunges:  PersonalRecordEntryDto | null;
-  bestWallBalls:      PersonalRecordEntryDto | null;
-}
-
 export interface WeeklyConstancyDto {
   streakWeeks: number;
   weekDayTags: Array<'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO' | null>;
@@ -74,20 +33,6 @@ export interface WeeklyConstancyDto {
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly api = inject(ApiService);
-
-  getTimeHistory(userId?: number): Observable<UserTimeHistoryDto> {
-    const url = userId != null ? `/user/${userId}/time-history` : '/user/time-history';
-    return this.api.get<UserTimeHistoryDto>(url);
-  }
-
-  getFriendsTimeHistory(): Observable<FriendTimeHistoryDto[]> {
-    return this.api.get<FriendTimeHistoryDto[]>('/user/friends/time-history');
-  }
-
-  getPersonalRecords(userId?: number): Observable<PersonalRecordsDto> {
-    const url = userId != null ? `/user/${userId}/personal-records` : '/user/personal-records';
-    return this.api.get<PersonalRecordsDto>(url);
-  }
 
   getWeeklyConstancy(): Observable<WeeklyConstancyDto> {
     return this.api.get<WeeklyConstancyDto>('/user/constancy');

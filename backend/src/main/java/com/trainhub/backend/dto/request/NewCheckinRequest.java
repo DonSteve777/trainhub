@@ -11,7 +11,6 @@ public class NewCheckinRequest {
     @NotNull private TrainingTag trainingTag;
 
     private String description;
-    private String mateUsername;
     /** Id opcional de un post BOX_WOD del mismo box. */
     private Integer wodPostId;
 
@@ -22,9 +21,6 @@ public class NewCheckinRequest {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-
-    public String getMateUsername() { return mateUsername; }
-    public void setMateUsername(String mateUsername) { this.mateUsername = mateUsername; }
 
     public Integer getWodPostId() { return wodPostId; }
     public void setWodPostId(Integer wodPostId) { this.wodPostId = wodPostId; }

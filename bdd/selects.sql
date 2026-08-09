@@ -13,22 +13,6 @@ WHERE user_id = 108
 ORDER BY creation_date DESC;
 
 -- ============================================================
--- historico de un usuario
--- ============================================================
-
-SELECT
-    p.total_time,
-    p.running1, p.running2, p.running3, p.running4,
-    p.running5, p.running6, p.running7, p.running8,
-    p.ski_erg, p.sled_push, p.sled_pull, p.burpee_broad_jump,
-    p.row, p.farmers_carry, p.sandbag_lunges, p.wall_balls,
-    p.creation_date
-FROM posts p
-WHERE p.user_id = 107
-ORDER BY p.creation_date ASC;
-
-
--- ============================================================
 -- 1. Mis Likes a post 
 -- ============================================================
 SELECT * FROM post_likes WHERE user_id = 101;

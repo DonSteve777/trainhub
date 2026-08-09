@@ -10,7 +10,6 @@ import { CreatePostComponent } from './features/create-post/create-post.componen
 import { CreateBoxPostComponent } from './features/create-box-post/create-box-post.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
-import { TimeHistoryComponent } from './features/time-history/time-history.component';
 import { UserPostsFeedComponent } from './features/user-posts-feed/user-posts-feed.component';
 
 export const routes: Routes = [
@@ -22,8 +21,6 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'user-profile', component: UserProfileComponent, canActivate: [authGuard] },
-  { path: 'time-history', component: TimeHistoryComponent, canActivate: [authGuard] },
-  { path: 'time-history/:userId', component: TimeHistoryComponent, canActivate: [authGuard] },
   { path: 'user/:userId', component: UserPostsFeedComponent, canActivate: [authGuard] },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'register-form', component: RegisterFormComponent },

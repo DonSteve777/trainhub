@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
-export type FeedPostType = 'CHECKIN' | 'RESULT' | 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
+export type FeedPostType = 'CHECKIN' | 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
 
 export type FeedTrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO';
 
@@ -14,29 +14,9 @@ export interface FeedPostDto {
   postType: FeedPostType;
   boxId: number | null;
   title: string | null;
-  r1Time: string | null;
-  r2Time: string | null;
-  r3Time: string | null;
-  r4Time: string | null;
-  r5Time: string | null;
-  r6Time: string | null;
-  r7Time: string | null;
-  r8Time: string | null;
-  skiErgTime: string | null;
-  sledPushTime: string | null;
-  sledPullTime: string | null;
-  burpeeBjTime: string | null;
-  rowTime: string | null;
-  farmersCarryTime: string | null;
-  sandbagLungesTime: string | null;
-  wallBallsTime: string | null;
-  totalTime: string | null;
   trainingTag: FeedTrainingTag | null;
   challengeDeadline: string | null;
   description: string | null;
-  category: string | null;
-  mateId: number | null;
-  mateUsername: string | null;
   creationDate: string;
   commentsCount: number;
   likesCount: number;

@@ -52,7 +52,6 @@ export class PostContentComponent {
   isBoxWod = computed(() => this.post().postType === 'BOX_WOD');
   isBoxAnnouncement = computed(() => this.post().postType === 'BOX_ANNOUNCEMENT');
   isBoxChallenge = computed(() => this.post().postType === 'BOX_CHALLENGE');
-  isResult = computed(() => this.post().postType === 'RESULT');
 
   checkinText = computed(() => {
     const tag = this.post().trainingTag;

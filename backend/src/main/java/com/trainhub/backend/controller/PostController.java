@@ -2,7 +2,6 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.NewBoxPostRequest;
 import com.trainhub.backend.dto.request.NewCheckinRequest;
-import com.trainhub.backend.dto.request.NewPostRequest;
 import com.trainhub.backend.dto.response.BoxWodSummaryResponse;
 import com.trainhub.backend.security.UserPrincipal;
 import com.trainhub.backend.service.PostService;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controlador REST para la gestión de posts (entrenamientos).
+ * Controlador REST para la gestión de posts.
  */
 @RestController
 @RequestMapping("/api/posts")
@@ -25,23 +24,6 @@ public class PostController {
 
     public PostController(PostService postService) {
         this.postService = postService;
-    }
-
-    /**
-     * Crea un nuevo post para el usuario autenticado.
-     *
-     * @param userPrincipal usuario autenticado (extraído del token JWT)
-     * @param request       datos del entrenamiento con los 16 tiempos parciales
-     * @return 201 Created sin cuerpo
-     */
-    @PostMapping
-    public ResponseEntity<Void> createPost(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @Valid @RequestBody NewPostRequest request) {
-
-        Integer userId = userPrincipal.getUser().getId();
-        postService.createPost(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**

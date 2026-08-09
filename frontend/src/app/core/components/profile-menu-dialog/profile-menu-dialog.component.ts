@@ -21,11 +21,6 @@ export class ProfileMenuDialogComponent {
     this.router.navigate(['/user-profile']);
   }
 
-  goToStats(): void {
-    this.dialogRef.close();
-    this.router.navigate(['/time-history']);
-  }
-
   goToPosts(): void {
     this.userService.getProfile().subscribe({
       next: (profile) => {

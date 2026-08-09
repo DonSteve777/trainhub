@@ -5,7 +5,6 @@ package com.trainhub.backend.enums;
  */
 public enum PostType {
     CHECKIN,
-    RESULT,
     BOX_WOD,
     BOX_CHALLENGE,
     BOX_ANNOUNCEMENT;

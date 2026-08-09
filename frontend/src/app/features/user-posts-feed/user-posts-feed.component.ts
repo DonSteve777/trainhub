@@ -32,8 +32,6 @@ interface FeedPost {
   creationDate: string;
   participantsCount: number;
   joinedByCurrentUser: boolean;
-  mateUserId: number | null;
-  mateUsername: string | null;
   likes: number;
   liked: boolean;
   commentsCount: number;
@@ -161,8 +159,6 @@ export class UserPostsFeedComponent implements OnInit {
     switch (postType) {
       case 'CHECKIN':
         return 'Check-in';
-      case 'RESULT':
-        return 'Resultado';
       case 'BOX_WOD':
         return 'WOD';
       case 'BOX_ANNOUNCEMENT':
@@ -221,8 +217,6 @@ export class UserPostsFeedComponent implements OnInit {
       creationDate: dto.creationDate,
       participantsCount: dto.participantsCount ?? 0,
       joinedByCurrentUser: dto.joinedByCurrentUser ?? false,
-      mateUserId: dto.mateId ?? null,
-      mateUsername: dto.mateUsername ?? null,
       likes: dto.likesCount ?? 0,
       liked: dto.likedByCurrentUser ?? false,
       commentsCount: dto.commentsCount ?? 0,
