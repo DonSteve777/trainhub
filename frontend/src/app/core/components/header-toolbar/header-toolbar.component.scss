@@ -43,6 +43,25 @@
   }
 }
 
+.nav-button {
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  &--active {
+    color: var(--trainhub-accent, #ff5722);
+  }
+
+  ::ng-deep .mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+  }
+}
+
 // ============================================================
 // Panel derecho: acciones
 // ============================================================

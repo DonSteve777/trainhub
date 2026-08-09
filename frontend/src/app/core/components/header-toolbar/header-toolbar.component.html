@@ -3,6 +3,17 @@
     <div class="logo-container" routerLink="/feed">
       <img src="images/logotipo.png" alt="Logo" class="logo" />
     </div>
+    <button
+      type="button"
+      class="nav-button"
+      mat-icon-button
+      [class.nav-button--active]="isOnObjetivos()"
+      aria-label="Objetivos"
+      title="Objetivos"
+      (click)="goToObjetivos()"
+    >
+      <mat-icon>flag</mat-icon>
+    </button>
   </div>
 }
 

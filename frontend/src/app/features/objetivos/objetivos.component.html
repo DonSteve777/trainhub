@@ -1,0 +1,255 @@
+<div class="objetivos">
+  <header class="objetivos-header">
+    <a class="objetivos-header__back" routerLink="/feed" aria-label="Volver al feed">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <div class="objetivos-header__titles">
+      <h1>Objetivos</h1>
+      <p>Sigue tus marcas y el progreso de tus amigos</p>
+    </div>
+    <button type="button" class="objetivos-header__cta" disabled title="Próximamente (requiere backend)">
+      <mat-icon>add</mat-icon>
+      <span>Nuevo</span>
+    </button>
+  </header>
+
+  <div class="objetivos-filters" role="tablist" aria-label="Filtrar objetivos">
+    <button
+      type="button"
+      role="tab"
+      class="objetivos-filters__tab"
+      [class.objetivos-filters__tab--active]="filter() === 'ACTIVE'"
+      [attr.aria-selected]="filter() === 'ACTIVE'"
+      (click)="setFilter('ACTIVE')"
+    >
+      Activos
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="objetivos-filters__tab"
+      [class.objetivos-filters__tab--active]="filter() === 'ACHIEVED'"
+      [attr.aria-selected]="filter() === 'ACHIEVED'"
+      (click)="setFilter('ACHIEVED')"
+    >
+      Logrados
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="objetivos-filters__tab"
+      [class.objetivos-filters__tab--active]="filter() === 'ALL'"
+      [attr.aria-selected]="filter() === 'ALL'"
+      (click)="setFilter('ALL')"
+    >
+      Todos
+    </button>
+  </div>
+
+  <div class="objetivos-layout">
+    <!-- Lista -->
+    <aside class="objetivos-list" aria-label="Lista de objetivos">
+      @if (filteredGoals().length === 0) {
+        <div class="objetivos-empty">
+          <mat-icon>flag</mat-icon>
+          <p>No hay objetivos en este filtro</p>
+        </div>
+      } @else {
+        @for (goal of filteredGoals(); track goal.id) {
+          <button
+            type="button"
+            class="goal-item"
+            [class.goal-item--selected]="selectedId() === goal.id"
+            (click)="selectGoal(goal.id)"
+          >
+            <div class="goal-item__top">
+              <span class="goal-item__status" [attr.data-status]="goal.status">{{
+                statusLabel(goal.status)
+              }}</span>
+              <span class="goal-item__deadline">{{ deadlineText(goal) }}</span>
+            </div>
+            <span class="goal-item__title">{{ goal.title }}</span>
+            <div class="goal-item__meta">
+              <span>{{ goal.metricLabel }} · {{ myLatestLabel(goal) }}</span>
+              <span class="goal-item__friends">
+                <mat-icon>group</mat-icon>
+                {{ goal.participants.length }}
+              </span>
+            </div>
+          </button>
+        }
+      }
+    </aside>
+
+    <!-- Detalle -->
+    <section class="objetivos-detail" aria-live="polite">
+      @if (selectedGoal(); as goal) {
+        <div class="detail-hero">
+          <div class="detail-hero__text">
+            <span class="detail-hero__status" [attr.data-status]="goal.status">{{
+              statusLabel(goal.status)
+            }}</span>
+            <h2>{{ goal.title }}</h2>
+            <p class="detail-hero__desc">{{ goal.description }}</p>
+            <div class="detail-hero__facts">
+              <div class="fact">
+                <span class="fact__label">Meta</span>
+                <span class="fact__value">{{ formatVal(goal.targetValue, goal) }}</span>
+              </div>
+              <div class="fact">
+                <span class="fact__label">Deadline</span>
+                <span class="fact__value">{{ formatMarkDate(goal.deadline) }}</span>
+              </div>
+              <div class="fact">
+                <span class="fact__label">Plazo</span>
+                <span class="fact__value">{{ deadlineText(goal) }}</span>
+              </div>
+            </div>
+          </div>
+
+          @if (myProgress(); as mine) {
+            <div class="detail-hero__progress">
+              <div class="ring" [style.--pct]="mine.progressPercent">
+                <svg viewBox="0 0 36 36" aria-hidden="true">
+                  <path
+                    class="ring__bg"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    class="ring__fg"
+                    [attr.stroke-dasharray]="Math.round(mine.progressPercent) + ', 100'"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div class="ring__label">
+                  <strong>{{ Math.round(mine.progressPercent) }}%</strong>
+                  <span>progreso</span>
+                </div>
+              </div>
+              <div class="detail-hero__best">
+                <span class="fact__label">Tu mejor marca</span>
+                <span class="fact__value fact__value--accent">{{
+                  formatVal(mine.bestValue, goal)
+                }}</span>
+                @if (mine.achieved) {
+                  <span class="badge-achieved">
+                    <mat-icon>emoji_events</mat-icon> Logrado
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Seguimiento (chart + marcas) -->
+        <div class="detail-section">
+          <div class="detail-section__head">
+            <h3>Tu seguimiento</h3>
+            <button type="button" class="ghost-btn" disabled title="Próximamente (requiere backend)">
+              <mat-icon>add_chart</mat-icon>
+              Anotar marca
+            </button>
+          </div>
+
+          @if (chartPts().length === 0) {
+            <p class="detail-hint">Aún no has registrado marcas en este objetivo.</p>
+          } @else {
+            <div class="chart-wrap">
+              <svg class="chart" viewBox="0 0 100 100" preserveAspectRatio="none" role="img"
+                [attr.aria-label]="'Evolución de marcas hacia ' + formatVal(goal.targetValue, goal)">
+                @if (targetY(); as ty) {
+                  <line
+                    class="chart__target"
+                    x1="0"
+                    [attr.y1]="ty"
+                    x2="100"
+                    [attr.y2]="ty"
+                  />
+                }
+                <polyline class="chart__line" fill="none" [attr.points]="chartPolyline()" />
+                @for (pt of chartPts(); track pt.date) {
+                  <circle class="chart__dot" [attr.cx]="pt.x" [attr.cy]="pt.y" r="1.8" />
+                }
+              </svg>
+              <div class="chart-legend">
+                <span class="chart-legend__item">
+                  <i class="swatch swatch--line"></i> Tus marcas
+                </span>
+                <span class="chart-legend__item">
+                  <i class="swatch swatch--target"></i> Meta {{ formatVal(goal.targetValue, goal) }}
+                </span>
+              </div>
+            </div>
+
+            <ul class="marks-timeline">
+              @for (mark of myMarksSorted(); track mark.id) {
+                <li class="mark-row">
+                  <div class="mark-row__date">{{ formatMarkDate(mark.recordedAt) }}</div>
+                  <div class="mark-row__value">{{ formatVal(mark.value, goal) }}</div>
+                  @if (mark.note) {
+                    <div class="mark-row__note">{{ mark.note }}</div>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <!-- Amigos -->
+        <div class="detail-section">
+          <div class="detail-section__head">
+            <h3>Progreso de amigos</h3>
+            <button type="button" class="ghost-btn" disabled title="Próximamente (requiere backend)">
+              <mat-icon>person_add</mat-icon>
+              Compartir
+            </button>
+          </div>
+
+          @if (friends().length === 0) {
+            <p class="detail-hint">Este objetivo aún no está compartido con amigos.</p>
+          } @else {
+            <ul class="friends-board">
+              @for (fp of friends(); track fp.participant.userId; let i = $index) {
+                <li class="friend-row" [class.friend-row--achieved]="fp.achieved">
+                  <span class="friend-row__rank">{{ i + 1 }}</span>
+                  <img
+                    class="friend-row__avatar"
+                    [src]="fp.participant.avatarUrl"
+                    [alt]="fp.participant.username"
+                  />
+                  <div class="friend-row__info">
+                    <span class="friend-row__name">{{ fp.participant.username }}</span>
+                    <div class="friend-row__bar" role="progressbar"
+                      [attr.aria-valuenow]="Math.round(fp.progressPercent)"
+                      aria-valuemin="0"
+                      aria-valuemax="100">
+                      <span
+                        class="friend-row__bar-fill"
+                        [style.width]="progressBarWidth(fp.progressPercent)"
+                      ></span>
+                    </div>
+                  </div>
+                  <div class="friend-row__stats">
+                    <span class="friend-row__best">{{ formatVal(fp.bestValue, goal) }}</span>
+                    <span class="friend-row__pct">{{ Math.round(fp.progressPercent) }}%</span>
+                    <span class="friend-row__marks">{{ fp.marksCount }} marcas</span>
+                  </div>
+                  @if (fp.achieved) {
+                    <mat-icon class="friend-row__trophy" aria-label="Objetivo logrado">emoji_events</mat-icon>
+                  } @else {
+                    <span class="friend-row__trophy-spacer" aria-hidden="true"></span>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      } @else {
+        <div class="objetivos-empty objetivos-empty--detail">
+          <mat-icon>flag</mat-icon>
+          <p>Selecciona un objetivo para ver el seguimiento</p>
+        </div>
+      }
+    </section>
+  </div>
+</div>

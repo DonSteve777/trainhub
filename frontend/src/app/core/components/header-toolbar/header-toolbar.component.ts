@@ -68,6 +68,11 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
     return this.router.url === '/create-box-post';
   });
 
+  readonly isOnObjetivos = computed(() => {
+    this.navigationEnd();
+    return this.router.url === '/objetivos' || this.router.url.startsWith('/objetivos?');
+  });
+
   readonly isBoxAdmin = signal(false);
 
   unreadCount = signal(0);
@@ -208,6 +213,10 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
 
   goToCreateBoxPost(): void {
     this.router.navigate(['/create-box-post']);
+  }
+
+  goToObjetivos(): void {
+    this.router.navigate(['/objetivos']);
   }
 
   logout(): void {

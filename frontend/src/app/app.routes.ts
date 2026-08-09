@@ -11,12 +11,14 @@ import { CreateBoxPostComponent } from './features/create-box-post/create-box-po
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
 import { UserPostsFeedComponent } from './features/user-posts-feed/user-posts-feed.component';
+import { ObjetivosComponent } from './features/objetivos/objetivos.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'feed', component: FeedComponent, canActivate: [authGuard] },
   { path: 'create-post', component: CreatePostComponent, canActivate: [authGuard] },
   { path: 'create-box-post', component: CreateBoxPostComponent, canActivate: [authGuard] },
+  { path: 'objetivos', component: ObjetivosComponent, canActivate: [authGuard] },
   { path: 'confirm-email/:token', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
