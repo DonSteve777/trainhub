@@ -1,0 +1,167 @@
+// TrainHub - Esquema actual (bdd/schema.sql)
+// https://dbdiagram.io/d/69305deed6676488ba746f1d
+Enum account_status {
+    PENDING_CONFIRMATION
+    ACTIVE
+    BLOCKED
+  }
+  Enum gender {
+    MALE
+    FEMALE
+  }
+  Enum user_role {
+    USER
+    BOX_ADMIN
+  }
+  Enum post_type {
+    CHECKIN
+    BOX_WOD
+    BOX_CHALLENGE
+    BOX_ANNOUNCEMENT
+  }
+  Enum friendship_status {
+    PENDING
+    FRIEND
+  }
+  Table cities {
+    id int [pk, increment]
+    name varchar(100) [not null, unique]
+    Note: 'Ciudades disponibles'
+  }
+  Table boxes {
+    id int [pk, increment]
+    name varchar(150) [not null]
+    city_id int [not null, ref: > cities.id]
+    address varchar(255)
+  }
+  Table users {
+    id int [pk, increment]
+    email varchar(255) [not null, unique]
+    username varchar(50) [not null, unique]
+    password_hash varchar(255) [not null]
+    photo_url varchar(255)
+    account_status account_status [not null]
+    email_verified boolean [default: false]
+    email_confirmation_token varchar(255)
+    password_reset_token varchar(255)
+    password_reset_expires_at timestamptz
+    notifications_last_seen_at timestamp
+    gender gender
+    role user_role [not null, default: 'USER']
+    box_id int [ref: > boxes.id]
+  }
+  Table posts {
+    id int [pk, increment]
+    user_id int [not null, ref: > users.id]
+    post_type post_type [not null]
+    box_id int [ref: > boxes.id]
+    title varchar(150)
+    training_tag varchar(20)
+    challenge_deadline timestamptz
+    description text
+    creation_date timestamp [not null, default: `now()`]
+    wod_post_id int [ref: > posts.id]
+    indexes {
+      wod_post_id [name: 'idx_posts_wod_post_id']
+      (user_id, wod_post_id) [unique, name: 'uq_posts_user_wod_checkin', note: 'Partial: WHERE wod_post_id IS NOT NULL']
+    }
+  }
+  Table post_participants {
+    post_id int [not null, ref: > posts.id]
+    user_id int [not null, ref: > users.id]
+    joined_at timestamp [not null, default: `now()`]
+    indexes {
+      (post_id, user_id) [pk]
+    }
+  }
+  Table friendships {
+    user_a_id int [not null, ref: > users.id]
+    user_b_id int [not null, ref: > users.id]
+    status friendship_status [not null]
+    requester_id int [not null, ref: > users.id]
+    created_at timestamp [not null, default: `now()`]
+    accepted_at timestamp
+    indexes {
+      (user_a_id, user_b_id) [pk]
+    }
+    Note: 'Una sola fila por pareja; CHECK user_a_id < user_b_id'
+  }
+  Table post_likes {
+    post_id int [not null, ref: > posts.id]
+    user_id int [not null, ref: > users.id]
+    created_at timestamp [not null, default: `now()`]
+    indexes {
+      (post_id, user_id) [pk]
+    }
+  }
+  Table comments {
+    id int [pk, increment]
+    post_id int [not null, ref: > posts.id]
+    user_id int [not null, ref: > users.id]
+    content text [not null]
+    creation_date timestamp [not null, default: `now()`]
+  }
+  Table comment_likes {
+    comment_id int [not null, ref: > comments.id]
+    user_id int [not null, ref: > users.id]
+    created_at timestamp [not null, default: `now()`]
+    indexes {
+      (comment_id, user_id) [pk]
+    }
+  }
+
+  // --- Objetivos (spec 17-objetivos) ---
+  Enum goal_unit {
+    TIME
+    KG
+    REPS
+    METERS
+  }
+  Enum goal_direction {
+    LOWER
+    HIGHER
+  }
+  Enum goal_status {
+    ACTIVE
+    ACHIEVED
+    EXPIRED
+  }
+  Table goals {
+    id int [pk, increment]
+    title varchar(150) [not null]
+    description text
+    metric_label varchar(100) [not null]
+    target_value decimal [not null, note: 'Misma unidad que unit; TIME en segundos']
+    unit goal_unit [not null]
+    direction goal_direction [not null]
+    weeks int [not null, note: 'Plazo en semanas; deadline/ends_at se derivan de aquí']
+    deadline timestamptz [not null]
+    status goal_status [not null, default: 'ACTIVE']
+    created_by_user_id int [not null, ref: > users.id]
+    created_at timestamp [not null, default: `now()`]
+    Note: 'Objetivo compartible entre amigos (pique). Unidad y dirección viven aquí, no en cada marca.'
+  }
+  Table goal_participants {
+    goal_id int [not null, ref: > goals.id]
+    user_id int [not null, ref: > users.id]
+    is_owner boolean [not null, default: false]
+    started_at timestamptz [not null]
+    ends_at timestamptz [not null]
+    indexes {
+      (goal_id, user_id) [pk]
+    }
+    Note: 'Usuario apuntado al objetivo; started_at/ends_at por participante'
+  }
+  Table goal_marks {
+    id int [pk, increment]
+    goal_id int [not null, ref: > goals.id]
+    user_id int [not null, ref: > users.id]
+    value decimal [not null, note: 'Numérico; TIME en segundos']
+    note varchar(280)
+    recorded_at timestamptz [not null, default: `now()`]
+    indexes {
+      goal_id [name: 'idx_goal_marks_goal_id']
+      (goal_id, user_id) [name: 'idx_goal_marks_goal_user']
+    }
+    Note: 'Marca/registro de seguimiento; comparable entre participantes del mismo goal'
+  }
