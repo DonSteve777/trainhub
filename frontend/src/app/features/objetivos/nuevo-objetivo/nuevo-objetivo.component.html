@@ -1,0 +1,145 @@
+<div class="create-post-page">
+  <div class="create-post-content">
+    <h1 class="th-title-gradient">Nuevo objetivo</h1>
+
+    <form class="create-post-form" (ngSubmit)="submit()">
+      <section class="checkin-entry-panel" aria-label="Crear objetivo">
+        <div>
+          <span class="checkin-kicker">Meta medible</span>
+          <h2>Define tu objetivo</h2>
+          <p>
+            Elige la unidad, la meta y el plazo. La dirección (mayor o menor es mejor) se deriva de
+            la unidad; la fecha límite se calcula desde hoy.
+          </p>
+        </div>
+
+        <div class="checkin-fields">
+          <div class="form-field checkin-field">
+            <label class="th-label" for="goalTitle">Título</label>
+            <input
+              id="goalTitle"
+              class="th-input"
+              type="text"
+              maxlength="80"
+              placeholder="Sub 90 en Hyrox Open"
+              [ngModel]="title()"
+              (ngModelChange)="title.set($event)"
+              name="title"
+              autocomplete="off"
+              required
+            />
+          </div>
+
+          <div class="form-field checkin-field">
+            <label class="th-label" for="goalDescription">
+              Descripción <span class="optional-hint">(opcional)</span>
+            </label>
+            <textarea
+              id="goalDescription"
+              class="th-input checkin-description"
+              rows="4"
+              maxlength="280"
+              placeholder="Qué quieres lograr y por qué…"
+              [ngModel]="description()"
+              (ngModelChange)="description.set($event)"
+              name="description"
+            ></textarea>
+          </div>
+
+          <div class="form-field checkin-field">
+            <span class="th-label" id="goalUnitLabel">Unidad</span>
+            <div
+              class="unit-options"
+              role="radiogroup"
+              aria-labelledby="goalUnitLabel"
+            >
+              @for (opt of unitOptions; track opt.value) {
+                <button
+                  type="button"
+                  class="unit-option"
+                  role="radio"
+                  [attr.aria-checked]="unit() === opt.value"
+                  [class.is-active]="unit() === opt.value"
+                  (click)="onUnitChange(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+            <span class="optional-hint">{{ selectedUnit().directionHint }}</span>
+          </div>
+
+          <div class="form-field checkin-field">
+            <label class="th-label" for="metricLabel">Etiqueta de la métrica</label>
+            <input
+              id="metricLabel"
+              class="th-input"
+              type="text"
+              maxlength="60"
+              placeholder="Tiempo total"
+              [ngModel]="metricLabel()"
+              (ngModelChange)="onMetricLabelChange($event)"
+              name="metricLabel"
+              autocomplete="off"
+              required
+            />
+          </div>
+
+          <div class="form-field checkin-field">
+            <label class="th-label" for="targetValue">Meta</label>
+            <input
+              id="targetValue"
+              class="th-input"
+              type="text"
+              inputmode="decimal"
+              [placeholder]="valuePlaceholder()"
+              [ngModel]="targetInput()"
+              (ngModelChange)="targetInput.set($event)"
+              name="target"
+              autocomplete="off"
+              required
+            />
+            <span class="optional-hint">{{ valueHint() }}</span>
+          </div>
+
+          <div class="form-field checkin-field">
+            <label class="th-label" for="goalWeeks">Plazo (semanas)</label>
+            <input
+              id="goalWeeks"
+              class="th-input"
+              type="number"
+              min="1"
+              max="104"
+              step="1"
+              [ngModel]="weeks()"
+              (ngModelChange)="weeks.set(+$event || 1)"
+              name="weeks"
+              required
+            />
+            <span class="optional-hint">La fecha límite se calcula desde hoy</span>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="th-btn-primary create-post-submit"
+          [disabled]="!canSubmit()"
+        >
+          @if (submitting()) {
+            Creando…
+          } @else {
+            Crear objetivo
+          }
+        </button>
+      </section>
+
+      <a routerLink="/objetivos" class="th-link-info create-post-back">Volver a objetivos</a>
+
+      @if (errorMessage(); as err) {
+        <div class="backend-message-wrapper">
+          <p class="backend-message" role="alert">{{ err }}</p>
+        </div>
+      }
+    </form>
+  </div>
+</div>

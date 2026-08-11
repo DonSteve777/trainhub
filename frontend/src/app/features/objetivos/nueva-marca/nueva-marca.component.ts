@@ -1,21 +1,20 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Goal, GoalUnit } from '../objetivos.mock';
 import { ObjetivosService } from '../objetivos.service';
 import { formatValue, parseSeconds } from '../objetivos.utils';
 
 @Component({
-  selector: 'app-quick-mark-dialog',
+  selector: 'app-nueva-marca',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule, MatSnackBarModule, FormsModule],
-  templateUrl: './quick-mark-dialog.component.html',
-  styleUrl: './quick-mark-dialog.component.scss',
+  imports: [MatSnackBarModule, FormsModule, RouterLink],
+  templateUrl: './nueva-marca.component.html',
+  styleUrl: './nueva-marca.component.scss',
 })
-export class QuickMarkDialogComponent {
-  private readonly dialogRef = inject(MatDialogRef<QuickMarkDialogComponent>);
+export class NuevaMarcaComponent {
+  private readonly router = inject(Router);
   private readonly objetivosService = inject(ObjetivosService);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -58,10 +57,6 @@ export class QuickMarkDialogComponent {
     this.selectGoal(id);
   }
 
-  close(): void {
-    this.dialogRef.close();
-  }
-
   submit(): void {
     const goal = this.selectedGoal();
     if (!goal || this.submitting()) return;
@@ -93,7 +88,7 @@ export class QuickMarkDialogComponent {
       'Cerrar',
       { duration: 3500 },
     );
-    this.dialogRef.close({ goalId: goal.id, mark });
+    void this.router.navigate(['/objetivos']);
   }
 
   private parseValue(raw: string, unit: GoalUnit): number | null {

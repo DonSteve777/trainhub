@@ -12,6 +12,8 @@ import { ForgotPasswordComponent } from './features/forgot-password/forgot-passw
 import { ResetPasswordComponent } from './features/reset-password/reset-password.component';
 import { UserPostsFeedComponent } from './features/user-posts-feed/user-posts-feed.component';
 import { ObjetivosComponent } from './features/objetivos/objetivos.component';
+import { NuevaMarcaComponent } from './features/objetivos/nueva-marca/nueva-marca.component';
+import { NuevoObjetivoComponent } from './features/objetivos/nuevo-objetivo/nuevo-objetivo.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,6 +21,8 @@ export const routes: Routes = [
   { path: 'create-post', component: CreatePostComponent, canActivate: [authGuard] },
   { path: 'create-box-post', component: CreateBoxPostComponent, canActivate: [authGuard] },
   { path: 'objetivos', component: ObjetivosComponent, canActivate: [authGuard] },
+  { path: 'nuevo-objetivo', component: NuevoObjetivoComponent, canActivate: [authGuard] },
+  { path: 'nueva-marca', component: NuevaMarcaComponent, canActivate: [authGuard] },
   { path: 'confirm-email/:token', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },

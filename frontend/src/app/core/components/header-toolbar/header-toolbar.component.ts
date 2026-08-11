@@ -26,7 +26,6 @@ import { NotificationService } from '../../services/notification.service';
 import { UserService, UserSearchResultDto } from '../../services/user.service';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
 import { ProfileMenuDialogComponent } from '../profile-menu-dialog/profile-menu-dialog.component';
-import { QuickMarkDialogComponent } from '../../../features/objetivos/quick-mark-dialog/quick-mark-dialog.component';
 
 @Component({
   selector: 'app-header-toolbar',
@@ -72,6 +71,11 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
   readonly isOnObjetivos = computed(() => {
     this.navigationEnd();
     return this.router.url === '/objetivos' || this.router.url.startsWith('/objetivos?');
+  });
+
+  readonly isOnNuevaMarca = computed(() => {
+    this.navigationEnd();
+    return this.router.url === '/nueva-marca' || this.router.url.startsWith('/nueva-marca?');
   });
 
   readonly isBoxAdmin = signal(false);
@@ -220,13 +224,8 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/objetivos']);
   }
 
-  openQuickMark(): void {
-    this.dialog.open(QuickMarkDialogComponent, {
-      width: '440px',
-      maxHeight: '90vh',
-      panelClass: 'trainhub-dialog',
-      autoFocus: 'first-tabbable',
-    });
+  goToNuevaMarca(): void {
+    this.router.navigate(['/nueva-marca']);
   }
 
   logout(): void {

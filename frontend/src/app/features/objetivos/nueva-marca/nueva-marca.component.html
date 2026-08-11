@@ -1,0 +1,104 @@
+<div class="create-post-page">
+  <div class="create-post-content">
+    <h1 class="th-title-gradient">Nueva marca</h1>
+
+    @if (goals().length === 0) {
+      <div class="create-post-form">
+        <section class="checkin-entry-panel" aria-label="Sin objetivos activos">
+          <div>
+            <span class="checkin-kicker">Registro</span>
+            <h2>No hay objetivos activos</h2>
+            <p>No tienes objetivos activos para anotar una marca. Crea o apunta a uno para empezar.</p>
+          </div>
+          <a routerLink="/objetivos" class="th-link-info create-post-back">Ir a objetivos</a>
+        </section>
+      </div>
+    } @else {
+      <form class="create-post-form" (ngSubmit)="submit()">
+        <section class="checkin-entry-panel" aria-label="Registro de marca">
+          <div>
+            <span class="checkin-kicker">Registro rápido</span>
+            <h2>Anota un resultado</h2>
+            <p>Elige el objetivo activo y registra tu marca. El comentario es opcional.</p>
+          </div>
+
+          <div class="checkin-fields">
+            <div class="form-field checkin-field">
+              <label class="th-label" for="goalId">Objetivo</label>
+              <select
+                id="goalId"
+                class="th-input th-select"
+                [ngModel]="selectedGoalId()"
+                (ngModelChange)="onGoalChange($event)"
+                name="goalId"
+                required
+              >
+                @for (goal of goals(); track goal.id) {
+                  <option [ngValue]="goal.id">{{ goal.title }}</option>
+                }
+              </select>
+              @if (selectedGoal(); as goal) {
+                <span class="optional-hint">
+                  {{ goal.metricLabel }} · meta {{ formatGoalValue(goal) }}
+                </span>
+              }
+            </div>
+
+            <div class="form-field checkin-field">
+              <label class="th-label" for="markValue">Marca</label>
+              <input
+                id="markValue"
+                class="th-input"
+                type="text"
+                inputmode="decimal"
+                [placeholder]="valuePlaceholder()"
+                [ngModel]="valueInput()"
+                (ngModelChange)="valueInput.set($event)"
+                name="value"
+                autocomplete="off"
+                required
+              />
+              <span class="optional-hint">{{ valueHint() }}</span>
+            </div>
+
+            <div class="form-field checkin-field">
+              <label class="th-label" for="markNote">
+                Comentario <span class="optional-hint">(opcional)</span>
+              </label>
+              <textarea
+                id="markNote"
+                class="th-input checkin-description"
+                rows="4"
+                maxlength="280"
+                placeholder="Simulación en el box, sensaciones…"
+                [ngModel]="note()"
+                (ngModelChange)="note.set($event)"
+                name="note"
+              ></textarea>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="th-btn-primary create-post-submit"
+            [disabled]="submitting() || !valueInput().trim()"
+          >
+            @if (submitting()) {
+              Registrando…
+            } @else {
+              Registrar marca
+            }
+          </button>
+        </section>
+
+        <a routerLink="/objetivos" class="th-link-info create-post-back">Volver a objetivos</a>
+
+        @if (errorMessage(); as err) {
+          <div class="backend-message-wrapper">
+            <p class="backend-message" role="alert">{{ err }}</p>
+          </div>
+        }
+      </form>
+    }
+  </div>
+</div>

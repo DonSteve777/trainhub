@@ -21,7 +21,8 @@
       color="tertiary"
       aria-label="Registrar marca de objetivo"
       title="Nueva marca"
-      (click)="openQuickMark()"
+      (click)="goToNuevaMarca()"
+      [disabled]="isOnNuevaMarca()"
     >
       <mat-icon>trending_up</mat-icon>
     </button>
