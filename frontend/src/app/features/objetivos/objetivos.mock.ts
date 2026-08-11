@@ -60,7 +60,7 @@ export const MOCK_GOALS: Goal[] = [
           { id: 101, userId: 1, value: 6120, recordedAt: '2026-06-05T18:00:00Z', note: 'Simulación box' },
           { id: 102, userId: 1, value: 5880, recordedAt: '2026-06-20T18:00:00Z', note: 'Mejora en wall balls' },
           { id: 103, userId: 1, value: 5640, recordedAt: '2026-07-12T18:00:00Z', note: 'PR parcial' },
-          { id: 104, userId: 1, value: 5520, recordedAt: '2026-08-01T18:00:00Z' },
+          { id: 104, userId: 1, value: 5520, recordedAt: '2026-08-01T18:00:00Z', note: 'Buena simulación' },
         ],
       },
       {

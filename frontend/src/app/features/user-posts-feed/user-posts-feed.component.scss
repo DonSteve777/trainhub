@@ -227,6 +227,10 @@
   &[data-type='BOX_CHALLENGE'] {
     background: var(--trainhub-accent);
   }
+
+  &[data-type='GOAL_MARK'] {
+    background: color-mix(in srgb, var(--trainhub-accent) 88%, black 12%);
+  }
 }
 
 .post-card__main {

@@ -160,7 +160,6 @@
 
   &__top {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
   }
@@ -181,37 +180,11 @@
     }
   }
 
-  &__deadline {
-    font-size: 0.72rem;
-    color: var(--mat-sys-on-surface-variant);
-  }
-
   &__title {
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--mat-sys-on-surface);
     line-height: 1.25;
-  }
-
-  &__meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--mat-sys-on-surface-variant);
-  }
-
-  &__friends {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.15rem;
-
-    mat-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
-    }
   }
 }
 
@@ -327,55 +300,6 @@
   }
 }
 
-.ring {
-  position: relative;
-  width: 88px;
-  height: 88px;
-  flex-shrink: 0;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  &__bg {
-    fill: none;
-    stroke: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent);
-    stroke-width: 3.2;
-  }
-
-  &__fg {
-    fill: none;
-    stroke: var(--trainhub-accent);
-    stroke-width: 3.2;
-    stroke-linecap: round;
-    transition: stroke-dasharray 0.35s ease;
-  }
-
-  &__label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-
-    strong {
-      font-size: 1rem;
-      font-weight: 750;
-      color: var(--mat-sys-on-surface);
-      line-height: 1;
-    }
-
-    span {
-      font-size: 0.65rem;
-      color: var(--mat-sys-on-surface-variant);
-    }
-  }
-}
-
 .detail-section {
   display: flex;
   flex-direction: column;
@@ -428,78 +352,6 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
-.chart-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  padding: 0.75rem;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--trainhub-accent) 16%, transparent);
-  background: color-mix(in srgb, var(--mat-sys-surface-container) 55%, transparent);
-}
-
-.chart {
-  width: 100%;
-  height: 160px;
-  overflow: visible;
-
-  &__line {
-    stroke: var(--trainhub-info);
-    stroke-width: 1.6;
-    stroke-linejoin: round;
-    stroke-linecap: round;
-    vector-effect: non-scaling-stroke;
-  }
-
-  &__dot {
-    fill: var(--trainhub-accent);
-    stroke: var(--trainhub-surface-dark);
-    stroke-width: 0.6;
-    vector-effect: non-scaling-stroke;
-  }
-
-  &__target {
-    stroke: color-mix(in srgb, #81c784 80%, white 20%);
-    stroke-width: 1;
-    stroke-dasharray: 2 2;
-    vector-effect: non-scaling-stroke;
-  }
-}
-
-.chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.1rem;
-  font-size: 0.75rem;
-  color: var(--mat-sys-on-surface-variant);
-
-  &__item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-}
-
-.swatch {
-  display: inline-block;
-  width: 14px;
-  height: 3px;
-  border-radius: 2px;
-
-  &--line {
-    background: var(--trainhub-info);
-  }
-
-  &--target {
-    background: #81c784;
-    background-image: repeating-linear-gradient(
-      90deg,
-      #81c784 0 4px,
-      transparent 4px 7px
-    );
-  }
-}
-
 .marks-timeline {
   list-style: none;
   margin: 0;
@@ -511,8 +363,9 @@
 
 .mark-row {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 0.25rem 0.85rem;
+  grid-template-columns: 110px minmax(72px, 100px) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.35rem 0.85rem;
   padding: 0.55rem 0.7rem;
   border-radius: 8px;
   background: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent);
@@ -529,9 +382,17 @@
   }
 
   &__note {
-    grid-column: 2;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     color: var(--mat-sys-on-surface-variant);
+    line-height: 1.35;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--empty {
+      opacity: 0.45;
+    }
   }
 }
 
@@ -715,6 +576,6 @@
   }
 
   .mark-row {
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 90px minmax(64px, 88px) minmax(0, 1fr);
   }
 }

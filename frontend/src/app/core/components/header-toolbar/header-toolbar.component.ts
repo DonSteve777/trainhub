@@ -26,6 +26,7 @@ import { NotificationService } from '../../services/notification.service';
 import { UserService, UserSearchResultDto } from '../../services/user.service';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
 import { ProfileMenuDialogComponent } from '../profile-menu-dialog/profile-menu-dialog.component';
+import { QuickMarkDialogComponent } from '../../../features/objetivos/quick-mark-dialog/quick-mark-dialog.component';
 
 @Component({
   selector: 'app-header-toolbar',
@@ -217,6 +218,15 @@ export class HeaderToolbarComponent implements OnInit, OnDestroy {
 
   goToObjetivos(): void {
     this.router.navigate(['/objetivos']);
+  }
+
+  openQuickMark(): void {
+    this.dialog.open(QuickMarkDialogComponent, {
+      width: '440px',
+      maxHeight: '90vh',
+      panelClass: 'trainhub-dialog',
+      autoFocus: 'first-tabbable',
+    });
   }
 
   logout(): void {

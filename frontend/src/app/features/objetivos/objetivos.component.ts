@@ -1,18 +1,16 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Goal, MOCK_GOALS } from './objetivos.mock';
+import { Goal } from './objetivos.mock';
+import { ObjetivosService } from './objetivos.service';
 import {
   ParticipantProgress,
-  chartPoints,
   deadlineLabel,
   formatDate,
   formatValue,
   friendsProgress,
-  latestMark,
   meParticipant,
   participantProgress,
-  targetChartY,
 } from './objetivos.utils';
 
 type GoalFilter = 'ACTIVE' | 'ACHIEVED' | 'ALL';
@@ -25,12 +23,16 @@ type GoalFilter = 'ACTIVE' | 'ACHIEVED' | 'ALL';
   styleUrl: './objetivos.component.scss',
 })
 export class ObjetivosComponent {
+  private readonly objetivosService = inject(ObjetivosService);
+
   /** Expuesto para redondeos en la plantilla. */
   readonly Math = Math;
 
-  readonly goals = signal<Goal[]>(MOCK_GOALS);
+  readonly goals = this.objetivosService.goals;
   readonly filter = signal<GoalFilter>('ACTIVE');
-  readonly selectedId = signal<number | null>(MOCK_GOALS.find(g => g.status === 'ACTIVE')?.id ?? MOCK_GOALS[0]?.id ?? null);
+  readonly selectedId = signal<number | null>(
+    this.goals().find(g => g.status === 'ACTIVE')?.id ?? this.goals()[0]?.id ?? null,
+  );
 
   readonly filteredGoals = computed(() => {
     const f = this.filter();
@@ -65,26 +67,6 @@ export class ObjetivosComponent {
     return [...me.marks].sort(
       (a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime()
     );
-  });
-
-  readonly chartPts = computed(() => {
-    const goal = this.selectedGoal();
-    const me = goal ? meParticipant(goal) : undefined;
-    if (!goal || !me) return [];
-    return chartPoints(me.marks, goal.targetValue, goal.direction);
-  });
-
-  readonly chartPolyline = computed(() =>
-    this.chartPts()
-      .map(p => `${p.x},${p.y}`)
-      .join(' ')
-  );
-
-  readonly targetY = computed(() => {
-    const goal = this.selectedGoal();
-    const me = goal ? meParticipant(goal) : undefined;
-    if (!goal || !me) return null;
-    return targetChartY(me.marks, goal.targetValue, goal.direction);
   });
 
   selectGoal(id: number): void {
@@ -124,14 +106,6 @@ export class ObjetivosComponent {
 
   formatMarkDate(iso: string): string {
     return formatDate(iso);
-  }
-
-  myLatestLabel(goal: Goal): string {
-    const me = meParticipant(goal);
-    if (!me) return 'Sin marcas';
-    const latest = latestMark(me.marks);
-    if (!latest) return 'Sin marcas';
-    return formatValue(latest.value, goal.unit);
   }
 
   progressBarWidth(pct: number): string {

@@ -5,22 +5,6 @@
     </div>
     <button
       type="button"
-      class="nav-button"
-      mat-icon-button
-      [class.nav-button--active]="isOnObjetivos()"
-      aria-label="Objetivos"
-      title="Objetivos"
-      (click)="goToObjetivos()"
-    >
-      <mat-icon>flag</mat-icon>
-    </button>
-  </div>
-}
-
-@if (panel === 'right') {
-  <div class="sidebar-panel sidebar-panel--right">
-    <button
-      type="button"
       class="create-button"
       mat-raised-button
       color="tertiary"
@@ -30,6 +14,22 @@
     >
       <mat-icon>add</mat-icon>
     </button>
+    <button
+      type="button"
+      class="quick-mark-button"
+      mat-raised-button
+      color="tertiary"
+      aria-label="Registrar marca de objetivo"
+      title="Nueva marca"
+      (click)="openQuickMark()"
+    >
+      <mat-icon>trending_up</mat-icon>
+    </button>
+  </div>
+}
+
+@if (panel === 'right') {
+  <div class="sidebar-panel sidebar-panel--right">
     @if (isBoxAdmin()) {
       <button
         type="button"
@@ -43,6 +43,17 @@
         <mat-icon>campaign</mat-icon>
       </button>
     }
+    <button
+      type="button"
+      class="nav-button"
+      mat-icon-button
+      [class.nav-button--active]="isOnObjetivos()"
+      aria-label="Objetivos"
+      title="Objetivos"
+      (click)="goToObjetivos()"
+    >
+      <mat-icon>flag</mat-icon>
+    </button>
     <button
       type="button"
       class="search-button"

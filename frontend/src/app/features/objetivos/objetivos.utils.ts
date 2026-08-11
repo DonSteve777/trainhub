@@ -99,6 +99,34 @@ export function formatSeconds(totalSeconds: number): string {
   return `${m}:${pad(sec)}`;
 }
 
+/** Acepta `h:mm:ss`, `m:ss` o segundos sueltos. */
+export function parseSeconds(raw: string): number | null {
+  const text = raw.trim();
+  if (!text) return null;
+
+  if (/^\d+([.,]\d+)?$/.test(text)) {
+    const n = Number(text.replace(',', '.'));
+    return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
+  }
+
+  const parts = text.split(':').map(p => p.trim());
+  if (parts.length < 2 || parts.length > 3) return null;
+  if (parts.some(p => !/^\d+$/.test(p))) return null;
+
+  const nums = parts.map(Number);
+  let h = 0;
+  let m = 0;
+  let s = 0;
+  if (nums.length === 3) {
+    [h, m, s] = nums;
+  } else {
+    [m, s] = nums;
+  }
+
+  if (m > 59 || s > 59) return null;
+  return h * 3600 + m * 60 + s;
+}
+
 function pad(n: number): string {
   return n.toString().padStart(2, '0');
 }

@@ -68,6 +68,78 @@
       </span>
     }
   </div>
+} @else if (isGoalMark() && goalMark(); as mark) {
+  <div class="post-body" role="status">
+    <p class="post-body__lead">
+      <mat-icon aria-hidden="true">trending_up</mat-icon>
+      <span>{{ goalMarkLead() }}</span>
+    </p>
+    @if (hasDescription()) {
+      <p class="post-body__description">{{ post().description }}</p>
+    }
+
+    <div class="goal-mark-card">
+      <div class="goal-mark-card__status-row">
+        <span class="goal-mark-card__status-label">Estado del objetivo</span>
+        <span class="goal-mark-card__status-chip" [attr.data-status]="mark.goalStatus">{{
+          goalStatusText()
+        }}</span>
+      </div>
+
+      <div
+        class="goal-mark-card__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="goalProgressPct()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-label]="goalProgressPct() + '% hacia la meta'"
+      >
+        <span class="goal-mark-card__bar-fill" [style.width]="goalProgressWidth()"></span>
+      </div>
+      <p class="goal-mark-card__bar-caption">
+        <strong>{{ goalProgressPct() }}%</strong> hacia la meta
+      </p>
+
+      <div class="goal-mark-card__meta">
+        <span class="goal-mark-card__meta-item">
+          <mat-icon aria-hidden="true">flag</mat-icon>
+          Meta {{ goalTargetText() }}
+        </span>
+        <span class="goal-mark-card__meta-item">
+          <mat-icon aria-hidden="true">event</mat-icon>
+          Deadline {{ goalDeadlineText() }}
+        </span>
+      </div>
+
+      <div class="goal-mark-card__pr">
+        <span class="goal-mark-card__pr-value">{{ goalMarkValueText() }}</span>
+        @if (goalDeltaText(); as delta) {
+          <span
+            class="goal-mark-card__pr-delta"
+            [class.goal-mark-card__pr-delta--up]="goalDeltaImproved()"
+          >{{ delta }}</span>
+        }
+      </div>
+
+      @if (mark.friendsCount > 0) {
+        <div class="goal-mark-card__friends">
+          @if (goalFriendAvatars().length > 0) {
+            <div class="goal-mark-card__avatars" aria-hidden="true">
+              @for (friend of goalFriendAvatars(); track friend.userId) {
+                <img
+                  class="goal-mark-card__avatar"
+                  [src]="friendAvatarUrl(friend)"
+                  [alt]="friend.username"
+                  [title]="friend.username"
+                />
+              }
+            </div>
+          }
+          <span class="goal-mark-card__friends-label">{{ goalFriendsLabel() }}</span>
+        </div>
+      }
+    </div>
+  </div>
 } @else {
   <div class="post-body" role="status">
     @if (hasDescription()) {

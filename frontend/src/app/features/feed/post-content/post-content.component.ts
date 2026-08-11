@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   FeedPostType,
   FeedTrainingTag,
+  GoalFriendPreviewDto,
+  GoalMarkFeedDto,
   WodCheckinAuthorDto,
 } from '../../../core/services/feed.service';
 import { ConstancyBlockComponent } from '../../../core/components/constancy-block/constancy-block.component';
@@ -11,6 +13,15 @@ import {
   WodCheckinsDialogComponent,
   WodCheckinsDialogData,
 } from '../../../core/components/wod-checkins-dialog/wod-checkins-dialog.component';
+import {
+  formatGoalDeadline,
+  formatGoalValue,
+  friendsInGoalLabel,
+  goalStatusLabel,
+  isPrImproved,
+  previousPrDeltaLabel,
+  progressBarWidth,
+} from '../goal-mark.format';
 
 export interface PostContentPost {
   id: number;
@@ -25,6 +36,7 @@ export interface PostContentPost {
   wodTitle: string | null;
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
+  goalMark: GoalMarkFeedDto | null;
 }
 
 const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
@@ -52,6 +64,7 @@ export class PostContentComponent {
   isBoxWod = computed(() => this.post().postType === 'BOX_WOD');
   isBoxAnnouncement = computed(() => this.post().postType === 'BOX_ANNOUNCEMENT');
   isBoxChallenge = computed(() => this.post().postType === 'BOX_CHALLENGE');
+  isGoalMark = computed(() => this.post().postType === 'GOAL_MARK');
 
   checkinText = computed(() => {
     const tag = this.post().trainingTag;
@@ -85,8 +98,58 @@ export class PostContentComponent {
 
   weekDayTags = computed(() => this.post().weekDayTags);
 
+  goalMark = computed(() => this.post().goalMark);
+
+  goalMarkLead = computed(() => {
+    const mark = this.goalMark();
+    const title = mark?.goalTitle?.trim() || this.post().title?.trim() || 'Objetivo';
+    return `Nueva marca · ${title}`;
+  });
+
+  goalStatusText = computed(() => {
+    const mark = this.goalMark();
+    return mark ? goalStatusLabel(mark.goalStatus) : '';
+  });
+
+  goalProgressPct = computed(() => Math.round(this.goalMark()?.progressPercent ?? 0));
+
+  goalProgressWidth = computed(() => progressBarWidth(this.goalMark()?.progressPercent ?? 0));
+
+  goalTargetText = computed(() => {
+    const mark = this.goalMark();
+    return mark ? formatGoalValue(mark.targetValue, mark.unit) : '';
+  });
+
+  goalDeadlineText = computed(() => {
+    const mark = this.goalMark();
+    return mark ? formatGoalDeadline(mark.deadline) : '';
+  });
+
+  goalMarkValueText = computed(() => {
+    const mark = this.goalMark();
+    return mark ? formatGoalValue(mark.markValue, mark.unit) : '';
+  });
+
+  goalDeltaText = computed(() => {
+    const mark = this.goalMark();
+    return mark ? previousPrDeltaLabel(mark) : null;
+  });
+
+  goalDeltaImproved = computed(() => {
+    const mark = this.goalMark();
+    return mark ? isPrImproved(mark) : false;
+  });
+
+  goalFriendsLabel = computed(() => friendsInGoalLabel(this.goalMark()?.friendsCount ?? 0));
+
+  goalFriendAvatars = computed(() => this.goalMark()?.friendAvatars ?? []);
+
   authorAvatarUrl(author: WodCheckinAuthorDto): string {
     return author.photoUrl ?? `https://i.pravatar.cc/48?u=${author.userId}`;
+  }
+
+  friendAvatarUrl(friend: GoalFriendPreviewDto): string {
+    return friend.photoUrl ?? `https://i.pravatar.cc/48?u=${friend.userId}`;
   }
 
   openWodCheckins(): void {

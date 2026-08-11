@@ -11,6 +11,7 @@ import {
   LikeToggleDto,
   JoinToggleDto,
   WodCheckinAuthorDto,
+  GoalMarkFeedDto,
 } from '../../core/services/feed.service';
 import {
   CommentsDialogComponent,
@@ -41,6 +42,7 @@ interface FeedPost {
   wodTitle: string | null;
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
+  goalMark: GoalMarkFeedDto | null;
 }
 
 @Component({
@@ -165,6 +167,8 @@ export class UserPostsFeedComponent implements OnInit {
         return 'Anuncio';
       case 'BOX_CHALLENGE':
         return 'Reto';
+      case 'GOAL_MARK':
+        return 'Objetivo';
       default:
         return postType;
     }
@@ -226,6 +230,7 @@ export class UserPostsFeedComponent implements OnInit {
       wodTitle: dto.wodTitle ?? null,
       wodCheckinsCount: dto.wodCheckinsCount ?? null,
       wodCheckinAuthors: dto.wodCheckinAuthors ?? null,
+      goalMark: dto.goalMark ?? null,
     };
   }
 }

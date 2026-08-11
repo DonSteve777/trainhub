@@ -66,16 +66,8 @@
               <span class="goal-item__status" [attr.data-status]="goal.status">{{
                 statusLabel(goal.status)
               }}</span>
-              <span class="goal-item__deadline">{{ deadlineText(goal) }}</span>
             </div>
             <span class="goal-item__title">{{ goal.title }}</span>
-            <div class="goal-item__meta">
-              <span>{{ goal.metricLabel }} · {{ myLatestLabel(goal) }}</span>
-              <span class="goal-item__friends">
-                <mat-icon>group</mat-icon>
-                {{ goal.participants.length }}
-              </span>
-            </div>
           </button>
         }
       }
@@ -109,23 +101,6 @@
 
           @if (myProgress(); as mine) {
             <div class="detail-hero__progress">
-              <div class="ring" [style.--pct]="mine.progressPercent">
-                <svg viewBox="0 0 36 36" aria-hidden="true">
-                  <path
-                    class="ring__bg"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    class="ring__fg"
-                    [attr.stroke-dasharray]="Math.round(mine.progressPercent) + ', 100'"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div class="ring__label">
-                  <strong>{{ Math.round(mine.progressPercent) }}%</strong>
-                  <span>progreso</span>
-                </div>
-              </div>
               <div class="detail-hero__best">
                 <span class="fact__label">Tu mejor marca</span>
                 <span class="fact__value fact__value--accent">{{
@@ -141,54 +116,23 @@
           }
         </div>
 
-        <!-- Seguimiento (chart + marcas) -->
+        <!-- Seguimiento (marcas) -->
         <div class="detail-section">
           <div class="detail-section__head">
             <h3>Tu seguimiento</h3>
-            <button type="button" class="ghost-btn" disabled title="Próximamente (requiere backend)">
-              <mat-icon>add_chart</mat-icon>
-              Anotar marca
-            </button>
           </div>
 
-          @if (chartPts().length === 0) {
+          @if (myMarksSorted().length === 0) {
             <p class="detail-hint">Aún no has registrado marcas en este objetivo.</p>
           } @else {
-            <div class="chart-wrap">
-              <svg class="chart" viewBox="0 0 100 100" preserveAspectRatio="none" role="img"
-                [attr.aria-label]="'Evolución de marcas hacia ' + formatVal(goal.targetValue, goal)">
-                @if (targetY(); as ty) {
-                  <line
-                    class="chart__target"
-                    x1="0"
-                    [attr.y1]="ty"
-                    x2="100"
-                    [attr.y2]="ty"
-                  />
-                }
-                <polyline class="chart__line" fill="none" [attr.points]="chartPolyline()" />
-                @for (pt of chartPts(); track pt.date) {
-                  <circle class="chart__dot" [attr.cx]="pt.x" [attr.cy]="pt.y" r="1.8" />
-                }
-              </svg>
-              <div class="chart-legend">
-                <span class="chart-legend__item">
-                  <i class="swatch swatch--line"></i> Tus marcas
-                </span>
-                <span class="chart-legend__item">
-                  <i class="swatch swatch--target"></i> Meta {{ formatVal(goal.targetValue, goal) }}
-                </span>
-              </div>
-            </div>
-
             <ul class="marks-timeline">
               @for (mark of myMarksSorted(); track mark.id) {
                 <li class="mark-row">
                   <div class="mark-row__date">{{ formatMarkDate(mark.recordedAt) }}</div>
                   <div class="mark-row__value">{{ formatVal(mark.value, goal) }}</div>
-                  @if (mark.note) {
-                    <div class="mark-row__note">{{ mark.note }}</div>
-                  }
+                  <div class="mark-row__note" [class.mark-row__note--empty]="!mark.note">
+                    {{ mark.note || '—' }}
+                  </div>
                 </li>
               }
             </ul>

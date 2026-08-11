@@ -19,6 +19,7 @@ import {
   LikeToggleDto,
   JoinToggleDto,
   WodCheckinAuthorDto,
+  GoalMarkFeedDto,
 } from '../../core/services/feed.service';
 import { UserService, WeeklyConstancyDto } from '../../core/services/user.service';
 import { ConstancyBlockComponent } from '../../core/components/constancy-block/constancy-block.component';
@@ -27,6 +28,7 @@ import {
   CommentsDialogResult,
 } from './comments-dialog/comments-dialog.component';
 import { PostContentComponent } from './post-content/post-content.component';
+import { MOCK_GOAL_MARK_POST } from './goal-mark.mock';
 
 interface FeedPost {
   id: number;
@@ -51,6 +53,7 @@ interface FeedPost {
   wodTitle: string | null;
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
+  goalMark: GoalMarkFeedDto | null;
 }
 
 const PAGE_SIZE = 5;
@@ -91,16 +94,21 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadMyConstancy();
     this.feedService.getFeed(PAGE_SIZE).subscribe({
       next: feed => {
+        const mapped = feed.map(dto => this.mapDto(dto));
+        // Demo UI sin backend de objetivos: inserta un post GOAL_MARK al inicio.
+        this.posts.set([this.mapDto(MOCK_GOAL_MARK_POST), ...mapped]);
         if (feed.length === 0) {
           this.hasMore.set(false);
           return;
         }
-        this.posts.set(feed.map(dto => this.mapDto(dto)));
         this.updateCursor(feed);
         if (feed.length < PAGE_SIZE) this.hasMore.set(false);
       },
       error: err => {
         console.error('Feed HTTP error', err);
+        // Si falla el feed, al menos muestra el mock de marca.
+        this.posts.set([this.mapDto(MOCK_GOAL_MARK_POST)]);
+        this.hasMore.set(false);
       },
     });
   }
@@ -154,6 +162,22 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleLike(post: FeedPost): void {
+    // Posts mock (id negativo) solo actualizan UI local.
+    if (post.id < 0) {
+      this.posts.update(posts =>
+        posts.map(p =>
+          p.id === post.id
+            ? {
+                ...p,
+                liked: !p.liked,
+                likes: p.likes + (p.liked ? -1 : 1),
+              }
+            : p
+        )
+      );
+      return;
+    }
+
     const optimisticLiked = !post.liked;
     const optimisticCount = post.likes + (post.liked ? -1 : 1);
 
@@ -245,6 +269,8 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'Anuncio';
       case 'BOX_CHALLENGE':
         return 'Reto';
+      case 'GOAL_MARK':
+        return 'Objetivo';
       default:
         return postType;
     }
@@ -306,6 +332,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       wodTitle: dto.wodTitle ?? null,
       wodCheckinsCount: dto.wodCheckinsCount ?? null,
       wodCheckinAuthors: dto.wodCheckinAuthors ?? null,
+      goalMark: dto.goalMark ?? null,
     };
   }
 }

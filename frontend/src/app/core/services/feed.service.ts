@@ -2,9 +2,40 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
-export type FeedPostType = 'CHECKIN' | 'BOX_WOD' | 'BOX_CHALLENGE' | 'BOX_ANNOUNCEMENT';
+export type FeedPostType =
+  | 'CHECKIN'
+  | 'BOX_WOD'
+  | 'BOX_CHALLENGE'
+  | 'BOX_ANNOUNCEMENT'
+  | 'GOAL_MARK';
 
 export type FeedTrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO';
+
+export type GoalFeedUnit = 'time' | 'reps' | 'kg' | 'meters';
+export type GoalFeedDirection = 'lower' | 'higher';
+export type GoalFeedStatus = 'ACTIVE' | 'ACHIEVED' | 'EXPIRED';
+
+export interface GoalFriendPreviewDto {
+  userId: number;
+  username: string;
+  photoUrl: string | null;
+}
+
+/** Payload de publicación GOAL_MARK (nueva marca en un objetivo). */
+export interface GoalMarkFeedDto {
+  goalId: number;
+  goalTitle: string;
+  goalStatus: GoalFeedStatus;
+  progressPercent: number;
+  targetValue: number;
+  unit: GoalFeedUnit;
+  direction: GoalFeedDirection;
+  deadline: string;
+  markValue: number;
+  previousPrValue: number | null;
+  friendsCount: number;
+  friendAvatars: GoalFriendPreviewDto[];
+}
 
 export interface FeedPostDto {
   id: number;
@@ -33,6 +64,8 @@ export interface FeedPostDto {
   /** BOX_WOD: muro de participantes. */
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
+  /** GOAL_MARK: detalle de marca y estado del objetivo. */
+  goalMark: GoalMarkFeedDto | null;
 }
 
 export interface WodCheckinAuthorDto {

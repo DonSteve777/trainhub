@@ -1,0 +1,87 @@
+<div class="qm-dialog">
+  <div class="qm-dialog__header">
+    <div class="qm-dialog__titles">
+      <span class="qm-dialog__eyebrow">Registro rápido</span>
+      <h2 class="qm-dialog__title">Nueva marca</h2>
+    </div>
+    <button type="button" class="qm-dialog__close" (click)="close()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (goals().length === 0) {
+    <div class="qm-dialog__empty">
+      <mat-icon>flag</mat-icon>
+      <p>No tienes objetivos activos para anotar una marca.</p>
+    </div>
+  } @else {
+    <form class="qm-form" (ngSubmit)="submit()">
+      <label class="qm-field">
+        <span class="qm-field__label">Objetivo</span>
+        <select
+          class="qm-field__control"
+          [ngModel]="selectedGoalId()"
+          (ngModelChange)="onGoalChange($event)"
+          name="goalId"
+          required
+        >
+          @for (goal of goals(); track goal.id) {
+            <option [ngValue]="goal.id">{{ goal.title }}</option>
+          }
+        </select>
+      </label>
+
+      @if (selectedGoal(); as goal) {
+        <p class="qm-form__meta">
+          {{ goal.metricLabel }} · meta
+          <strong>{{ formatGoalValue(goal) }}</strong>
+        </p>
+      }
+
+      <label class="qm-field">
+        <span class="qm-field__label">Marca</span>
+        <input
+          class="qm-field__control"
+          type="text"
+          inputmode="decimal"
+          [placeholder]="valuePlaceholder()"
+          [ngModel]="valueInput()"
+          (ngModelChange)="valueInput.set($event)"
+          name="value"
+          autocomplete="off"
+          required
+        />
+        <span class="qm-field__hint">{{ valueHint() }}</span>
+      </label>
+
+      <label class="qm-field">
+        <span class="qm-field__label">Comentario <em>(opcional)</em></span>
+        <textarea
+          class="qm-field__control qm-field__control--area"
+          rows="3"
+          maxlength="280"
+          placeholder="Simulación en el box, sensaciones…"
+          [ngModel]="note()"
+          (ngModelChange)="note.set($event)"
+          name="note"
+        ></textarea>
+      </label>
+
+      @if (errorMessage(); as err) {
+        <p class="qm-form__error" role="alert">{{ err }}</p>
+      }
+
+      <div class="qm-form__actions">
+        <button type="button" class="qm-btn qm-btn--ghost" (click)="close()">Cancelar</button>
+        <button
+          type="submit"
+          class="qm-btn qm-btn--primary"
+          [disabled]="submitting() || !valueInput().trim()"
+        >
+          <mat-icon>trending_up</mat-icon>
+          Registrar
+        </button>
+      </div>
+    </form>
+  }
+</div>
