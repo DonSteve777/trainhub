@@ -143,10 +143,6 @@
         <div class="detail-section">
           <div class="detail-section__head">
             <h3>Progreso de amigos</h3>
-            <button type="button" class="ghost-btn" disabled title="Próximamente (requiere backend)">
-              <mat-icon>person_add</mat-icon>
-              Compartir
-            </button>
           </div>
 
           @if (friends().length === 0) {
@@ -163,20 +159,38 @@
                   />
                   <div class="friend-row__info">
                     <span class="friend-row__name">{{ fp.participant.username }}</span>
-                    <div class="friend-row__bar" role="progressbar"
-                      [attr.aria-valuenow]="Math.round(fp.progressPercent)"
-                      aria-valuemin="0"
-                      aria-valuemax="100">
-                      <span
-                        class="friend-row__bar-fill"
-                        [style.width]="progressBarWidth(fp.progressPercent)"
-                      ></span>
-                    </div>
+                    <span class="friend-row__dates">
+                      {{ formatMarkDate(fp.participant.startedAt) }}
+                      →
+                      {{ formatMarkDate(fp.participant.endsAt) }}
+                    </span>
                   </div>
                   <div class="friend-row__stats">
                     <span class="friend-row__best">{{ formatVal(fp.bestValue, goal) }}</span>
-                    <span class="friend-row__pct">{{ Math.round(fp.progressPercent) }}%</span>
-                    <span class="friend-row__marks">{{ fp.marksCount }} marcas</span>
+                    @if (friendVsMe(fp, goal); as delta) {
+                      @if (delta.tied) {
+                        <span class="friend-row__vs friend-row__vs--tied">
+                          <mat-icon aria-hidden="true">drag_handle</mat-icon>
+                          igual
+                        </span>
+                      } @else {
+                        <span
+                          class="friend-row__vs"
+                          [class.friend-row__vs--better]="delta.meBetter"
+                          [class.friend-row__vs--worse]="delta.meWorse"
+                          [attr.aria-label]="
+                            delta.meBetter
+                              ? 'Vas ' + delta.formattedDiff + ' por delante'
+                              : 'Vas ' + delta.formattedDiff + ' por detrás'
+                          "
+                        >
+                          <mat-icon aria-hidden="true">{{
+                            delta.meBetter ? 'arrow_upward' : 'arrow_downward'
+                          }}</mat-icon>
+                          {{ delta.formattedDiff }}
+                        </span>
+                      }
+                    }
                   </div>
                   @if (fp.achieved) {
                     <mat-icon class="friend-row__trophy" aria-label="Objetivo logrado">emoji_events</mat-icon>

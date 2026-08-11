@@ -438,7 +438,7 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.2rem;
   }
 
   &__name {
@@ -450,26 +450,19 @@
     text-overflow: ellipsis;
   }
 
-  &__bar {
-    height: 6px;
-    border-radius: 3px;
-    background: color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent);
+  &__dates {
+    font-size: 0.75rem;
+    color: var(--mat-sys-on-surface-variant);
+    white-space: nowrap;
     overflow: hidden;
-  }
-
-  &__bar-fill {
-    display: block;
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--trainhub-info), var(--trainhub-accent));
-    transition: width 0.3s ease;
+    text-overflow: ellipsis;
   }
 
   &__stats {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.1rem;
+    gap: 0.15rem;
     min-width: 72px;
   }
 
@@ -479,15 +472,31 @@
     color: var(--mat-sys-on-surface);
   }
 
-  &__pct {
+  &__vs {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
     font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--trainhub-accent);
-  }
+    font-weight: 650;
+    line-height: 1;
 
-  &__marks {
-    font-size: 0.68rem;
-    color: var(--mat-sys-on-surface-variant);
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    &--better {
+      color: #81c784;
+    }
+
+    &--worse {
+      color: #e57373;
+    }
+
+    &--tied {
+      color: var(--mat-sys-on-surface-variant);
+    }
   }
 
   &__trophy {
@@ -561,9 +570,6 @@
 
     &__stats {
       grid-column: 3;
-      flex-direction: row;
-      gap: 0.55rem;
-      align-items: baseline;
       justify-self: start;
     }
 

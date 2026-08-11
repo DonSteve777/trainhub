@@ -5,12 +5,14 @@ import { Goal } from './objetivos.mock';
 import { ObjetivosService } from './objetivos.service';
 import {
   ParticipantProgress,
+  VsMeDelta,
   deadlineLabel,
   formatDate,
   formatValue,
   friendsProgress,
   meParticipant,
   participantProgress,
+  vsMeDelta,
 } from './objetivos.utils';
 
 type GoalFilter = 'ACTIVE' | 'ACHIEVED' | 'ALL';
@@ -24,9 +26,6 @@ type GoalFilter = 'ACTIVE' | 'ACHIEVED' | 'ALL';
 })
 export class ObjetivosComponent {
   private readonly objetivosService = inject(ObjetivosService);
-
-  /** Expuesto para redondeos en la plantilla. */
-  readonly Math = Math;
 
   readonly goals = this.objetivosService.goals;
   readonly filter = signal<GoalFilter>('ACTIVE');
@@ -108,7 +107,7 @@ export class ObjetivosComponent {
     return formatDate(iso);
   }
 
-  progressBarWidth(pct: number): string {
-    return `${Math.round(Math.min(100, Math.max(0, pct)))}%`;
+  friendVsMe(fp: ParticipantProgress, goal: Goal): VsMeDelta | null {
+    return vsMeDelta(this.myProgress()?.bestValue ?? null, fp.bestValue, goal.direction, goal.unit);
   }
 }

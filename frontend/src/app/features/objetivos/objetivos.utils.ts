@@ -80,6 +80,35 @@ export function friendsProgress(goal: Goal): ParticipantProgress[] {
     .sort((a, b) => b.progressPercent - a.progressPercent);
 }
 
+/** Compara la mejor marca del amigo vs la del usuario logueado. */
+export interface VsMeDelta {
+  formattedDiff: string;
+  meBetter: boolean;
+  meWorse: boolean;
+  tied: boolean;
+}
+
+export function vsMeDelta(
+  myBest: number | null,
+  friendBest: number | null,
+  direction: GoalDirection,
+  unit: GoalUnit
+): VsMeDelta | null {
+  if (myBest === null || friendBest === null) return null;
+
+  const abs = Math.abs(myBest - friendBest);
+  const tied = abs < 1e-9;
+  const meBetter = !tied && (direction === 'lower' ? myBest < friendBest : myBest > friendBest);
+  const meWorse = !tied && !meBetter;
+
+  return {
+    formattedDiff: formatValue(abs, unit),
+    meBetter,
+    meWorse,
+    tied,
+  };
+}
+
 export function formatValue(value: number, unit: GoalUnit): string {
   if (unit === 'time') return formatSeconds(value);
   if (unit === 'kg') return `${trimNum(value)} kg`;

@@ -18,6 +18,10 @@ export interface GoalParticipant {
   avatarUrl: string;
   isOwner: boolean;
   isMe: boolean;
+  /** Fecha en que el usuario se apuntó / empezó el objetivo. */
+  startedAt: string;
+  /** Fecha de finalización del plazo para ese usuario. */
+  endsAt: string;
   marks: GoalMark[];
 }
 
@@ -56,6 +60,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=1',
         isOwner: true,
         isMe: true,
+        startedAt: '2026-06-01T10:00:00Z',
+        endsAt: '2026-09-15T23:59:59Z',
         marks: [
           { id: 101, userId: 1, value: 6120, recordedAt: '2026-06-05T18:00:00Z', note: 'Simulación box' },
           { id: 102, userId: 1, value: 5880, recordedAt: '2026-06-20T18:00:00Z', note: 'Mejora en wall balls' },
@@ -69,6 +75,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=2',
         isOwner: false,
         isMe: false,
+        startedAt: '2026-06-08T17:00:00Z',
+        endsAt: '2026-09-15T23:59:59Z',
         marks: [
           { id: 201, userId: 2, value: 6000, recordedAt: '2026-06-08T17:00:00Z' },
           { id: 202, userId: 2, value: 5700, recordedAt: '2026-07-01T17:00:00Z' },
@@ -81,6 +89,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=3',
         isOwner: false,
         isMe: false,
+        startedAt: '2026-06-10T19:00:00Z',
+        endsAt: '2026-09-15T23:59:59Z',
         marks: [
           { id: 301, userId: 3, value: 6300, recordedAt: '2026-06-10T19:00:00Z' },
           { id: 302, userId: 3, value: 5950, recordedAt: '2026-07-15T19:00:00Z' },
@@ -92,6 +102,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=4',
         isOwner: false,
         isMe: false,
+        startedAt: '2026-06-12T16:00:00Z',
+        endsAt: '2026-09-15T23:59:59Z',
         marks: [
           { id: 401, userId: 4, value: 5550, recordedAt: '2026-06-12T16:00:00Z' },
           { id: 402, userId: 4, value: 5380, recordedAt: '2026-07-20T16:00:00Z', note: '¡Objetivo logrado!' },
@@ -117,6 +129,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=1',
         isOwner: true,
         isMe: true,
+        startedAt: '2026-07-01T09:00:00Z',
+        endsAt: '2026-10-01T23:59:59Z',
         marks: [
           { id: 501, userId: 1, value: 80, recordedAt: '2026-07-02T10:00:00Z' },
           { id: 502, userId: 1, value: 87.5, recordedAt: '2026-07-18T10:00:00Z' },
@@ -129,6 +143,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=5',
         isOwner: false,
         isMe: false,
+        startedAt: '2026-07-05T11:00:00Z',
+        endsAt: '2026-10-01T23:59:59Z',
         marks: [
           { id: 601, userId: 5, value: 90, recordedAt: '2026-07-05T11:00:00Z' },
           { id: 602, userId: 5, value: 100, recordedAt: '2026-07-30T11:00:00Z', note: 'Hecho' },
@@ -154,6 +170,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=1',
         isOwner: true,
         isMe: true,
+        startedAt: '2026-03-01T10:00:00Z',
+        endsAt: '2026-05-01T23:59:59Z',
         marks: [
           { id: 701, userId: 1, value: 245, recordedAt: '2026-03-05T18:00:00Z' },
           { id: 702, userId: 1, value: 228, recordedAt: '2026-03-20T18:00:00Z' },
@@ -166,6 +184,8 @@ export const MOCK_GOALS: Goal[] = [
         avatarUrl: 'https://i.pravatar.cc/48?u=2',
         isOwner: false,
         isMe: false,
+        startedAt: '2026-03-10T17:00:00Z',
+        endsAt: '2026-05-01T23:59:59Z',
         marks: [
           { id: 801, userId: 2, value: 235, recordedAt: '2026-03-10T17:00:00Z' },
           { id: 802, userId: 2, value: 215, recordedAt: '2026-04-02T17:00:00Z' },
