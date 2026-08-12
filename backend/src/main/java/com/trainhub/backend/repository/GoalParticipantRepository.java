@@ -29,6 +29,17 @@ public interface GoalParticipantRepository extends JpaRepository<GoalParticipant
     List<GoalParticipant> findByGoalIdWithUser(@Param("goalId") Integer goalId);
 
     /**
+     * Participantes de varios objetivos, con usuario cargado (batch para la lista).
+     */
+    @Query("""
+            SELECT gp FROM GoalParticipant gp
+            JOIN FETCH gp.user
+            WHERE gp.id.goalId IN :goalIds
+            ORDER BY gp.id.goalId, gp.owner DESC, gp.startedAt ASC
+            """)
+    List<GoalParticipant> findByGoalIdsWithUser(@Param("goalIds") List<Integer> goalIds);
+
+    /**
      * Participación concreta de un usuario en un objetivo.
      */
     @Query("""

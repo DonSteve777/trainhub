@@ -2,7 +2,13 @@
   <div class="create-post-content">
     <h1 class="th-title-gradient">Nueva marca</h1>
 
-    @if (goals().length === 0) {
+    @if (loading()) {
+      <div class="create-post-form">
+        <section class="checkin-entry-panel" aria-label="Cargando">
+          <p role="status">Cargando objetivos…</p>
+        </section>
+      </div>
+    } @else if (goals().length === 0) {
       <div class="create-post-form">
         <section class="checkin-entry-panel" aria-label="Sin objetivos activos">
           <div>

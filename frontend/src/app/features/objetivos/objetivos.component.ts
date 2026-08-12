@@ -1,7 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Goal } from './objetivos.mock';
+import { Goal } from './objetivos.models';
 import { ObjetivosService } from './objetivos.service';
 import {
   ParticipantProgress,
@@ -24,14 +24,14 @@ type GoalFilter = 'ACTIVE' | 'ACHIEVED' | 'ALL';
   templateUrl: './objetivos.component.html',
   styleUrl: './objetivos.component.scss',
 })
-export class ObjetivosComponent {
+export class ObjetivosComponent implements OnInit {
   private readonly objetivosService = inject(ObjetivosService);
 
   readonly goals = this.objetivosService.goals;
+  readonly loading = this.objetivosService.loading;
+  readonly error = this.objetivosService.error;
   readonly filter = signal<GoalFilter>('ACTIVE');
-  readonly selectedId = signal<number | null>(
-    this.goals().find(g => g.status === 'ACTIVE')?.id ?? this.goals()[0]?.id ?? null,
-  );
+  readonly selectedId = signal<number | null>(null);
 
   readonly filteredGoals = computed(() => {
     const f = this.filter();
@@ -67,6 +67,12 @@ export class ObjetivosComponent {
       (a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime()
     );
   });
+
+  ngOnInit(): void {
+    this.objetivosService.loadGoals().subscribe({
+      next: () => this.ensureSelection(),
+    });
+  }
 
   selectGoal(id: number): void {
     this.selectedId.set(id);
@@ -109,5 +115,20 @@ export class ObjetivosComponent {
 
   friendVsMe(fp: ParticipantProgress, goal: Goal): VsMeDelta | null {
     return vsMeDelta(this.myProgress()?.bestValue ?? null, fp.bestValue, goal.direction, goal.unit);
+  }
+
+  avatarUrl(url: string | null | undefined, userId: number): string {
+    return url?.trim() || `https://i.pravatar.cc/48?u=${userId}`;
+  }
+
+  private ensureSelection(): void {
+    const current = this.selectedId();
+    const list = this.filteredGoals();
+    if (current != null && list.some(g => g.id === current)) return;
+    const all = this.goals();
+    const preferred =
+      all.find(g => g.status === 'ACTIVE')?.id ?? all[0]?.id ?? null;
+    const inFilter = list[0]?.id ?? preferred;
+    this.selectedId.set(inFilter);
   }
 }

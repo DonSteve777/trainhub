@@ -38,6 +38,18 @@ public interface GoalMarkRepository extends JpaRepository<GoalMark, Integer> {
     List<GoalMark> findByGoalIdWithUser(@Param("goalId") Integer goalId);
 
     /**
+     * Marcas de varios objetivos (batch para la lista).
+     */
+    @Query("""
+            SELECT gm FROM GoalMark gm
+            JOIN FETCH gm.goal
+            JOIN FETCH gm.user
+            WHERE gm.goal.id IN :goalIds
+            ORDER BY gm.goal.id, gm.recordedAt DESC, gm.id DESC
+            """)
+    List<GoalMark> findByGoalIds(@Param("goalIds") List<Integer> goalIds);
+
+    /**
      * Marcas de varios usuarios en un objetivo (p. ej. ranking de amigos).
      */
     @Query("""

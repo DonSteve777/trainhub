@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { GoalDirection, GoalUnit } from '../objetivos.mock';
+import { GoalDirection, GoalUnit } from '../objetivos.models';
 import { ObjetivosService } from '../objetivos.service';
 import { formatValue, parseSeconds } from '../objetivos.utils';
 

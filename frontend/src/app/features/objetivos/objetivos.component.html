@@ -46,6 +46,11 @@
     </button>
   </div>
 
+  @if (loading()) {
+    <p class="objetivos-empty" role="status">Cargando objetivos…</p>
+  } @else if (error(); as err) {
+    <p class="objetivos-empty" role="alert">{{ err }}</p>
+  } @else {
   <div class="objetivos-layout">
     <!-- Lista -->
     <aside class="objetivos-list" aria-label="Lista de objetivos">
@@ -154,7 +159,7 @@
                   <span class="friend-row__rank">{{ i + 1 }}</span>
                   <img
                     class="friend-row__avatar"
-                    [src]="fp.participant.avatarUrl"
+                    [src]="avatarUrl(fp.participant.avatarUrl, fp.participant.userId)"
                     [alt]="fp.participant.username"
                   />
                   <div class="friend-row__info">
@@ -210,4 +215,5 @@
       }
     </section>
   </div>
+  }
 </div>

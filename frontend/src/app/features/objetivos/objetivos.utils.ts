@@ -1,4 +1,4 @@
-import { Goal, GoalDirection, GoalMark, GoalParticipant, GoalUnit } from './objetivos.mock';
+import { Goal, GoalDirection, GoalMark, GoalParticipant, GoalUnit } from './objetivos.models';
 
 export interface ParticipantProgress {
   participant: GoalParticipant;

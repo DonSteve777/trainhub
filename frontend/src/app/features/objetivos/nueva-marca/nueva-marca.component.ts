@@ -1,8 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Goal, GoalUnit } from '../objetivos.mock';
+import { Goal, GoalUnit } from '../objetivos.models';
 import { ObjetivosService } from '../objetivos.service';
 import { formatValue, parseSeconds } from '../objetivos.utils';
 
@@ -13,17 +13,18 @@ import { formatValue, parseSeconds } from '../objetivos.utils';
   templateUrl: './nueva-marca.component.html',
   styleUrl: './nueva-marca.component.scss',
 })
-export class NuevaMarcaComponent {
+export class NuevaMarcaComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly objetivosService = inject(ObjetivosService);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly goals = signal<Goal[]>(this.objetivosService.activeGoalsForMe());
-  readonly selectedGoalId = signal<number | null>(this.goals()[0]?.id ?? null);
+  readonly goals = signal<Goal[]>([]);
+  readonly selectedGoalId = signal<number | null>(null);
   readonly valueInput = signal('');
   readonly note = signal('');
   readonly submitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly loading = this.objetivosService.loading;
 
   readonly selectedGoal = computed(() => {
     const id = this.selectedGoalId();
@@ -41,6 +42,22 @@ export class NuevaMarcaComponent {
     if (!goal) return '';
     return this.placeholderForUnit(goal.unit);
   });
+
+  ngOnInit(): void {
+    const refresh = () => {
+      const active = this.objetivosService.activeGoalsForMe();
+      this.goals.set(active);
+      if (this.selectedGoalId() == null || !active.some(g => g.id === this.selectedGoalId())) {
+        this.selectedGoalId.set(active[0]?.id ?? null);
+      }
+    };
+
+    if (this.objetivosService.goals().length === 0) {
+      this.objetivosService.loadGoals().subscribe({ next: refresh });
+    } else {
+      refresh();
+    }
+  }
 
   formatGoalValue(goal: Goal): string {
     return formatValue(goal.targetValue, goal.unit);

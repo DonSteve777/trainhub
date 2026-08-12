@@ -16,7 +16,8 @@
 --    también la tabla users. En su lugar se insertan de forma idempotente
 --    (INSERT ... WHERE NOT EXISTS) en el punto 0b.
 -- ------------------------------------------------------------
-TRUNCATE TABLE comment_likes, post_likes, comments, post_participants, friendships, posts RESTART IDENTITY CASCADE;
+TRUNCATE TABLE comment_likes, post_likes, comments, post_participants, friendships, posts,
+               goal_marks, goal_participants, goals RESTART IDENTITY CASCADE;
 
 -- ------------------------------------------------------------
 -- 0b. Ciudad y box de ejemplo (idempotente)
@@ -391,3 +392,114 @@ CROSS JOIN (VALUES
 JOIN users part ON part.username = v.username
 WHERE p.post_type = 'BOX_CHALLENGE'
   AND p.creation_date = TIMESTAMP '2026-08-07 11:00:00';
+
+-- ------------------------------------------------------------
+-- 8. Objetivos (goals / goal_participants / goal_marks)
+--    Usuarios: pedro_alonso (owner), lucia_vega, marcos_gil, sofia_ramos, javier_mena
+-- ------------------------------------------------------------
+INSERT INTO goals (title, description, metric_label, target_value, unit, direction, weeks, deadline, status, created_by_user_id, created_at)
+SELECT 'Sub 90 en Hyrox Open',
+       'Bajar de 1h 30m en la próxima carrera Open.',
+       'Tiempo total', 5400, 'TIME', 'LOWER', 15,
+       TIMESTAMPTZ '2026-09-15 23:59:59+00', 'ACTIVE', u.id,
+       TIMESTAMP '2026-06-01 10:00:00'
+FROM users u WHERE u.username = 'pedro_alonso';
+
+INSERT INTO goals (title, description, metric_label, target_value, unit, direction, weeks, deadline, status, created_by_user_id, created_at)
+SELECT '100 kg en deadlift',
+       'Alcanzar 100 kg en peso muerto convencional.',
+       'Carga máxima', 100, 'KG', 'HIGHER', 13,
+       TIMESTAMPTZ '2026-10-01 23:59:59+00', 'ACTIVE', u.id,
+       TIMESTAMP '2026-07-01 09:00:00'
+FROM users u WHERE u.username = 'pedro_alonso';
+
+INSERT INTO goals (title, description, metric_label, target_value, unit, direction, weeks, deadline, status, created_by_user_id, created_at)
+SELECT 'SkiErg 1000 m en 3:30',
+       'Marca de referencia en SkiErg para la estación.',
+       'SkiErg 1000 m', 210, 'TIME', 'LOWER', 8,
+       TIMESTAMPTZ '2026-05-01 23:59:59+00', 'ACHIEVED', u.id,
+       TIMESTAMP '2026-03-01 10:00:00'
+FROM users u WHERE u.username = 'pedro_alonso';
+
+-- Participantes objetivo Hyrox
+INSERT INTO goal_participants (goal_id, user_id, is_owner, started_at, ends_at)
+SELECT g.id, u.id, v.is_owner, v.started_at, v.ends_at
+FROM goals g
+CROSS JOIN (VALUES
+  ('pedro_alonso', true,  TIMESTAMPTZ '2026-06-01 10:00:00+00', TIMESTAMPTZ '2026-09-15 23:59:59+00'),
+  ('lucia_vega',   false, TIMESTAMPTZ '2026-06-08 17:00:00+00', TIMESTAMPTZ '2026-09-15 23:59:59+00'),
+  ('marcos_gil',   false, TIMESTAMPTZ '2026-06-10 19:00:00+00', TIMESTAMPTZ '2026-09-15 23:59:59+00'),
+  ('sofia_ramos',  false, TIMESTAMPTZ '2026-06-12 16:00:00+00', TIMESTAMPTZ '2026-09-15 23:59:59+00')
+) AS v(username, is_owner, started_at, ends_at)
+JOIN users u ON u.username = v.username
+WHERE g.title = 'Sub 90 en Hyrox Open';
+
+-- Participantes deadlift
+INSERT INTO goal_participants (goal_id, user_id, is_owner, started_at, ends_at)
+SELECT g.id, u.id, v.is_owner, v.started_at, v.ends_at
+FROM goals g
+CROSS JOIN (VALUES
+  ('pedro_alonso', true,  TIMESTAMPTZ '2026-07-01 09:00:00+00', TIMESTAMPTZ '2026-10-01 23:59:59+00'),
+  ('javier_mena',  false, TIMESTAMPTZ '2026-07-05 11:00:00+00', TIMESTAMPTZ '2026-10-01 23:59:59+00')
+) AS v(username, is_owner, started_at, ends_at)
+JOIN users u ON u.username = v.username
+WHERE g.title = '100 kg en deadlift';
+
+-- Participantes SkiErg
+INSERT INTO goal_participants (goal_id, user_id, is_owner, started_at, ends_at)
+SELECT g.id, u.id, v.is_owner, v.started_at, v.ends_at
+FROM goals g
+CROSS JOIN (VALUES
+  ('pedro_alonso', true,  TIMESTAMPTZ '2026-03-01 10:00:00+00', TIMESTAMPTZ '2026-05-01 23:59:59+00'),
+  ('lucia_vega',   false, TIMESTAMPTZ '2026-03-10 17:00:00+00', TIMESTAMPTZ '2026-05-01 23:59:59+00')
+) AS v(username, is_owner, started_at, ends_at)
+JOIN users u ON u.username = v.username
+WHERE g.title = 'SkiErg 1000 m en 3:30';
+
+-- Marcas Hyrox
+INSERT INTO goal_marks (goal_id, user_id, value, note, recorded_at)
+SELECT g.id, u.id, v.value, v.note, v.recorded_at
+FROM goals g
+CROSS JOIN (VALUES
+  ('pedro_alonso', 6120, 'Simulación box',            TIMESTAMPTZ '2026-06-05 18:00:00+00'),
+  ('pedro_alonso', 5880, 'Mejora en wall balls',       TIMESTAMPTZ '2026-06-20 18:00:00+00'),
+  ('pedro_alonso', 5640, 'PR parcial',                 TIMESTAMPTZ '2026-07-12 18:00:00+00'),
+  ('pedro_alonso', 5520, 'Buena simulación',           TIMESTAMPTZ '2026-08-01 18:00:00+00'),
+  ('lucia_vega',   6000, NULL,                        TIMESTAMPTZ '2026-06-08 17:00:00+00'),
+  ('lucia_vega',   5700, NULL,                        TIMESTAMPTZ '2026-07-01 17:00:00+00'),
+  ('lucia_vega',   5460, 'Casi en el objetivo',        TIMESTAMPTZ '2026-07-28 17:00:00+00'),
+  ('marcos_gil',   6300, NULL,                        TIMESTAMPTZ '2026-06-10 19:00:00+00'),
+  ('marcos_gil',   5950, NULL,                        TIMESTAMPTZ '2026-07-15 19:00:00+00'),
+  ('sofia_ramos',  5550, NULL,                        TIMESTAMPTZ '2026-06-12 16:00:00+00'),
+  ('sofia_ramos',  5380, '¡Objetivo logrado!',         TIMESTAMPTZ '2026-07-20 16:00:00+00')
+) AS v(username, value, note, recorded_at)
+JOIN users u ON u.username = v.username
+WHERE g.title = 'Sub 90 en Hyrox Open';
+
+-- Marcas deadlift
+INSERT INTO goal_marks (goal_id, user_id, value, note, recorded_at)
+SELECT g.id, u.id, v.value, v.note, v.recorded_at
+FROM goals g
+CROSS JOIN (VALUES
+  ('pedro_alonso', 80,   NULL,      TIMESTAMPTZ '2026-07-02 10:00:00+00'),
+  ('pedro_alonso', 87.5, NULL,      TIMESTAMPTZ '2026-07-18 10:00:00+00'),
+  ('pedro_alonso', 92.5, 'Muy cerca', TIMESTAMPTZ '2026-08-05 10:00:00+00'),
+  ('javier_mena',  90,   NULL,      TIMESTAMPTZ '2026-07-05 11:00:00+00'),
+  ('javier_mena',  100,  'Hecho',    TIMESTAMPTZ '2026-07-30 11:00:00+00')
+) AS v(username, value, note, recorded_at)
+JOIN users u ON u.username = v.username
+WHERE g.title = '100 kg en deadlift';
+
+-- Marcas SkiErg
+INSERT INTO goal_marks (goal_id, user_id, value, note, recorded_at)
+SELECT g.id, u.id, v.value, v.note, v.recorded_at
+FROM goals g
+CROSS JOIN (VALUES
+  ('pedro_alonso', 245, NULL,                  TIMESTAMPTZ '2026-03-05 18:00:00+00'),
+  ('pedro_alonso', 228, NULL,                  TIMESTAMPTZ '2026-03-20 18:00:00+00'),
+  ('pedro_alonso', 208, 'Objetivo conseguido', TIMESTAMPTZ '2026-04-15 18:00:00+00'),
+  ('lucia_vega',   235, NULL,                  TIMESTAMPTZ '2026-03-10 17:00:00+00'),
+  ('lucia_vega',   215, NULL,                  TIMESTAMPTZ '2026-04-02 17:00:00+00')
+) AS v(username, value, note, recorded_at)
+JOIN users u ON u.username = v.username
+WHERE g.title = 'SkiErg 1000 m en 3:30';
