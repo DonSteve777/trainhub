@@ -88,5 +88,21 @@ export function friendsInGoalLabel(count: number): string {
   return count === 1 ? '1 amigo en este objetivo' : `${count} amigos en este objetivo`;
 }
 
+export function goalWeeksLabel(weeks: number): string {
+  return weeks === 1 ? '1 semana' : `${weeks} semanas`;
+}
+
+export function goalParticipantsLabel(count: number): string {
+  return count === 1 ? '1 participante' : `${count} participantes`;
+}
+
+export function goalDirectionHint(direction: GoalFeedDirection, unit: GoalFeedUnit): string {
+  if (unit === 'time') return direction === 'lower' ? 'Menor tiempo' : 'Mayor tiempo';
+  if (unit === 'kg') return direction === 'higher' ? 'Más peso' : 'Menos peso';
+  if (unit === 'reps') return direction === 'higher' ? 'Más repeticiones' : 'Menos repeticiones';
+  if (unit === 'meters') return direction === 'higher' ? 'Más distancia' : 'Menos distancia';
+  return direction === 'higher' ? 'Más es mejor' : 'Menos es mejor';
+}
+
 /** Reexport tipado por claridad en templates. */
 export type { GoalFeedDirection, GoalFeedUnit };

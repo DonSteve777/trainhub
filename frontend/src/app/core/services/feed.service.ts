@@ -7,7 +7,9 @@ export type FeedPostType =
   | 'BOX_WOD'
   | 'BOX_CHALLENGE'
   | 'BOX_ANNOUNCEMENT'
-  | 'GOAL_MARK';
+  | 'GOAL_MARK'
+  | 'GOAL_CREATED'
+  | 'GOAL_JOIN';
 
 export type FeedTrainingTag = 'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO';
 
@@ -19,6 +21,25 @@ export interface GoalFriendPreviewDto {
   userId: number;
   username: string;
   photoUrl: string | null;
+}
+
+/** Payload común de posts GOAL_CREATED y GOAL_JOIN. */
+export interface GoalFeedDto {
+  goalId: number;
+  goalTitle: string;
+  goalStatus: GoalFeedStatus;
+  targetValue: number;
+  unit: GoalFeedUnit;
+  direction: GoalFeedDirection;
+  weeks: number;
+  deadline: string;
+  creatorUserId: number;
+  creatorUsername: string;
+  participantsCount: number;
+  joinedByCurrentUser: boolean;
+  friendAvatars: GoalFriendPreviewDto[];
+  /** Solo en GOAL_JOIN: resto de participantes para el copy del post. */
+  otherParticipants?: GoalFriendPreviewDto[];
 }
 
 /** Payload de publicación GOAL_MARK (nueva marca en un objetivo). */
@@ -66,6 +87,8 @@ export interface FeedPostDto {
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
   /** GOAL_MARK: detalle de marca y estado del objetivo. */
   goalMark: GoalMarkFeedDto | null;
+  /** GOAL_CREATED / GOAL_JOIN: meta, plazo y participantes. */
+  goal: GoalFeedDto | null;
 }
 
 export interface WodCheckinAuthorDto {
@@ -84,6 +107,13 @@ export interface LikeToggleDto {
 export interface JoinToggleDto {
   joined: boolean;
   participantsCount: number;
+}
+
+export interface GoalJoinDto {
+  goalId: number;
+  joined: boolean;
+  participantsCount: number;
+  joinPostId: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -114,5 +144,10 @@ export class FeedService {
 
   toggleJoin(postId: number): Observable<JoinToggleDto> {
     return this.api.post<JoinToggleDto>(`/feed/posts/${postId}/join`, {});
+  }
+
+  /** Acogerse a un objetivo (POST /api/goals/{goalId}/join). */
+  joinGoal(goalId: number): Observable<GoalJoinDto> {
+    return this.api.post<GoalJoinDto>(`/goals/${goalId}/join`, {});
   }
 }

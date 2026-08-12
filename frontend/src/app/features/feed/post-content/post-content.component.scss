@@ -143,84 +143,41 @@
 }
 
 // ============================================================
-// GOAL_MARK — nueva marca en objetivo
+// GOAL_CREATED / GOAL_JOIN / GOAL_MARK — card compartida
 // ============================================================
-.goal-mark-card {
+.goal-created-card {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.5rem;
   margin-top: 0.35rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--trainhub-accent) 20%, transparent);
-  background: color-mix(in srgb, var(--mat-sys-surface-container) 70%, transparent);
 }
 
-.goal-mark-card__status-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.goal-mark-card__status-label {
-  font-size: 0.78rem;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.goal-mark-card__status-chip {
-  flex-shrink: 0;
-  padding: 0.18rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.68rem;
+.goal-created-card__target {
+  font-size: 1.45rem;
   font-weight: 750;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #fff;
-  background: color-mix(in srgb, var(--trainhub-info) 75%, black 25%);
-
-  &[data-status='ACHIEVED'] {
-    background: color-mix(in srgb, #81c784 75%, black 25%);
-  }
-
-  &[data-status='EXPIRED'] {
-    background: color-mix(in srgb, var(--mat-sys-on-surface-variant) 70%, black 30%);
-  }
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--mat-sys-on-surface);
 }
 
-.goal-mark-card__bar {
-  height: 8px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent);
-}
-
-.goal-mark-card__bar-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--trainhub-accent), color-mix(in srgb, var(--trainhub-accent) 70%, #ff9800));
-  transition: width 0.3s ease;
-}
-
-.goal-mark-card__bar-caption {
+.goal-created-card__delta {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--mat-sys-on-surface-variant);
 
-  strong {
-    color: var(--mat-sys-on-surface);
-    font-weight: 700;
+  &--up {
+    color: #81c784;
   }
 }
 
-.goal-mark-card__meta {
+.goal-created-card__meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem 1rem;
 }
 
-.goal-mark-card__meta-item {
+.goal-created-card__meta-item {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -236,47 +193,47 @@
   }
 }
 
-.goal-mark-card__pr {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding-top: 0.15rem;
-}
-
-.goal-mark-card__pr-value {
-  font-size: 1.55rem;
-  font-weight: 750;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--mat-sys-on-surface);
-}
-
-.goal-mark-card__pr-delta {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface-variant);
-
-  &--up {
-    color: #81c784;
-  }
-}
-
-.goal-mark-card__friends {
+.goal-created-card__participants {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  margin-top: 0.15rem;
-  padding-top: 0.65rem;
+  margin-top: 0.1rem;
+  padding-top: 0.6rem;
   border-top: 1px solid color-mix(in srgb, var(--trainhub-accent) 14%, transparent);
+
+  &--button {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0.1rem 0 0;
+    padding: 0.35rem 0.45rem 0.35rem 0;
+    border: none;
+    border-top: 1px solid color-mix(in srgb, var(--trainhub-accent) 14%, transparent);
+    border-radius: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.85;
+
+      .goal-created-card__participants-label {
+        color: var(--trainhub-accent);
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+      }
+    }
+  }
 }
 
-.goal-mark-card__avatars {
+.goal-created-card__avatars {
   display: flex;
   align-items: center;
   padding-left: 0.25rem;
 }
 
-.goal-mark-card__avatar {
+.goal-created-card__avatar {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -286,8 +243,14 @@
   background: var(--mat-sys-surface-container-high);
 }
 
-.goal-mark-card__friends-label {
+.goal-created-card__participants-label {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--mat-sys-on-surface-variant);
+}
+
+.post-body__description--join {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
 }

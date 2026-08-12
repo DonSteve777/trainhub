@@ -1,0 +1,75 @@
+<div class="goal-demo">
+  <header class="goal-demo__header">
+    <h1 class="goal-demo__title">Mock — Post nueva marca</h1>
+    <p class="goal-demo__subtitle">
+      Variantes de <code>GOAL_MARK</code> al registrar una marca en un objetivo (spec 19-nueva-marca).
+      Misma card visual que <code>GOAL_CREATED</code>, con valor de marca y delta vs PR.
+    </p>
+  </header>
+
+  @for (post of posts(); track post.id) {
+    <section class="goal-demo__section">
+      <h2 class="goal-demo__variant">{{ post.variantLabel }}</h2>
+
+      <article class="post-card">
+        <div class="post-card__rail">
+          <span class="post-avatar">
+            <img [src]="post.avatarUrl" [alt]="post.username + ' avatar'" />
+          </span>
+          <span class="post-type-badge" [attr.data-type]="post.postType">{{
+            typeLabel(post.postType)
+          }}</span>
+        </div>
+
+        <div class="post-card__main">
+          <div class="post-username-row">
+            <span class="post-username">{{ post.username }}</span>
+            <time class="post-date" [attr.datetime]="post.creationDate">{{
+              formatPostDate(post.creationDate)
+            }}</time>
+          </div>
+          <app-post-content [post]="post" />
+        </div>
+
+        <div class="post-card__aside">
+          <div class="post-actions">
+            <button
+              type="button"
+              class="action-btn"
+              (click)="toggleLike(post)"
+              [attr.aria-label]="'Me gusta, ' + post.likes"
+            >
+              <mat-icon [class.action-btn__icon--liked]="post.liked">
+                {{ post.liked ? 'favorite' : 'favorite_border' }}
+              </mat-icon>
+              <span class="action-count" aria-hidden="true">{{ post.likes }}</span>
+            </button>
+
+            <button type="button" class="action-btn" [attr.aria-label]="'Comentarios'">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <span class="action-count" aria-hidden="true">{{ post.commentsCount }}</span>
+            </button>
+          </div>
+
+          @if (post.postType === 'GOAL_MARK' && !post.isAuthor) {
+            <button
+              type="button"
+              class="join-btn"
+              [class.join-btn--joined]="post.joinedByCurrentUser"
+              (click)="toggleJoin(post)"
+              [attr.aria-pressed]="post.joinedByCurrentUser"
+              [disabled]="post.joinedByCurrentUser"
+            >
+              <mat-icon aria-hidden="true">{{
+                post.joinedByCurrentUser ? 'check_circle' : 'add_circle_outline'
+              }}</mat-icon>
+              <span class="join-btn__label">{{
+                post.joinedByCurrentUser ? 'Ya participas' : 'Me uno'
+              }}</span>
+            </button>
+          }
+        </div>
+      </article>
+    </section>
+  }
+</div>

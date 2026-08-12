@@ -78,6 +78,27 @@
           </button>
         }
 
+        @if (
+          (post.postType === 'GOAL_CREATED' || post.postType === 'GOAL_MARK') &&
+          !isOwnPost(post)
+        ) {
+          <button
+            type="button"
+            class="join-btn"
+            [class.join-btn--joined]="post.joinedByCurrentUser"
+            (click)="joinGoal(post)"
+            [attr.aria-pressed]="post.joinedByCurrentUser"
+            [disabled]="post.joinedByCurrentUser"
+          >
+            <mat-icon aria-hidden="true">{{
+              post.joinedByCurrentUser ? 'check_circle' : 'add_circle_outline'
+            }}</mat-icon>
+            <span class="join-btn__label">{{
+              post.joinedByCurrentUser ? 'Ya participas' : 'Me uno'
+            }}</span>
+          </button>
+        }
+
         @if (post.postType === 'BOX_WOD') {
           <button type="button" class="join-btn" (click)="checkInWod(post)">
             <mat-icon aria-hidden="true">fitness_center</mat-icon>

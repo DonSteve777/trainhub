@@ -14,6 +14,8 @@ import { UserPostsFeedComponent } from './features/user-posts-feed/user-posts-fe
 import { ObjetivosComponent } from './features/objetivos/objetivos.component';
 import { NuevaMarcaComponent } from './features/objetivos/nueva-marca/nueva-marca.component';
 import { NuevoObjetivoComponent } from './features/objetivos/nuevo-objetivo/nuevo-objetivo.component';
+import { GoalCreatedDemoComponent } from './features/feed/demo/goal-created-demo.component';
+import { GoalMarkDemoComponent } from './features/feed/demo/goal-mark-demo.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -23,6 +25,8 @@ export const routes: Routes = [
   { path: 'objetivos', component: ObjetivosComponent, canActivate: [authGuard] },
   { path: 'nuevo-objetivo', component: NuevoObjetivoComponent, canActivate: [authGuard] },
   { path: 'nueva-marca', component: NuevaMarcaComponent, canActivate: [authGuard] },
+  { path: 'demo/post-objetivo-creado', component: GoalCreatedDemoComponent },
+  { path: 'demo/post-marca-objetivo', component: GoalMarkDemoComponent },
   { path: 'confirm-email/:token', component: ConfirmEmailComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },

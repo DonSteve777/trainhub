@@ -20,6 +20,7 @@ import {
   JoinToggleDto,
   WodCheckinAuthorDto,
   GoalMarkFeedDto,
+  GoalFeedDto,
 } from '../../core/services/feed.service';
 import { UserService, WeeklyConstancyDto } from '../../core/services/user.service';
 import { ConstancyBlockComponent } from '../../core/components/constancy-block/constancy-block.component';
@@ -28,7 +29,7 @@ import {
   CommentsDialogResult,
 } from './comments-dialog/comments-dialog.component';
 import { PostContentComponent } from './post-content/post-content.component';
-import { MOCK_GOAL_MARK_POST } from './goal-mark.mock';
+import { ObjetivosService } from '../objetivos/objetivos.service';
 
 interface FeedPost {
   id: number;
@@ -54,6 +55,7 @@ interface FeedPost {
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
   goalMark: GoalMarkFeedDto | null;
+  goal: GoalFeedDto | null;
 }
 
 const PAGE_SIZE = 5;
@@ -78,6 +80,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly feedService = inject(FeedService);
   private readonly userService = inject(UserService);
+  private readonly objetivosService = inject(ObjetivosService);
   private readonly router = inject(Router);
 
   posts = signal<FeedPost[]>([]);
@@ -85,6 +88,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = signal(false);
 
   myConstancy = signal<WeeklyConstancyDto | null>(null);
+  currentUserId = signal<number | null>(null);
 
   private cursorDate: string | null = null;
   private cursorId: number | null = null;
@@ -92,11 +96,11 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadMyConstancy();
+    this.loadCurrentUser();
     this.feedService.getFeed(PAGE_SIZE).subscribe({
       next: feed => {
         const mapped = feed.map(dto => this.mapDto(dto));
-        // Demo UI sin backend de objetivos: inserta un post GOAL_MARK al inicio.
-        this.posts.set([this.mapDto(MOCK_GOAL_MARK_POST), ...mapped]);
+        this.posts.set(mapped);
         if (feed.length === 0) {
           this.hasMore.set(false);
           return;
@@ -106,8 +110,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: err => {
         console.error('Feed HTTP error', err);
-        // Si falla el feed, al menos muestra el mock de marca.
-        this.posts.set([this.mapDto(MOCK_GOAL_MARK_POST)]);
+        this.posts.set([]);
         this.hasMore.set(false);
       },
     });
@@ -121,6 +124,21 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         this.myConstancy.set(null);
       },
     });
+  }
+
+  private loadCurrentUser(): void {
+    this.userService.getProfile().subscribe({
+      next: profile => this.currentUserId.set(profile.id),
+      error: err => {
+        console.error('Profile HTTP error', err);
+        this.currentUserId.set(null);
+      },
+    });
+  }
+
+  isOwnPost(post: FeedPost): boolean {
+    const uid = this.currentUserId();
+    return uid != null && post.userId === uid;
   }
 
   ngAfterViewInit(): void {
@@ -201,6 +219,74 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  joinGoal(post: FeedPost): void {
+    if (post.postType !== 'GOAL_CREATED' || post.joinedByCurrentUser || this.isOwnPost(post)) {
+      return;
+    }
+
+    const goalId = post.goal?.goalId;
+    if (goalId == null) return;
+
+    const previousCount = post.participantsCount;
+    const optimisticCount = previousCount + 1;
+
+    this.posts.update(posts =>
+      posts.map(p => {
+        if (p.id !== post.id) return p;
+        return {
+          ...p,
+          joinedByCurrentUser: true,
+          participantsCount: optimisticCount,
+          goal: p.goal
+            ? { ...p.goal, joinedByCurrentUser: true, participantsCount: optimisticCount }
+            : p.goal,
+        };
+      })
+    );
+
+    this.feedService.joinGoal(goalId).subscribe({
+      next: res => {
+        this.posts.update(posts =>
+          posts.map(p => {
+            if (p.id !== post.id) return p;
+            return {
+              ...p,
+              joinedByCurrentUser: res.joined,
+              participantsCount: res.participantsCount,
+              goal: p.goal
+                ? {
+                    ...p.goal,
+                    joinedByCurrentUser: res.joined,
+                    participantsCount: res.participantsCount,
+                  }
+                : p.goal,
+            };
+          })
+        );
+        this.objetivosService.refreshAfterJoin();
+      },
+      error: () => {
+        this.posts.update(posts =>
+          posts.map(p => {
+            if (p.id !== post.id) return p;
+            return {
+              ...p,
+              joinedByCurrentUser: false,
+              participantsCount: previousCount,
+              goal: p.goal
+                ? {
+                    ...p.goal,
+                    joinedByCurrentUser: false,
+                    participantsCount: previousCount,
+                  }
+                : p.goal,
+            };
+          })
+        );
+      },
+    });
+  }
+
   toggleJoin(post: FeedPost): void {
     const optimisticJoined = !post.joinedByCurrentUser;
     const optimisticCount = post.participantsCount + (post.joinedByCurrentUser ? -1 : 1);
@@ -271,6 +357,9 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
         return 'Reto';
       case 'GOAL_MARK':
         return 'Objetivo';
+      case 'GOAL_CREATED':
+      case 'GOAL_JOIN':
+        return 'Objetivo';
       default:
         return postType;
     }
@@ -333,6 +422,7 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
       wodCheckinsCount: dto.wodCheckinsCount ?? null,
       wodCheckinAuthors: dto.wodCheckinAuthors ?? null,
       goalMark: dto.goalMark ?? null,
+      goal: dto.goal ?? null,
     };
   }
 }
