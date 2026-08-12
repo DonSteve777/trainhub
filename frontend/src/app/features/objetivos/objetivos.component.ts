@@ -69,8 +69,16 @@ export class ObjetivosComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // #region agent log
+    fetch('http://127.0.0.1:7276/ingest/5d8934ba-b284-461b-918f-bda8d35250fc',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'408495'},body:JSON.stringify({sessionId:'408495',runId:'post-fix',location:'objetivos.component.ts:ngOnInit',message:'objetivos init before loadGoals',data:{goalsCountBeforeLoad:this.goals().length,goalIdsBeforeLoad:this.goals().map(g=>g.id),filter:this.filter()},timestamp:Date.now(),hypothesisId:'A,D'})}).catch(()=>{});
+    // #endregion
     this.objetivosService.loadGoals().subscribe({
-      next: () => this.ensureSelection(),
+      next: () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7276/ingest/5d8934ba-b284-461b-918f-bda8d35250fc',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'408495'},body:JSON.stringify({sessionId:'408495',runId:'post-fix',location:'objetivos.component.ts:loadGoals.next',message:'objetivos after loadGoals',data:{goalsCount:this.goals().length,goalIds:this.goals().map(g=>g.id),filteredCount:this.filteredGoals().length,filteredIds:this.filteredGoals().map(g=>g.id),filter:this.filter()},timestamp:Date.now(),hypothesisId:'A,C,D'})}).catch(()=>{});
+        // #endregion
+        this.ensureSelection();
+      },
     });
   }
 

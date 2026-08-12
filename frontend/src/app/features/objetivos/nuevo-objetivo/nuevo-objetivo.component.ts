@@ -118,24 +118,34 @@ export class NuevoObjetivoComponent {
     this.errorMessage.set(null);
 
     const opt = this.selectedUnit();
-    const goal = this.objetivosService.createGoal({
-      title: this.title(),
-      description: this.description(),
-      metricLabel: this.metricLabel(),
-      targetValue: parsed,
-      unit,
-      direction: opt.direction,
-      weeks,
-    });
-
-    this.submitting.set(false);
-
-    this.snackBar.open(
-      `Objetivo creado: ${goal.title} · meta ${formatValue(goal.targetValue, goal.unit)}`,
-      'Cerrar',
-      { duration: 3500 },
-    );
-    void this.router.navigate(['/objetivos']);
+    this.objetivosService
+      .createGoal({
+        title: this.title(),
+        description: this.description(),
+        metricLabel: this.metricLabel(),
+        targetValue: parsed,
+        unit,
+        direction: opt.direction,
+        weeks,
+      })
+      .subscribe({
+        next: goal => {
+          this.submitting.set(false);
+          this.snackBar.open(
+            `Objetivo creado: ${goal.title} · meta ${formatValue(goal.targetValue, goal.unit)}`,
+            'Cerrar',
+            { duration: 3500 },
+          );
+          void this.router.navigate(['/objetivos']);
+        },
+        error: err => {
+          this.submitting.set(false);
+          const errBody = err.error;
+          this.errorMessage.set(
+            errBody?.message ?? 'No se pudo crear el objetivo.',
+          );
+        },
+      });
   }
 
   private parseValue(raw: string, unit: GoalUnit): number | null {

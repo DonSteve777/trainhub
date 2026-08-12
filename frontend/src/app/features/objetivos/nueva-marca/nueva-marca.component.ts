@@ -87,25 +87,31 @@ export class NuevaMarcaComponent implements OnInit {
     this.submitting.set(true);
     this.errorMessage.set(null);
 
-    const mark = this.objetivosService.addMark({
-      goalId: goal.id,
-      value: parsed,
-      note: this.note(),
-    });
-
-    this.submitting.set(false);
-
-    if (!mark) {
-      this.errorMessage.set('No se pudo registrar la marca.');
-      return;
-    }
-
-    this.snackBar.open(
-      `Marca registrada: ${formatValue(mark.value, goal.unit)} · ${goal.title}`,
-      'Cerrar',
-      { duration: 3500 },
-    );
-    void this.router.navigate(['/objetivos']);
+    const note = this.note().trim();
+    this.objetivosService
+      .addMark({
+        goalId: goal.id,
+        value: parsed,
+        note: note || undefined,
+      })
+      .subscribe({
+        next: mark => {
+          this.submitting.set(false);
+          this.snackBar.open(
+            `Marca registrada: ${formatValue(mark.value, goal.unit)} · ${goal.title}`,
+            'Cerrar',
+            { duration: 3500 },
+          );
+          void this.router.navigate(['/objetivos']);
+        },
+        error: err => {
+          this.submitting.set(false);
+          const errBody = err.error;
+          this.errorMessage.set(
+            errBody?.message ?? 'No se pudo registrar la marca.',
+          );
+        },
+      });
   }
 
   private parseValue(raw: string, unit: GoalUnit): number | null {
