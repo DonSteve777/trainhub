@@ -27,10 +27,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             JOIN FETCH p.user u
             LEFT JOIN FETCH p.box
             LEFT JOIN FETCH p.wodPost
+            LEFT JOIN FETCH p.goal g
+            LEFT JOIN FETCH g.createdBy
             WHERE p.user.id <> :userId
             AND (
                 (
-                    p.postType = com.trainhub.backend.enums.PostType.CHECKIN
+                    p.postType IN (
+                        com.trainhub.backend.enums.PostType.CHECKIN,
+                        com.trainhub.backend.enums.PostType.GOAL_CREATED,
+                        com.trainhub.backend.enums.PostType.GOAL_JOIN
+                    )
                     AND EXISTS (
                         SELECT f FROM Friendship f
                         WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
@@ -69,12 +75,15 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
      */
     @Query("""
             SELECT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.box LEFT JOIN FETCH p.wodPost
+            LEFT JOIN FETCH p.goal g LEFT JOIN FETCH g.createdBy
             WHERE p.user.id = :targetUserId
             AND p.postType IN (
                 com.trainhub.backend.enums.PostType.CHECKIN,
                 com.trainhub.backend.enums.PostType.BOX_WOD,
                 com.trainhub.backend.enums.PostType.BOX_CHALLENGE,
-                com.trainhub.backend.enums.PostType.BOX_ANNOUNCEMENT
+                com.trainhub.backend.enums.PostType.BOX_ANNOUNCEMENT,
+                com.trainhub.backend.enums.PostType.GOAL_CREATED,
+                com.trainhub.backend.enums.PostType.GOAL_JOIN
             )
             ORDER BY p.creationDate DESC, p.id DESC
             """)
@@ -122,10 +131,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             JOIN FETCH p.user u
             LEFT JOIN FETCH p.box
             LEFT JOIN FETCH p.wodPost
+            LEFT JOIN FETCH p.goal g
+            LEFT JOIN FETCH g.createdBy
             WHERE p.user.id <> :userId
             AND (
                 (
-                    p.postType = com.trainhub.backend.enums.PostType.CHECKIN
+                    p.postType IN (
+                        com.trainhub.backend.enums.PostType.CHECKIN,
+                        com.trainhub.backend.enums.PostType.GOAL_CREATED,
+                        com.trainhub.backend.enums.PostType.GOAL_JOIN
+                    )
                     AND EXISTS (
                         SELECT f FROM Friendship f
                         WHERE f.status = com.trainhub.backend.enums.FriendshipStatus.FRIEND
@@ -233,4 +248,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             ORDER BY p.creationDate DESC, p.id DESC
             """)
     List<Object[]> findCheckinAuthorsByWodId(@Param("wodId") Integer wodId);
+
+    /**
+     * Post GOAL_JOIN de un usuario concreto sobre un objetivo (si existe).
+     */
+    @Query("""
+            SELECT p FROM Post p
+            WHERE p.goal.id = :goalId
+              AND p.user.id = :userId
+              AND p.postType = com.trainhub.backend.enums.PostType.GOAL_JOIN
+            ORDER BY p.creationDate DESC, p.id DESC
+            """)
+    List<Post> findGoalJoinPosts(@Param("goalId") Integer goalId, @Param("userId") Integer userId);
 }

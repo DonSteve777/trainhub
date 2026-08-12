@@ -149,9 +149,8 @@ export class PostContentComponent {
   });
 
   goalJoinLead = computed(() => {
-    const title =
-      this.goalFeed()?.goalTitle?.trim() || this.post().title?.trim() || 'Objetivo';
-    return `Se ha acogido · ${title}`;
+    const creator = this.goalFeed()?.creatorUsername?.trim() || 'usuario';
+    return `Se ha apuntado al objetivo de @${creator}`;
   });
 
   goalJoinBody = computed(() => {
@@ -160,10 +159,10 @@ export class PostContentComponent {
     const creator = goal.creatorUsername;
     const others = goal.otherParticipants ?? [];
     if (others.length === 0) {
-      return `Se ha acogido al objetivo «${goal.goalTitle}» de @${creator}.`;
+      return `Se ha apuntado al objetivo «${goal.goalTitle}» de @${creator}.`;
     }
     const mentions = others.map(p => `@${p.username}`).join(', ');
-    return `Se ha acogido al objetivo «${goal.goalTitle}» de @${creator}. Participa también con ${mentions}.`;
+    return `Se ha apuntado al objetivo «${goal.goalTitle}» de @${creator}. Participa también con ${mentions}.`;
   });
 
   goalTargetTextFromFeed = computed(() => {

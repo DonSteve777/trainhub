@@ -41,7 +41,7 @@
               [src]="avatarUrl(n.lastActorPhotoUrl, n.lastActorUsername)"
               [alt]="n.lastActorUsername"
             />
-            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'" [class.notif-item__type-icon--comment-like]="n.type === 'COMMENT_LIKE'" [class.notif-item__type-icon--friend]="n.type === 'FRIEND_REQUEST'" [class.notif-item__type-icon--accepted]="n.type === 'FRIEND_REQUEST_ACCEPTED'">
+            <span class="notif-item__type-icon" [class.notif-item__type-icon--comment]="n.type === 'COMMENT'" [class.notif-item__type-icon--comment-like]="n.type === 'COMMENT_LIKE'" [class.notif-item__type-icon--friend]="n.type === 'FRIEND_REQUEST'" [class.notif-item__type-icon--accepted]="n.type === 'FRIEND_REQUEST_ACCEPTED'" [class.notif-item__type-icon--goal]="n.type === 'GOAL_JOIN'">
               <mat-icon>{{ iconForType(n.type) }}</mat-icon>
             </span>
           </div>

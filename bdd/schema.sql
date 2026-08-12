@@ -47,10 +47,13 @@ CREATE TABLE "posts" (
   "description" text,
   "creation_date" timestamp NOT NULL DEFAULT (now()),
   "wod_post_id" int,
+  "goal_id" int,
   CONSTRAINT "fk_posts_users" FOREIGN KEY ("user_id") REFERENCES "users" ("id"),
   CONSTRAINT "fk_posts_box" FOREIGN KEY ("box_id") REFERENCES "boxes" ("id"),
   CONSTRAINT "fk_posts_wod" FOREIGN KEY ("wod_post_id") REFERENCES "posts" ("id") ON DELETE SET NULL,
-  CONSTRAINT "chk_posts_post_type" CHECK ("post_type" IN ('CHECKIN', 'BOX_WOD', 'BOX_CHALLENGE', 'BOX_ANNOUNCEMENT'))
+  CONSTRAINT "chk_posts_post_type" CHECK ("post_type" IN (
+    'CHECKIN', 'BOX_WOD', 'BOX_CHALLENGE', 'BOX_ANNOUNCEMENT', 'GOAL_CREATED', 'GOAL_JOIN'
+  ))
 );
 
 CREATE INDEX "idx_posts_wod_post_id" ON "posts" ("wod_post_id");
@@ -162,3 +165,8 @@ CREATE TABLE "goal_marks" (
 
 CREATE INDEX "idx_goal_marks_goal_id" ON "goal_marks" ("goal_id");
 CREATE INDEX "idx_goal_marks_goal_user" ON "goal_marks" ("goal_id", "user_id");
+
+-- FK posts → goals (goals se crea después de posts)
+ALTER TABLE "posts"
+  ADD CONSTRAINT "fk_posts_goal" FOREIGN KEY ("goal_id") REFERENCES "goals" ("id") ON DELETE SET NULL;
+CREATE INDEX "idx_posts_goal_id" ON "posts" ("goal_id");

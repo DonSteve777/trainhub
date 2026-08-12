@@ -18,6 +18,8 @@ Enum account_status {
     BOX_WOD
     BOX_CHALLENGE
     BOX_ANNOUNCEMENT
+    GOAL_CREATED
+    GOAL_JOIN
   }
   Enum friendship_status {
     PENDING
@@ -61,8 +63,10 @@ Enum account_status {
     description text
     creation_date timestamp [not null, default: `now()`]
     wod_post_id int [ref: > posts.id]
+    goal_id int [ref: > goals.id]
     indexes {
       wod_post_id [name: 'idx_posts_wod_post_id']
+      goal_id [name: 'idx_posts_goal_id']
       (user_id, wod_post_id) [unique, name: 'uq_posts_user_wod_checkin', note: 'Partial: WHERE wod_post_id IS NOT NULL']
     }
   }

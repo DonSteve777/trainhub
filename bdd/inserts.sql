@@ -503,3 +503,17 @@ CROSS JOIN (VALUES
 ) AS v(username, value, note, recorded_at)
 JOIN users u ON u.username = v.username
 WHERE g.title = 'SkiErg 1000 m en 3:30';
+
+-- Posts GOAL_CREATED de objetivos activos (visibles en feed de amigos)
+INSERT INTO posts (user_id, post_type, title, description, challenge_deadline, goal_id, creation_date)
+SELECT u.id, 'GOAL_CREATED', g.title, g.description, g.deadline, g.id, g.created_at
+FROM goals g
+JOIN users u ON u.id = g.created_by_user_id
+WHERE g.title IN ('Sub 90 en Hyrox Open', '100 kg en deadlift');
+
+-- Post GOAL_JOIN de lucia_vega al Hyrox
+INSERT INTO posts (user_id, post_type, title, description, challenge_deadline, goal_id, creation_date)
+SELECT u.id, 'GOAL_JOIN', g.title, NULL, g.deadline, g.id, TIMESTAMP '2026-06-08 17:05:00'
+FROM goals g
+CROSS JOIN users u
+WHERE g.title = 'Sub 90 en Hyrox Open' AND u.username = 'lucia_vega';

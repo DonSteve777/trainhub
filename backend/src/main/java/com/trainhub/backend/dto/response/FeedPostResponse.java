@@ -45,6 +45,9 @@ public class FeedPostResponse {
     /** Solo en BOX_WOD: hasta 8 participantes (muro). */
     private List<WodCheckinAuthorResponse> wodCheckinAuthors;
 
+    /** Solo en GOAL_CREATED / GOAL_JOIN. */
+    private GoalFeedResponse goal;
+
     public FeedPostResponse() {}
 
     public Integer getId() { return id; }
@@ -115,6 +118,9 @@ public class FeedPostResponse {
         this.wodCheckinAuthors = wodCheckinAuthors;
     }
 
+    public GoalFeedResponse getGoal() { return goal; }
+    public void setGoal(GoalFeedResponse goal) { this.goal = goal; }
+
     public static Builder builder() { return new Builder(); }
 
     public static final class Builder {
@@ -142,6 +148,7 @@ public class FeedPostResponse {
             r.wodCheckinAuthors = v;
             return this;
         }
+        public Builder goal(GoalFeedResponse v) { r.goal = v; return this; }
 
         public FeedPostResponse build() { return r; }
     }

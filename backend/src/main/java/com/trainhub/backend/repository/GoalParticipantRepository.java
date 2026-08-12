@@ -55,6 +55,11 @@ public interface GoalParticipantRepository extends JpaRepository<GoalParticipant
     boolean existsByIdGoalIdAndIdUserId(Integer goalId, Integer userId);
 
     /**
+     * Número de participantes de un objetivo.
+     */
+    long countByIdGoalId(Integer goalId);
+
+    /**
      * IDs de objetivos (del conjunto dado) en los que el usuario participa.
      */
     @Query("""
@@ -65,4 +70,18 @@ public interface GoalParticipantRepository extends JpaRepository<GoalParticipant
             """)
     List<Integer> findParticipatingGoalIds(@Param("goalIds") List<Integer> goalIds,
                                            @Param("userId") Integer userId);
+
+    /**
+     * Adhesiones a objetivos creados por el usuario (no owners), más recientes primero.
+     */
+    @Query("""
+            SELECT gp FROM GoalParticipant gp
+            JOIN FETCH gp.user
+            JOIN FETCH gp.goal g
+            JOIN FETCH g.createdBy
+            WHERE g.createdBy.id = :creatorUserId
+              AND gp.owner = false
+            ORDER BY gp.startedAt DESC
+            """)
+    List<GoalParticipant> findJoinsOnCreatedGoals(@Param("creatorUserId") Integer creatorUserId);
 }

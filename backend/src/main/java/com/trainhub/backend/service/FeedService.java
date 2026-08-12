@@ -1,11 +1,15 @@
 package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.response.FeedPostResponse;
+import com.trainhub.backend.dto.response.GoalFeedResponse;
+import com.trainhub.backend.dto.response.GoalFriendPreviewResponse;
 import com.trainhub.backend.dto.response.LikeToggleResponse;
 import com.trainhub.backend.dto.response.ParticipationToggleResponse;
 import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
 import com.trainhub.backend.dto.response.WodCheckinAuthorResponse;
 import com.trainhub.backend.enums.PostType;
+import com.trainhub.backend.model.Goal;
+import com.trainhub.backend.model.GoalParticipant;
 import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.PostLike;
 import com.trainhub.backend.model.PostLikeId;
@@ -13,6 +17,7 @@ import com.trainhub.backend.model.PostParticipant;
 import com.trainhub.backend.model.PostParticipantId;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.CommentRepository;
+import com.trainhub.backend.repository.GoalParticipantRepository;
 import com.trainhub.backend.repository.PostLikeRepository;
 import com.trainhub.backend.repository.PostParticipantRepository;
 import com.trainhub.backend.repository.PostRepository;
@@ -39,6 +44,7 @@ import java.util.stream.Collectors;
 public class FeedService {
 
     private static final int WOD_MURO_AUTHORS_LIMIT = 8;
+    private static final int GOAL_AVATARS_LIMIT = 8;
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
@@ -46,17 +52,20 @@ public class FeedService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostService postService;
+    private final GoalParticipantRepository goalParticipantRepository;
 
     public FeedService(PostRepository postRepository, PostLikeRepository postLikeRepository,
                        PostParticipantRepository postParticipantRepository,
                        CommentRepository commentRepository, UserRepository userRepository,
-                       PostService postService) {
+                       PostService postService,
+                       GoalParticipantRepository goalParticipantRepository) {
         this.postRepository = postRepository;
         this.postLikeRepository = postLikeRepository;
         this.postParticipantRepository = postParticipantRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.postService = postService;
+        this.goalParticipantRepository = goalParticipantRepository;
     }
 
     public List<FeedPostResponse> getFirstPage(Integer userId, Integer boxId, int size) {
@@ -190,6 +199,7 @@ public class FeedService {
 
         Map<Integer, WeeklyConstancyResponse> constancyByUserId = loadConstancyForCheckinAuthors(posts);
         WodMuroData wodMuro = loadWodMuroData(posts);
+        GoalFeedData goalData = loadGoalFeedData(posts, userId);
 
         return posts.stream()
                 .map(post -> {
@@ -212,10 +222,127 @@ public class FeedService {
                                 wodMuro.authors().getOrDefault(post.getId(), List.of())
                         );
                     }
+                    if (isGoalPost(post.getPostType()) && post.getGoal() != null) {
+                        GoalFeedResponse goalPayload = goalData.byGoalId().get(post.getGoal().getId());
+                        if (goalPayload != null) {
+                            GoalFeedResponse copy = copyGoalFeed(goalPayload);
+                            if (post.getPostType() == PostType.GOAL_JOIN) {
+                                copy.setOtherParticipants(
+                                        buildOtherParticipants(
+                                                goalData.participantsByGoalId()
+                                                        .getOrDefault(post.getGoal().getId(), List.of()),
+                                                post.getUser().getId()
+                                        )
+                                );
+                            }
+                            response.setGoal(copy);
+                            response.setParticipantsCount(copy.getParticipantsCount());
+                            response.setJoinedByCurrentUser(copy.isJoinedByCurrentUser());
+                        }
+                    }
                     return response;
                 })
                 .collect(Collectors.toList());
     }
+
+    private boolean isGoalPost(PostType type) {
+        return type == PostType.GOAL_CREATED || type == PostType.GOAL_JOIN;
+    }
+
+    private GoalFeedData loadGoalFeedData(List<Post> posts, Integer currentUserId) {
+        List<Integer> goalIds = posts.stream()
+                .filter(p -> isGoalPost(p.getPostType()) && p.getGoal() != null)
+                .map(p -> p.getGoal().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (goalIds.isEmpty()) {
+            return new GoalFeedData(Map.of(), Map.of());
+        }
+
+        List<GoalParticipant> allParticipants = goalParticipantRepository.findByGoalIdsWithUser(goalIds);
+        Map<Integer, List<GoalParticipant>> byGoal = allParticipants.stream()
+                .collect(Collectors.groupingBy(gp -> gp.getId().getGoalId()));
+
+        Set<Integer> joinedGoalIds = new HashSet<>(
+                goalParticipantRepository.findParticipatingGoalIds(goalIds, currentUserId)
+        );
+
+        Map<Integer, Goal> goalsById = posts.stream()
+                .filter(p -> p.getGoal() != null)
+                .map(Post::getGoal)
+                .collect(Collectors.toMap(Goal::getId, g -> g, (a, b) -> a));
+
+        Map<Integer, GoalFeedResponse> byGoalId = new HashMap<>();
+        for (Integer goalId : goalIds) {
+            Goal goal = goalsById.get(goalId);
+            if (goal == null) continue;
+            List<GoalParticipant> participants = byGoal.getOrDefault(goalId, List.of());
+
+            GoalFeedResponse payload = new GoalFeedResponse();
+            payload.setGoalId(goal.getId());
+            payload.setGoalTitle(goal.getTitle());
+            payload.setGoalStatus(goal.getStatus().name());
+            payload.setTargetValue(goal.getTargetValue());
+            payload.setUnit(goal.getUnit().name().toLowerCase());
+            payload.setDirection(goal.getDirection().name().toLowerCase());
+            payload.setWeeks(goal.getWeeks());
+            payload.setDeadline(goal.getDeadline());
+            payload.setCreatorUserId(goal.getCreatedBy().getId());
+            payload.setCreatorUsername(goal.getCreatedBy().getUsername());
+            payload.setParticipantsCount(participants.size());
+            payload.setJoinedByCurrentUser(joinedGoalIds.contains(goalId));
+            payload.setFriendAvatars(buildFriendAvatars(participants));
+            byGoalId.put(goalId, payload);
+        }
+
+        return new GoalFeedData(byGoalId, byGoal);
+    }
+
+    private List<GoalFriendPreviewResponse> buildFriendAvatars(List<GoalParticipant> participants) {
+        List<GoalFriendPreviewResponse> avatars = new ArrayList<>();
+        for (GoalParticipant gp : participants) {
+            if (avatars.size() >= GOAL_AVATARS_LIMIT) break;
+            User u = gp.getUser();
+            avatars.add(new GoalFriendPreviewResponse(u.getId(), u.getUsername(), u.getPhotoUrl()));
+        }
+        return avatars;
+    }
+
+    private List<GoalFriendPreviewResponse> buildOtherParticipants(
+            List<GoalParticipant> participants, Integer joinAuthorUserId) {
+        List<GoalFriendPreviewResponse> others = new ArrayList<>();
+        for (GoalParticipant gp : participants) {
+            if (gp.isOwner()) continue;
+            if (gp.getUser().getId().equals(joinAuthorUserId)) continue;
+            User u = gp.getUser();
+            others.add(new GoalFriendPreviewResponse(u.getId(), u.getUsername(), u.getPhotoUrl()));
+        }
+        return others;
+    }
+
+    private GoalFeedResponse copyGoalFeed(GoalFeedResponse src) {
+        GoalFeedResponse copy = new GoalFeedResponse();
+        copy.setGoalId(src.getGoalId());
+        copy.setGoalTitle(src.getGoalTitle());
+        copy.setGoalStatus(src.getGoalStatus());
+        copy.setTargetValue(src.getTargetValue());
+        copy.setUnit(src.getUnit());
+        copy.setDirection(src.getDirection());
+        copy.setWeeks(src.getWeeks());
+        copy.setDeadline(src.getDeadline());
+        copy.setCreatorUserId(src.getCreatorUserId());
+        copy.setCreatorUsername(src.getCreatorUsername());
+        copy.setParticipantsCount(src.getParticipantsCount());
+        copy.setJoinedByCurrentUser(src.isJoinedByCurrentUser());
+        copy.setFriendAvatars(src.getFriendAvatars());
+        return copy;
+    }
+
+    private record GoalFeedData(
+            Map<Integer, GoalFeedResponse> byGoalId,
+            Map<Integer, List<GoalParticipant>> participantsByGoalId
+    ) {}
 
     /**
      * Batch de avatares del muro de participantes para los BOX_WOD de la página.

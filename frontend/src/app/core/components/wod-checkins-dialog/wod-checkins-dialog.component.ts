@@ -6,8 +6,15 @@ import { RouterLink } from '@angular/router';
 import { FeedService, WodCheckinAuthorDto } from '../../services/feed.service';
 
 export interface WodCheckinsDialogData {
-  wodPostId: number;
-  wodTitle: string | null;
+  wodPostId?: number;
+  wodTitle?: string | null;
+  /** Título principal del diálogo. */
+  dialogTitle?: string;
+  /** Icono Material del encabezado. */
+  headerIcon?: string;
+  /** Lista precargada (p. ej. objetivos en mock). Si no hay wodPostId, no se llama a la API. */
+  participants?: WodCheckinAuthorDto[];
+  emptyMessage?: string;
 }
 
 @Component({
@@ -27,6 +34,17 @@ export class WodCheckinsDialogComponent implements OnInit {
   error = signal(false);
 
   ngOnInit(): void {
+    if (this.data.participants) {
+      this.authors.set(this.data.participants);
+      this.loading.set(false);
+      return;
+    }
+
+    if (!this.data.wodPostId) {
+      this.loading.set(false);
+      return;
+    }
+
     this.feedService.getWodParticipants(this.data.wodPostId).subscribe({
       next: authors => {
         this.authors.set(authors);
@@ -42,6 +60,12 @@ export class WodCheckinsDialogComponent implements OnInit {
   avatarUrl(author: WodCheckinAuthorDto): string {
     return author.photoUrl ?? `https://i.pravatar.cc/40?u=${author.userId}`;
   }
+
+  dialogTitle = (): string => this.data.dialogTitle ?? 'Quién va a participar';
+
+  headerIcon = (): string => this.data.headerIcon ?? 'fitness_center';
+
+  emptyMessage = (): string => this.data.emptyMessage ?? 'Nadie se ha apuntado todavía.';
 
   close(): void {
     this.dialogRef.close();

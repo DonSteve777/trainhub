@@ -2,6 +2,7 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.NewGoalMarkRequest;
 import com.trainhub.backend.dto.request.NewGoalRequest;
+import com.trainhub.backend.dto.response.GoalJoinResponse;
 import com.trainhub.backend.dto.response.GoalMarkResponse;
 import com.trainhub.backend.dto.response.GoalResponse;
 import com.trainhub.backend.enums.GoalStatus;
@@ -56,6 +57,17 @@ public class GoalController {
             @Valid @RequestBody NewGoalRequest request) {
         GoalResponse goal = goalService.createGoal(principal.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(goal);
+    }
+
+    /**
+     * Acoge al usuario autenticado a un objetivo activo ajeno.
+     */
+    @PostMapping("/{goalId}/join")
+    public ResponseEntity<GoalJoinResponse> join(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Integer goalId) {
+        GoalJoinResponse body = goalService.joinGoal(principal.getId(), goalId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
     /**

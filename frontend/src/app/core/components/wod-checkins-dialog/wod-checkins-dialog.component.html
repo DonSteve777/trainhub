@@ -1,9 +1,9 @@
 <div class="wod-checkins-dialog">
   <div class="wod-checkins-header">
     <div class="wod-checkins-header__info">
-      <mat-icon class="wod-checkins-header__icon">fitness_center</mat-icon>
+      <mat-icon class="wod-checkins-header__icon">{{ headerIcon() }}</mat-icon>
       <div>
-        <span class="wod-checkins-header__title">Quién va a participar</span>
+        <span class="wod-checkins-header__title">{{ dialogTitle() }}</span>
         @if (data.wodTitle) {
           <span class="wod-checkins-header__subtitle">{{ data.wodTitle }}</span>
         }
@@ -31,7 +31,7 @@
     } @else if (authors().length === 0) {
       <div class="wod-checkins-state">
         <mat-icon class="wod-checkins-state__icon">sports_gymnastics</mat-icon>
-        <p>Nadie se ha apuntado todavía.</p>
+        <p>{{ emptyMessage() }}</p>
       </div>
     } @else {
       <ul class="wod-checkins-list">

@@ -3,7 +3,13 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 export interface NotificationDto {
-  type: 'LIKE' | 'COMMENT' | 'COMMENT_LIKE' | 'FRIEND_REQUEST' | 'FRIEND_REQUEST_ACCEPTED';
+  type:
+    | 'LIKE'
+    | 'COMMENT'
+    | 'COMMENT_LIKE'
+    | 'FRIEND_REQUEST'
+    | 'FRIEND_REQUEST_ACCEPTED'
+    | 'GOAL_JOIN';
   postId: number | null;
   postCreationDate: string | null;
   lastActorUsername: string;
@@ -13,6 +19,7 @@ export interface NotificationDto {
   unread: boolean;
   actorId: number | null;
   commentId: number | null;
+  goalTitle?: string | null;
 }
 
 export interface LikerDto {

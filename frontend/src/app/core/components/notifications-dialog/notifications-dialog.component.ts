@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { NotificationService, NotificationDto } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
 import { LikersDialogComponent, LikersDialogData } from '../likers-dialog/likers-dialog.component';
@@ -18,6 +19,7 @@ export class NotificationsDialogComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly dialogRef = inject(MatDialogRef<NotificationsDialogComponent>);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   notifications = signal<NotificationDto[]>([]);
   loading = signal(true);
@@ -43,6 +45,9 @@ export class NotificationsDialogComponent implements OnInit {
       this.openLikers(n);
     } else if (n.type === 'COMMENT' || n.type === 'COMMENT_LIKE') {
       this.openComments(n);
+    } else if (n.type === 'GOAL_JOIN') {
+      this.close();
+      void this.router.navigate(['/feed']);
     }
   }
 
@@ -105,6 +110,10 @@ export class NotificationsDialogComponent implements OnInit {
     if (n.type === 'FRIEND_REQUEST_ACCEPTED') {
       return 'ha aceptado tu solicitud de amistad';
     }
+    if (n.type === 'GOAL_JOIN') {
+      const title = n.goalTitle?.trim() || 'tu objetivo';
+      return `se ha acogido a tu objetivo «${title}»`;
+    }
     const date = this.formatDate(n.postCreationDate!);
     if (n.type === 'LIKE') {
       if (n.totalCount === 1) {
@@ -127,11 +136,20 @@ export class NotificationsDialogComponent implements OnInit {
     return `y ${others} ${others === 1 ? 'persona más han' : 'personas más han'} comentado en tu publicación del ${date}`;
   }
 
-  iconForType(type: 'LIKE' | 'COMMENT' | 'COMMENT_LIKE' | 'FRIEND_REQUEST' | 'FRIEND_REQUEST_ACCEPTED'): string {
+  iconForType(
+    type:
+      | 'LIKE'
+      | 'COMMENT'
+      | 'COMMENT_LIKE'
+      | 'FRIEND_REQUEST'
+      | 'FRIEND_REQUEST_ACCEPTED'
+      | 'GOAL_JOIN'
+  ): string {
     if (type === 'LIKE') return 'favorite';
     if (type === 'COMMENT_LIKE') return 'favorite_border';
     if (type === 'FRIEND_REQUEST') return 'person_add';
     if (type === 'FRIEND_REQUEST_ACCEPTED') return 'people';
+    if (type === 'GOAL_JOIN') return 'flag';
     return 'chat_bubble';
   }
 

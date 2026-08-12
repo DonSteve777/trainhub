@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  */
 public class NotificationResponse {
 
-    /** Tipo de notificación: "LIKE", "COMMENT", "COMMENT_LIKE" o "FRIEND_REQUEST". */
+    /** Tipo de notificación: "LIKE", "COMMENT", "COMMENT_LIKE", "FRIEND_REQUEST", "FRIEND_REQUEST_ACCEPTED", "GOAL_JOIN". */
     private String type;
 
     private Integer postId;
@@ -22,6 +22,8 @@ public class NotificationResponse {
     private Integer actorId;
     /** Id del comentario. Solo se rellena para COMMENT_LIKE. */
     private Integer commentId;
+    /** Título del objetivo. Solo se rellena para GOAL_JOIN. */
+    private String goalTitle;
 
     public NotificationResponse(String type, Integer postId, LocalDateTime postCreationDate,
                                 String lastActorUsername, String lastActorPhotoUrl,
@@ -48,4 +50,6 @@ public class NotificationResponse {
     public void setActorId(Integer actorId) { this.actorId = actorId; }
     public Integer getCommentId() { return commentId; }
     public void setCommentId(Integer commentId) { this.commentId = commentId; }
+    public String getGoalTitle() { return goalTitle; }
+    public void setGoalTitle(String goalTitle) { this.goalTitle = goalTitle; }
 }

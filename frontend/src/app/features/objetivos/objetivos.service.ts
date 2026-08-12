@@ -93,6 +93,14 @@ export class ObjetivosService {
     );
   }
 
+  /**
+   * Tras unirse a un objetivo desde el feed, recarga la lista para que /objetivos
+   * refleje la nueva participación.
+   */
+  refreshAfterJoin(): void {
+    this.loadGoals().subscribe({ error: () => undefined });
+  }
+
   private mergeMark(goalId: number, mark: GoalMark): void {
     this._goals.update(goals =>
       goals.map(g => {

@@ -48,6 +48,11 @@ public class Post {
     @JoinColumn(name = "wod_post_id")
     private Post wodPost;
 
+    /** Objetivo vinculado (GOAL_CREATED / GOAL_JOIN). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id")
+    private Goal goal;
+
     @Column(name = "creation_date", nullable = false)
     private LocalDateTime creationDate;
 
@@ -89,6 +94,9 @@ public class Post {
 
     public Post getWodPost() { return wodPost; }
     public void setWodPost(Post wodPost) { this.wodPost = wodPost; }
+
+    public Goal getGoal() { return goal; }
+    public void setGoal(Goal goal) { this.goal = goal; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }

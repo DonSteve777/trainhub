@@ -7,7 +7,9 @@ public enum PostType {
     CHECKIN,
     BOX_WOD,
     BOX_CHALLENGE,
-    BOX_ANNOUNCEMENT;
+    BOX_ANNOUNCEMENT,
+    GOAL_CREATED,
+    GOAL_JOIN;
 
     /**
      * @return true si el post pertenece al contenido publicado por un box (WOD, reto o anuncio).

@@ -2,10 +2,14 @@ package com.trainhub.backend.service;
 
 import com.trainhub.backend.dto.response.LikerResponse;
 import com.trainhub.backend.dto.response.NotificationResponse;
+import com.trainhub.backend.model.GoalParticipant;
+import com.trainhub.backend.model.Post;
 import com.trainhub.backend.model.User;
 import com.trainhub.backend.repository.CommentRepository;
 import com.trainhub.backend.repository.FriendshipRepository;
+import com.trainhub.backend.repository.GoalParticipantRepository;
 import com.trainhub.backend.repository.PostLikeRepository;
+import com.trainhub.backend.repository.PostRepository;
 import com.trainhub.backend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -33,15 +37,21 @@ public class NotificationService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final GoalParticipantRepository goalParticipantRepository;
+    private final PostRepository postRepository;
 
     public NotificationService(PostLikeRepository postLikeRepository,
                                CommentRepository commentRepository,
                                UserRepository userRepository,
-                               FriendshipRepository friendshipRepository) {
+                               FriendshipRepository friendshipRepository,
+                               GoalParticipantRepository goalParticipantRepository,
+                               PostRepository postRepository) {
         this.postLikeRepository = postLikeRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.goalParticipantRepository = goalParticipantRepository;
+        this.postRepository = postRepository;
     }
 
     /**
@@ -59,6 +69,7 @@ public class NotificationService {
         result.addAll(buildCommentLikeNotifications(userId, lastSeen));
         result.addAll(buildFriendRequestNotifications(userId, lastSeen));
         result.addAll(buildFriendAcceptedNotifications(userId, lastSeen));
+        result.addAll(buildGoalJoinNotifications(userId, lastSeen));
 
         result.sort(Comparator.comparing(NotificationResponse::getLastActionAt).reversed());
         return result;
@@ -79,8 +90,10 @@ public class NotificationService {
         long unreadCommentLikes = countUnreadCommentLikes(userId, lastSeen);
         long unreadFriendRequests = countUnreadFriendRequests(userId, lastSeen);
         long unreadFriendAccepted = countUnreadFriendAccepted(userId, lastSeen);
+        long unreadGoalJoins = countUnreadGoalJoins(userId, lastSeen);
 
-        return unreadLikes + unreadComments + unreadCommentLikes + unreadFriendRequests + unreadFriendAccepted;
+        return unreadLikes + unreadComments + unreadCommentLikes + unreadFriendRequests
+                + unreadFriendAccepted + unreadGoalJoins;
     }
 
     /**
@@ -335,6 +348,46 @@ public class NotificationService {
         if (value instanceof LocalDateTime ldt) return ldt;
         if (value instanceof Timestamp ts) return ts.toLocalDateTime();
         throw new IllegalArgumentException("No se puede convertir a LocalDateTime: " + value);
+    }
+
+    private List<NotificationResponse> buildGoalJoinNotifications(Integer userId, LocalDateTime lastSeen) {
+        List<GoalParticipant> joins = goalParticipantRepository.findJoinsOnCreatedGoals(userId);
+        List<NotificationResponse> result = new ArrayList<>();
+
+        for (GoalParticipant gp : joins) {
+            LocalDateTime actionAt = gp.getStartedAt().toLocalDateTime();
+            boolean unread = lastSeen == null || actionAt.isAfter(lastSeen);
+
+            Integer joinPostId = null;
+            List<Post> joinPosts = postRepository.findGoalJoinPosts(
+                    gp.getGoal().getId(), gp.getUser().getId());
+            if (!joinPosts.isEmpty()) {
+                joinPostId = joinPosts.get(0).getId();
+            }
+
+            NotificationResponse n = new NotificationResponse(
+                    "GOAL_JOIN",
+                    joinPostId,
+                    joinPostId != null ? joinPosts.get(0).getCreationDate() : null,
+                    gp.getUser().getUsername(),
+                    gp.getUser().getPhotoUrl(),
+                    actionAt,
+                    1,
+                    unread
+            );
+            n.setActorId(gp.getUser().getId());
+            n.setGoalTitle(gp.getGoal().getTitle());
+            result.add(n);
+        }
+        return result;
+    }
+
+    private long countUnreadGoalJoins(Integer userId, LocalDateTime lastSeen) {
+        List<GoalParticipant> joins = goalParticipantRepository.findJoinsOnCreatedGoals(userId);
+        if (lastSeen == null) return joins.size();
+        return joins.stream()
+                .filter(gp -> gp.getStartedAt().toLocalDateTime().isAfter(lastSeen))
+                .count();
     }
 
     private User findUser(Integer userId) {
