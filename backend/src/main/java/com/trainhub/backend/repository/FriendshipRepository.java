@@ -59,4 +59,21 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Friendsh
             ORDER BY f.acceptedAt DESC
             """)
     List<Object[]> findAcceptedRequestsForUser(@Param("userId") Integer userId);
+
+    /**
+     * Lista los usuarios que ya son amigos del {@code userId} (status = FRIEND).
+     * Devuelve filas con: friendId, friendUsername, friendPhotoUrl, acceptedAt.
+     */
+    @Query(value = """
+            SELECT u.id, u.username, u.photo_url, f.accepted_at
+            FROM friendships f
+            JOIN users u ON u.id = CASE
+                WHEN f.user_a_id = :userId THEN f.user_b_id
+                ELSE f.user_a_id
+            END
+            WHERE f.status = 'FRIEND'
+              AND (:userId = f.user_a_id OR :userId = f.user_b_id)
+            ORDER BY f.accepted_at DESC
+            """, nativeQuery = true)
+    List<Object[]> findFriendsForUser(@Param("userId") Integer userId);
 }

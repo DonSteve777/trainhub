@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   background: var(--trainhub-surface-dark, #1a1412);
+  border: 2px solid var(--trainhub-accent);
+  border-radius: 12px;
   min-width: 340px;
   max-width: 420px;
 }

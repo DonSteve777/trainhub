@@ -24,6 +24,12 @@ export interface UserSearchResultDto {
   friendshipStatus: 'NONE' | 'PENDING' | 'FRIEND';
 }
 
+export interface FriendPreviewDto {
+  id: number;
+  username: string;
+  photoUrl: string | null;
+}
+
 export interface WeeklyConstancyDto {
   streakWeeks: number;
   weekDayTags: Array<'HYROX' | 'FUERZA' | 'CARRERA' | 'CLASE' | 'DESCANSO_ACTIVO' | 'OTRO' | null>;
@@ -49,6 +55,10 @@ export class UserService {
     );
   }
 
+  getFriends(): Observable<FriendPreviewDto[]> {
+    return this.api.get<FriendPreviewDto[]>('/user/friends');
+  }
+
   friendshipStatus(targetUserId: number): Observable<'NONE' | 'PENDING' | 'FRIEND'> {
     return this.api.get<{ status: 'NONE' | 'PENDING' | 'FRIEND' }>(
       `/user/${targetUserId}/friendship-status`
@@ -65,5 +75,9 @@ export class UserService {
 
   rejectFriendRequest(requesterId: number): Observable<void> {
     return this.api.delete<void>(`/user/${requesterId}/friend-request`);
+  }
+
+  removeFriend(targetUserId: number): Observable<void> {
+    return this.api.delete<void>(`/user/${targetUserId}/friendship`);
   }
 }

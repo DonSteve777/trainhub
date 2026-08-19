@@ -1,0 +1,55 @@
+<div class="friends-dialog">
+  <div class="friends-header">
+    <span class="friends-header__title">Amigos</span>
+    <button class="friends-header__close" type="button" (click)="close()" aria-label="Cerrar lista de amigos">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="friends-body">
+    @if (loading()) {
+      <div class="friends-empty">
+        <div class="friends-loading" aria-hidden="true">
+          <span class="friends-loading__dot"></span>
+          <span class="friends-loading__dot"></span>
+          <span class="friends-loading__dot"></span>
+        </div>
+      </div>
+    } @else if (error()) {
+      <div class="friends-empty">
+        <mat-icon class="friends-empty__icon">error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (friends().length === 0) {
+      <div class="friends-empty">
+        <mat-icon class="friends-empty__icon">people_off</mat-icon>
+        <p>No tienes amigos todavía.</p>
+      </div>
+    } @else {
+      <ul class="friends-list" role="list" aria-label="Lista de amigos">
+        @for (f of friends(); track f.id) {
+          <li class="friends-item">
+            <div class="friends-item__left">
+              <div class="friends-item__avatar-wrap">
+                <img class="friends-item__avatar" [src]="avatarUrl(f)" [alt]="f.username" />
+              </div>
+              <span class="friends-item__name">{{ f.username }}</span>
+            </div>
+
+            <button
+              type="button"
+              class="friends-item__remove-btn"
+              mat-stroked-button
+              (click)="removeFriend(f, $event)"
+              [disabled]="processingIds().has(f.id)"
+            >
+              <mat-icon>person_remove</mat-icon>
+              Eliminar
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+

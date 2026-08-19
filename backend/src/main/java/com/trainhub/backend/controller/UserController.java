@@ -2,6 +2,7 @@ package com.trainhub.backend.controller;
 
 import com.trainhub.backend.dto.request.UpdateUserProfileRequest;
 import com.trainhub.backend.dto.response.FeedPostResponse;
+import com.trainhub.backend.dto.response.FriendPreviewResponse;
 import com.trainhub.backend.dto.response.StreakResponse;
 import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
@@ -255,6 +256,53 @@ public class UserController {
                 .map(f -> f.getStatus().name())
                 .orElse("NONE");
         return ResponseEntity.ok(Map.of("status", status));
+    }
+
+    /**
+     * Lista los amigos ya aceptados del usuario autenticado.
+     */
+    @GetMapping("/friends")
+    public ResponseEntity<List<FriendPreviewResponse>> getFriends(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+
+        List<Object[]> rows = friendshipRepository.findFriendsForUser(currentUserId);
+        List<FriendPreviewResponse> friends = rows.stream()
+                .map(row -> {
+                    Integer friendId = row[0] instanceof Number ? ((Number) row[0]).intValue() : (Integer) row[0];
+                    String username = (String) row[1];
+                    String photoUrl = (String) row[2];
+                    return new FriendPreviewResponse(friendId, username, photoUrl);
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(friends);
+    }
+
+    /**
+     * Elimina una amistad aceptada (status = FRIEND) entre el usuario autenticado y {@code targetUserId}.
+     */
+    @DeleteMapping("/{targetUserId}/friendship")
+    public ResponseEntity<Void> removeFriendship(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Integer targetUserId) {
+
+        Integer currentUserId = userPrincipal.getUser().getId();
+
+        if (currentUserId.equals(targetUserId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes eliminar tu propia amistad");
+        }
+
+        Friendship friendship = friendshipRepository.findBetween(currentUserId, targetUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Amistad no encontrada"));
+
+        if (friendship.getStatus() != FriendshipStatus.FRIEND) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No son amigos (amistad pendiente no eliminable con este endpoint)");
+        }
+
+        friendshipRepository.delete(friendship);
+        return ResponseEntity.ok().build();
     }
 
     /**
