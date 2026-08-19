@@ -365,10 +365,6 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  participantsLabel(count: number): string {
-    return count === 1 ? '1 participante' : `${count} participantes`;
-  }
-
   formatPostDate(dateStr: string): string {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return '';

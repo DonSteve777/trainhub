@@ -26,27 +26,12 @@
     @if (hasDescription()) {
       <p class="post-body__description">{{ post().description }}</p>
     }
-    <div class="wod-muro" [attr.aria-label]="wodMuroLabel()">
-      @if (wodCheckinAuthors().length > 0) {
-        <div class="wod-muro__avatars" aria-hidden="true">
-          @for (author of wodCheckinAuthors(); track author.userId) {
-            <img
-              class="wod-muro__avatar"
-              [src]="authorAvatarUrl(author)"
-              [alt]="author.username"
-              [title]="author.username"
-            />
-          }
-        </div>
-      }
-      @if (canOpenWodMuro()) {
-        <button type="button" class="wod-muro__label wod-muro__label--button" (click)="openWodCheckins()">
-          {{ wodMuroLabel() }}
-        </button>
-      } @else {
-        <p class="wod-muro__label">{{ wodMuroLabel() }}</p>
-      }
-    </div>
+    <app-participants-strip
+      [participants]="wodParticipants()"
+      [label]="wodMuroLabel()"
+      [clickable]="canOpenWodMuro()"
+      (participantsClick)="openWodCheckins()"
+    />
   </div>
 } @else if (isBoxAnnouncement()) {
   <div class="post-body" role="status">
@@ -67,6 +52,14 @@
         Fecha límite: {{ formattedDeadline() }}
       </span>
     }
+
+    <app-participants-strip
+      [participants]="challengeParticipants()"
+      [label]="challengeParticipantsLabel()"
+      [clickable]="canOpenChallengeParticipants()"
+      [ariaLabel]="'Ver ' + challengeParticipantsLabel()"
+      (participantsClick)="openChallengeParticipants()"
+    />
   </div>
 } @else if (isGoalMark() && goalMark(); as mark) {
   <div class="post-body" role="status">
@@ -99,19 +92,10 @@
       </div>
 
       @if (goalFriendAvatars().length > 0) {
-        <div class="goal-created-card__participants">
-          <div class="goal-created-card__avatars" aria-hidden="true">
-            @for (friend of goalFriendAvatars(); track friend.userId) {
-              <img
-                class="goal-created-card__avatar"
-                [src]="friendAvatarUrl(friend)"
-                [alt]="friend.username"
-                [title]="friend.username"
-              />
-            }
-          </div>
-          <span class="goal-created-card__participants-label">{{ goalMarkParticipantsLabel() }}</span>
-        </div>
+        <app-participants-strip
+          [participants]="goalMarkParticipants()"
+          [label]="goalMarkParticipantsLabel()"
+        />
       }
     </div>
   </div>
@@ -142,38 +126,18 @@
       </div>
 
       @if (canOpenGoalParticipants()) {
-        <button
-          type="button"
-          class="goal-created-card__participants goal-created-card__participants--button"
-          (click)="openGoalParticipants()"
-          [attr.aria-label]="'Ver ' + goalFeedParticipantsLabel()"
-        >
-          <div class="goal-created-card__avatars" aria-hidden="true">
-            @for (friend of goalFeedFriendAvatars(); track friend.userId) {
-              <img
-                class="goal-created-card__avatar"
-                [src]="friendAvatarUrl(friend)"
-                [alt]="friend.username"
-                [title]="friend.username"
-              />
-            }
-          </div>
-          <span class="goal-created-card__participants-label">{{ goalFeedParticipantsLabel() }}</span>
-        </button>
+        <app-participants-strip
+          [participants]="goalFeedParticipants()"
+          [label]="goalFeedParticipantsLabel()"
+          [clickable]="true"
+          [ariaLabel]="'Ver ' + goalFeedParticipantsLabel()"
+          (participantsClick)="openGoalParticipants()"
+        />
       } @else if (goalFeedFriendAvatars().length > 0) {
-        <div class="goal-created-card__participants">
-          <div class="goal-created-card__avatars" aria-hidden="true">
-            @for (friend of goalFeedFriendAvatars(); track friend.userId) {
-              <img
-                class="goal-created-card__avatar"
-                [src]="friendAvatarUrl(friend)"
-                [alt]="friend.username"
-                [title]="friend.username"
-              />
-            }
-          </div>
-          <span class="goal-created-card__participants-label">{{ goalFeedParticipantsLabel() }}</span>
-        </div>
+        <app-participants-strip
+          [participants]="goalFeedParticipants()"
+          [label]="goalFeedParticipantsLabel()"
+        />
       }
     </div>
   </div>

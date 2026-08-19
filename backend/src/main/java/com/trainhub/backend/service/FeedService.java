@@ -148,17 +148,17 @@ public class FeedService {
     }
 
     /**
-     * Lista completa de usuarios apuntados a un BOX_WOD.
+     * Lista completa de usuarios apuntados a un BOX_WOD o BOX_CHALLENGE.
      */
-    public List<WodCheckinAuthorResponse> getWodParticipants(Integer wodPostId) {
-        Post post = postRepository.findById(wodPostId)
+    public List<WodCheckinAuthorResponse> getWodParticipants(Integer postId) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post no encontrado"));
 
-        if (post.getPostType() != PostType.BOX_WOD) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo los WOD tienen muro de participantes");
+        if (post.getPostType() != PostType.BOX_WOD && post.getPostType() != PostType.BOX_CHALLENGE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Solo retos y WOD tienen participantes");
         }
 
-        return postParticipantRepository.findParticipantAuthorsByPostId(wodPostId).stream()
+        return postParticipantRepository.findParticipantAuthorsByPostId(postId).stream()
                 .map(row -> new WodCheckinAuthorResponse(
                         (Integer) row[0],
                         (String) row[1],
@@ -218,6 +218,8 @@ public class FeedService {
                     }
                     if (post.getPostType() == PostType.BOX_WOD) {
                         response.setWodCheckinsCount(participantCountByPostId.getOrDefault(post.getId(), 0));
+                    }
+                    if (post.getPostType() == PostType.BOX_WOD || post.getPostType() == PostType.BOX_CHALLENGE) {
                         response.setWodCheckinAuthors(
                                 wodMuro.authors().getOrDefault(post.getId(), List.of())
                         );
@@ -345,22 +347,23 @@ public class FeedService {
     ) {}
 
     /**
-     * Batch de avatares del muro de participantes para los BOX_WOD de la página.
+     * Batch de avatares de participantes para BOX_WOD y BOX_CHALLENGE de la página.
      */
     private WodMuroData loadWodMuroData(List<Post> posts) {
-        List<Integer> wodIds = posts.stream()
-                .filter(post -> post.getPostType() == PostType.BOX_WOD)
+        List<Integer> postIdsWithParticipants = posts.stream()
+                .filter(post -> post.getPostType() == PostType.BOX_WOD
+                        || post.getPostType() == PostType.BOX_CHALLENGE)
                 .map(Post::getId)
                 .collect(Collectors.toList());
 
-        if (wodIds.isEmpty()) {
+        if (postIdsWithParticipants.isEmpty()) {
             return new WodMuroData(Map.of());
         }
 
         Map<Integer, List<WodCheckinAuthorResponse>> authorsByWod = new HashMap<>();
         Map<Integer, Set<Integer>> seenUsersByWod = new HashMap<>();
 
-        for (Object[] row : postParticipantRepository.findParticipantAuthorsByPostIds(wodIds)) {
+        for (Object[] row : postParticipantRepository.findParticipantAuthorsByPostIds(postIdsWithParticipants)) {
             Integer wodId = (Integer) row[0];
             Integer authorUserId = (Integer) row[1];
             Set<Integer> seen = seenUsersByWod.computeIfAbsent(wodId, ignored -> new HashSet<>());

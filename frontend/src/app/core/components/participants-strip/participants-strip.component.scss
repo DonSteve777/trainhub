@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.participants-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.1rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid color-mix(in srgb, var(--trainhub-accent) 14%, transparent);
+
+  &--button {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0.1rem 0 0;
+    padding: 0.35rem 0.45rem 0.35rem 0;
+    border: none;
+    border-top: 1px solid color-mix(in srgb, var(--trainhub-accent) 14%, transparent);
+    border-radius: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.85;
+
+      .participants-strip__label {
+        color: var(--trainhub-accent);
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+      }
+    }
+  }
+}
+
+.participants-strip__avatars {
+  display: flex;
+  align-items: center;
+  padding-left: 0.25rem;
+}
+
+.participants-strip__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--mat-sys-surface);
+  margin-left: -0.35rem;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.participants-strip__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+}

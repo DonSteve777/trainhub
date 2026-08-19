@@ -91,7 +91,7 @@ public class FeedController {
     }
 
     /**
-     * Lista de usuarios apuntados al WOD indicado.
+     * Lista de usuarios apuntados al reto o WOD indicado.
      */
     @GetMapping("/posts/{postId}/wod-participants")
     public ResponseEntity<List<WodCheckinAuthorResponse>> getWodParticipants(

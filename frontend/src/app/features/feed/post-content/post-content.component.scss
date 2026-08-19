@@ -95,53 +95,6 @@
   }
 }
 
-.wod-muro {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.25rem;
-}
-
-.wod-muro__avatars {
-  display: flex;
-  align-items: center;
-  padding-left: 0.25rem;
-}
-
-.wod-muro__avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--mat-sys-surface);
-  margin-left: -0.35rem;
-  background: var(--mat-sys-surface-container-high);
-}
-
-.wod-muro__label {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface-variant);
-  text-align: left;
-}
-
-.wod-muro__label--button {
-  cursor: pointer;
-  color: var(--trainhub-accent);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-  width: fit-content;
-
-  &:hover {
-    color: color-mix(in srgb, var(--trainhub-accent) 80%, white);
-  }
-}
-
 // ============================================================
 // GOAL_CREATED / GOAL_JOIN / GOAL_MARK — card compartida
 // ============================================================
@@ -191,62 +144,6 @@
     font-size: 16px;
     color: var(--trainhub-accent);
   }
-}
-
-.goal-created-card__participants {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-top: 0.1rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid color-mix(in srgb, var(--trainhub-accent) 14%, transparent);
-
-  &--button {
-    width: fit-content;
-    max-width: 100%;
-    margin: 0.1rem 0 0;
-    padding: 0.35rem 0.45rem 0.35rem 0;
-    border: none;
-    border-top: 1px solid color-mix(in srgb, var(--trainhub-accent) 14%, transparent);
-    border-radius: 0;
-    background: none;
-    cursor: pointer;
-    font: inherit;
-    text-align: left;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 0.85;
-
-      .goal-created-card__participants-label {
-        color: var(--trainhub-accent);
-        text-decoration: underline;
-        text-underline-offset: 0.15em;
-      }
-    }
-  }
-}
-
-.goal-created-card__avatars {
-  display: flex;
-  align-items: center;
-  padding-left: 0.25rem;
-}
-
-.goal-created-card__avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--mat-sys-surface);
-  margin-left: -0.35rem;
-  background: var(--mat-sys-surface-container-high);
-}
-
-.goal-created-card__participants-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface-variant);
 }
 
 .post-body__description--join {

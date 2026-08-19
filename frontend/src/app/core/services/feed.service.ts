@@ -82,8 +82,9 @@ export interface FeedPostDto {
   /** CHECKIN vinculado a WOD. */
   wodPostId: number | null;
   wodTitle: string | null;
-  /** BOX_WOD: muro de participantes. */
+  /** BOX_WOD: contador del muro de participantes. */
   wodCheckinsCount: number | null;
+  /** BOX_WOD / BOX_CHALLENGE: avatares de participantes en el feed. */
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
   /** GOAL_MARK: detalle de marca y estado del objetivo. */
   goalMark: GoalMarkFeedDto | null;

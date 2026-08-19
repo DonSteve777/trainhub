@@ -1,0 +1,38 @@
+@if (clickable()) {
+  <button
+    type="button"
+    class="participants-strip participants-strip--button"
+    (click)="onClick()"
+    [attr.aria-label]="resolvedAriaLabel()"
+  >
+    @if (participants().length > 0) {
+      <div class="participants-strip__avatars" aria-hidden="true">
+        @for (participant of participants(); track participant.userId) {
+          <img
+            class="participants-strip__avatar"
+            [src]="avatarUrl(participant)"
+            [alt]="participant.username"
+            [title]="participant.username"
+          />
+        }
+      </div>
+    }
+    <span class="participants-strip__label">{{ label() }}</span>
+  </button>
+} @else {
+  <div class="participants-strip" [attr.aria-label]="resolvedAriaLabel()">
+    @if (participants().length > 0) {
+      <div class="participants-strip__avatars" aria-hidden="true">
+        @for (participant of participants(); track participant.userId) {
+          <img
+            class="participants-strip__avatar"
+            [src]="avatarUrl(participant)"
+            [alt]="participant.username"
+            [title]="participant.username"
+          />
+        }
+      </div>
+    }
+    <span class="participants-strip__label">{{ label() }}</span>
+  </div>
+}

@@ -72,9 +72,6 @@
             <span class="join-btn__label">{{
               post.joinedByCurrentUser ? 'Me borro' : 'Me apunto'
             }}</span>
-            @if (post.postType === 'BOX_CHALLENGE') {
-              <span class="join-btn__count">{{ participantsLabel(post.participantsCount) }}</span>
-            }
           </button>
         }
 

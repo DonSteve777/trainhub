@@ -5,11 +5,14 @@ import {
   FeedPostType,
   FeedTrainingTag,
   GoalFeedDto,
-  GoalFriendPreviewDto,
   GoalMarkFeedDto,
   WodCheckinAuthorDto,
 } from '../../../core/services/feed.service';
 import { ConstancyBlockComponent } from '../../../core/components/constancy-block/constancy-block.component';
+import {
+  ParticipantPreview,
+  ParticipantsStripComponent,
+} from '../../../core/components/participants-strip/participants-strip.component';
 import {
   WodCheckinsDialogComponent,
   WodCheckinsDialogData,
@@ -36,6 +39,7 @@ export interface PostContentPost {
   wodTitle: string | null;
   wodCheckinsCount: number | null;
   wodCheckinAuthors: WodCheckinAuthorDto[] | null;
+  participantsCount: number;
   goalMark: GoalMarkFeedDto | null;
   goal: GoalFeedDto | null;
 }
@@ -52,7 +56,7 @@ const TRAINING_TAG_LABELS: Record<FeedTrainingTag, string> = {
 @Component({
   selector: 'app-post-content',
   standalone: true,
-  imports: [MatIconModule, MatDialogModule, ConstancyBlockComponent],
+  imports: [MatIconModule, MatDialogModule, ConstancyBlockComponent, ParticipantsStripComponent],
   templateUrl: './post-content.component.html',
   styleUrl: './post-content.component.scss',
 })
@@ -80,6 +84,14 @@ export class PostContentComponent {
 
   wodCheckinAuthors = computed(() => this.post().wodCheckinAuthors ?? []);
 
+  wodParticipants = computed((): ParticipantPreview[] =>
+    this.wodCheckinAuthors().map(author => ({
+      userId: author.userId,
+      username: author.username,
+      photoUrl: author.photoUrl,
+    }))
+  );
+
   canOpenWodMuro = computed(() => this.isBoxWod() && this.wodCheckinsCount() > 0);
 
   wodMuroLabel = computed(() => {
@@ -88,6 +100,30 @@ export class PostContentComponent {
       return 'Sé el primero en apuntarte';
     }
     return count === 1 ? '1 del box va a participar' : `${count} del box van a participar`;
+  });
+
+  challengeParticipantsCount = computed(() => this.post().participantsCount ?? 0);
+
+  challengeParticipantAuthors = computed(() => this.post().wodCheckinAuthors ?? []);
+
+  challengeParticipants = computed((): ParticipantPreview[] =>
+    this.challengeParticipantAuthors().map(author => ({
+      userId: author.userId,
+      username: author.username,
+      photoUrl: author.photoUrl,
+    }))
+  );
+
+  canOpenChallengeParticipants = computed(
+    () => this.isBoxChallenge() && this.challengeParticipantsCount() > 0
+  );
+
+  challengeParticipantsLabel = computed(() => {
+    const count = this.challengeParticipantsCount();
+    if (count <= 0) {
+      return 'Sé el primero en apuntarte';
+    }
+    return goalParticipantsLabel(count);
   });
 
   formattedDeadline = computed(() => {
@@ -140,6 +176,14 @@ export class PostContentComponent {
 
   goalFriendAvatars = computed(() => this.goalMark()?.friendAvatars ?? []);
 
+  goalMarkParticipants = computed((): ParticipantPreview[] =>
+    this.goalFriendAvatars().map(friend => ({
+      userId: friend.userId,
+      username: friend.username,
+      photoUrl: friend.photoUrl,
+    }))
+  );
+
   goalFeed = computed(() => this.post().goal);
 
   goalCreatedLead = computed(() => {
@@ -186,6 +230,14 @@ export class PostContentComponent {
 
   goalFeedFriendAvatars = computed(() => this.goalFeed()?.friendAvatars ?? []);
 
+  goalFeedParticipants = computed((): ParticipantPreview[] =>
+    this.goalFeedFriendAvatars().map(friend => ({
+      userId: friend.userId,
+      username: friend.username,
+      photoUrl: friend.photoUrl,
+    }))
+  );
+
   canOpenGoalParticipants = computed(() => {
     const goal = this.goalFeed();
     return (
@@ -195,28 +247,26 @@ export class PostContentComponent {
     );
   });
 
-  authorAvatarUrl(author: WodCheckinAuthorDto): string {
-    return author.photoUrl ?? `https://i.pravatar.cc/48?u=${author.userId}`;
-  }
-
-  friendAvatarUrl(friend: GoalFriendPreviewDto): string {
-    return friend.photoUrl ?? `https://i.pravatar.cc/48?u=${friend.userId}`;
-  }
-
   openWodCheckins(): void {
     if (!this.canOpenWodMuro()) {
       return;
     }
-    const data: WodCheckinsDialogData = {
+    this.openParticipantsDialog({
       wodPostId: this.post().id,
       wodTitle: this.post().title,
-    };
-    this.dialog.open(WodCheckinsDialogComponent, {
-      data,
-      width: '420px',
-      maxWidth: '95vw',
-      maxHeight: '85vh',
-      panelClass: 'th-wod-checkins-panel',
+    });
+  }
+
+  openChallengeParticipants(): void {
+    if (!this.canOpenChallengeParticipants()) {
+      return;
+    }
+    this.openParticipantsDialog({
+      wodPostId: this.post().id,
+      wodTitle: this.post().title,
+      dialogTitle: 'Participantes',
+      headerIcon: 'emoji_events',
+      emptyMessage: 'Nadie se ha apuntado todavía.',
     });
   }
 
@@ -232,14 +282,16 @@ export class PostContentComponent {
       photoUrl: friend.photoUrl,
     }));
 
-    const data: WodCheckinsDialogData = {
+    this.openParticipantsDialog({
       wodTitle: goal.goalTitle,
       dialogTitle: 'Participantes',
       headerIcon: 'flag',
       participants,
       emptyMessage: 'Nadie participa todavía.',
-    };
+    });
+  }
 
+  private openParticipantsDialog(data: WodCheckinsDialogData): void {
     this.dialog.open(WodCheckinsDialogComponent, {
       data,
       width: '420px',
