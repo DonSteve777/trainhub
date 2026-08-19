@@ -105,6 +105,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--trainhub-accent-light);
+  }
 }
 
 .friends-item__remove-btn {

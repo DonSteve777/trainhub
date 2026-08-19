@@ -33,7 +33,7 @@
               <div class="friends-item__avatar-wrap">
                 <img class="friends-item__avatar" [src]="avatarUrl(f)" [alt]="f.username" />
               </div>
-              <span class="friends-item__name">{{ f.username }}</span>
+              <a class="friends-item__name" [routerLink]="['/user', f.id]">{{ f.username }}</a>
             </div>
 
             <button

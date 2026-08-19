@@ -4,12 +4,13 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 import { FriendPreviewDto, UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-friends-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatDialogModule, MatIconModule, MatButtonModule, RouterLink],
   templateUrl: './friends-dialog.component.html',
   styleUrl: './friends-dialog.component.scss',
 })
