@@ -74,6 +74,7 @@ export class CreatePostComponent implements OnInit {
       this.syncTrainingTagLock(wodId);
     });
     this.syncTrainingTagLock(this.checkinForm.get('wodPostId')!.value);
+    this.syncTrainingDateLock(this.checkinForm.get('wodPostId')!.value);
 
     this.loadBoxWods();
   }
@@ -111,7 +112,10 @@ export class CreatePostComponent implements OnInit {
   }
 
   private applyWodDefaults(wodId: string): void {
-    if (!wodId) return;
+    if (!wodId) {
+      this.syncTrainingDateLock('');
+      return;
+    }
     const wod = this.boxWods().find(w => String(w.id) === String(wodId));
     if (!wod) return;
     if (wod.trainingTag) {
@@ -119,6 +123,31 @@ export class CreatePostComponent implements OnInit {
     }
     if (wod.description) {
       this.checkinForm.get('description')!.setValue(wod.description);
+    }
+    const wodDay = this.toIsoDate(wod.creationDate);
+    if (wodDay) {
+      this.checkinForm.get('trainingDate')!.setValue(wodDay, { emitEvent: false });
+    }
+    this.syncTrainingDateLock(wodId);
+  }
+
+  /** Fecha yyyy-MM-dd en zona local a partir de un ISO/local datetime del API. */
+  private toIsoDate(value: string): string | null {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return null;
+    const y = parsed.getFullYear();
+    const m = String(parsed.getMonth() + 1).padStart(2, '0');
+    const d = String(parsed.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  /** Con WOD vinculado, el día queda fijado al del WOD. */
+  private syncTrainingDateLock(wodId: string): void {
+    const trainingDate = this.checkinForm.get('trainingDate')!;
+    if (wodId) {
+      trainingDate.disable({ emitEvent: false });
+    } else {
+      trainingDate.enable({ emitEvent: false });
     }
   }
 

@@ -60,6 +60,7 @@ export class CreateBoxPostComponent implements OnInit {
 
   readonly selectedPostType = signal<BoxPostType>('BOX_WOD');
   readonly isChallenge = computed(() => this.selectedPostType() === 'BOX_CHALLENGE');
+  readonly isWod = computed(() => this.selectedPostType() === 'BOX_WOD');
 
   ngOnInit(): void {
     this.postForm = this.fb.group({
@@ -68,6 +69,7 @@ export class CreateBoxPostComponent implements OnInit {
       description: ['', Validators.required],
       trainingTag: [''],
       challengeDeadline: [''],
+      scheduledAt: [this.defaultDateTimeLocal(), Validators.required],
     });
 
     this.userService.getProfile().subscribe({
@@ -86,18 +88,40 @@ export class CreateBoxPostComponent implements OnInit {
     if (this.submitting()) return;
     this.postForm.get('postType')!.setValue(type);
     this.selectedPostType.set(type);
-    this.updateDeadlineValidator();
+    this.updateTypeValidators();
   }
 
-  private updateDeadlineValidator(): void {
-    const control = this.postForm.get('challengeDeadline')!;
+  /** Valor inicial para input datetime-local (zona local). */
+  defaultDateTimeLocal(): string {
+    const d = new Date();
+    d.setSeconds(0, 0);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  }
+
+  private updateTypeValidators(): void {
+    const deadline = this.postForm.get('challengeDeadline')!;
+    const scheduledAt = this.postForm.get('scheduledAt')!;
+
     if (this.isChallenge()) {
-      control.setValidators([Validators.required]);
+      deadline.setValidators([Validators.required]);
     } else {
-      control.clearValidators();
-      control.setValue('');
+      deadline.clearValidators();
+      deadline.setValue('');
     }
-    control.updateValueAndValidity();
+
+    if (this.isWod()) {
+      scheduledAt.setValidators([Validators.required]);
+      if (!scheduledAt.value) {
+        scheduledAt.setValue(this.defaultDateTimeLocal());
+      }
+    } else {
+      scheduledAt.clearValidators();
+      scheduledAt.setValue('');
+    }
+
+    deadline.updateValueAndValidity();
+    scheduledAt.updateValueAndValidity();
   }
 
   private buildPayload(): NewBoxPostRequest {
@@ -107,6 +131,7 @@ export class CreateBoxPostComponent implements OnInit {
       description: string;
       trainingTag: TrainingTag | '';
       challengeDeadline: string;
+      scheduledAt: string;
     };
 
     const payload: NewBoxPostRequest = {
@@ -118,6 +143,9 @@ export class CreateBoxPostComponent implements OnInit {
     if (formValue.trainingTag) payload.trainingTag = formValue.trainingTag;
     if (formValue.postType === 'BOX_CHALLENGE' && formValue.challengeDeadline) {
       payload.challengeDeadline = new Date(formValue.challengeDeadline).toISOString();
+    }
+    if (formValue.postType === 'BOX_WOD' && formValue.scheduledAt) {
+      payload.scheduledAt = new Date(formValue.scheduledAt).toISOString();
     }
 
     return payload;

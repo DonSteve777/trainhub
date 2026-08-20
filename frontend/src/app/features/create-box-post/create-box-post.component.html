@@ -51,6 +51,24 @@
           }
         </div>
 
+        @if (isWod()) {
+          <div class="form-field form-field--deadline">
+            <label class="th-label" for="scheduledAt">Día y hora del WOD</label>
+            <input
+              id="scheduledAt"
+              type="datetime-local"
+              formControlName="scheduledAt"
+              class="th-input deadline-input"
+            />
+            <span class="field-hint"
+              >Fecha que verán los miembros y con la que se registrará el check-in al WOD</span
+            >
+            @if (postForm.get('scheduledAt')?.invalid && postForm.get('scheduledAt')?.touched) {
+              <span class="field-error">Indica el día y la hora del WOD</span>
+            }
+          </div>
+        }
+
         @if (isChallenge()) {
           <div class="form-field form-field--deadline">
             <label class="th-label" for="challengeDeadline">Fecha límite del reto</label>

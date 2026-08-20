@@ -23,6 +23,12 @@
 } @else if (isBoxWod()) {
   <div class="post-body" role="status">
     <h3 class="post-body__title">{{ post().title }}</h3>
+    @if (formattedWodSchedule(); as schedule) {
+      <span class="post-body__deadline post-body__deadline--wod" [attr.aria-label]="'WOD el ' + schedule">
+        <mat-icon aria-hidden="true">schedule</mat-icon>
+        {{ schedule }}
+      </span>
+    }
     @if (hasDescription()) {
       <p class="post-body__description">{{ post().description }}</p>
     }

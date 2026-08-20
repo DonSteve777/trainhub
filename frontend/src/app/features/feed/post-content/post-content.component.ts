@@ -33,6 +33,7 @@ export interface PostContentPost {
   trainingTag: FeedTrainingTag | null;
   title: string | null;
   challengeDeadline: string | null;
+  creationDate: string;
   streakWeeks: number | null;
   weekDayTags: Array<FeedTrainingTag | null> | null;
   wodPostId: number | null;
@@ -129,6 +130,21 @@ export class PostContentComponent {
   formattedDeadline = computed(() => {
     const deadline = this.post().challengeDeadline;
     return deadline ? this.formatDate(deadline) : null;
+  });
+
+  /** Día y hora programados del WOD (creationDate = scheduledAt). */
+  formattedWodSchedule = computed(() => {
+    const raw = this.post().creationDate;
+    if (!raw) return null;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleString('es-ES', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   });
 
   hasDescription = computed(() => Boolean(this.post().description?.trim()));

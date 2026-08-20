@@ -339,10 +339,17 @@ export class FeedComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   checkInWod(post: FeedPost): void {
-    if (post.postType !== 'BOX_WOD') return;
+    if (post.postType !== 'BOX_WOD' || !this.isWodCheckinOpen(post)) return;
     void this.router.navigate(['/create-post'], {
       queryParams: { wodPostId: post.id },
     });
+  }
+
+  /** El check-in al WOD solo se habilita cuando ya ha pasado su día/hora programados. */
+  isWodCheckinOpen(post: FeedPost): boolean {
+    const scheduled = new Date(post.creationDate).getTime();
+    if (Number.isNaN(scheduled)) return false;
+    return Date.now() >= scheduled;
   }
 
   typeLabel(postType: FeedPostType): string {

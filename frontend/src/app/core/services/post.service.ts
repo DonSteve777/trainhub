@@ -28,6 +28,8 @@ export interface NewBoxPostRequest {
   description: string;
   trainingTag?: TrainingTag;
   challengeDeadline?: string;
+  /** Día y hora del WOD (ISO); se guarda como creationDate del post. */
+  scheduledAt?: string;
 }
 
 @Injectable({ providedIn: 'root' })

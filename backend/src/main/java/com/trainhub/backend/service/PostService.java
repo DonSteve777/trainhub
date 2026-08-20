@@ -80,24 +80,9 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + userId));
 
-        LocalDate trainingDate = request.getTrainingDate() != null
-                ? request.getTrainingDate()
-                : LocalDate.now();
-        if (trainingDate.isAfter(LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de entrenamiento no puede ser futura");
-        }
-
-        Post post = new Post();
-        post.setUser(user);
-        post.setPostType(PostType.CHECKIN);
-        post.setBox(user.getBox());
-        post.setTrainingTag(request.getTrainingTag());
-        post.setDescription(request.getDescription());
-        // La constancia semanal se calcula sobre creation_date (día calendario).
-        post.setCreationDate(LocalDateTime.of(trainingDate, LocalTime.now()));
-
+        Post wod = null;
         if (request.getWodPostId() != null) {
-            Post wod = postRepository.findById(request.getWodPostId())
+            wod = postRepository.findById(request.getWodPostId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "WOD no encontrado"));
 
             if (wod.getPostType() != PostType.BOX_WOD) {
@@ -113,8 +98,38 @@ public class PostService {
             if (postRepository.existsByUserIdAndWodPostId(userId, wod.getId())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya has hecho check-in de este WOD");
             }
+        }
 
-            post.setWodPost(wod);
+        LocalDate trainingDate = request.getTrainingDate();
+        if (trainingDate == null && wod != null) {
+            trainingDate = wod.getCreationDate().toLocalDate();
+        }
+        if (trainingDate == null) {
+            trainingDate = LocalDate.now();
+        }
+
+        boolean dateMatchesWod = wod != null
+                && trainingDate.equals(wod.getCreationDate().toLocalDate());
+        if (trainingDate.isAfter(LocalDate.now()) && !dateMatchesWod) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de entrenamiento no puede ser futura");
+        }
+
+        Post post = new Post();
+        post.setUser(user);
+        post.setPostType(PostType.CHECKIN);
+        post.setBox(user.getBox());
+        post.setTrainingTag(request.getTrainingTag());
+        post.setDescription(request.getDescription());
+        post.setWodPost(wod);
+
+        // Con WOD: misma fecha/hora del WOD (constancia y timeline alineados al entrenamiento).
+        // Sin WOD: día elegido + hora actual.
+        if (wod != null && dateMatchesWod) {
+            post.setCreationDate(wod.getCreationDate());
+        } else if (wod != null) {
+            post.setCreationDate(LocalDateTime.of(trainingDate, wod.getCreationDate().toLocalTime()));
+        } else {
+            post.setCreationDate(LocalDateTime.of(trainingDate, LocalTime.now()));
         }
 
         return postRepository.save(post);
@@ -180,6 +195,10 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los retos de box requieren una fecha límite");
         }
 
+        if (postType == PostType.BOX_WOD && request.getScheduledAt() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Los WOD requieren día y hora");
+        }
+
         Post post = new Post();
         post.setUser(admin);
         post.setBox(admin.getBox());
@@ -188,7 +207,11 @@ public class PostService {
         post.setDescription(request.getDescription());
         post.setTrainingTag(request.getTrainingTag());
         post.setChallengeDeadline(request.getChallengeDeadline());
-        post.setCreationDate(LocalDateTime.now());
+        if (postType == PostType.BOX_WOD) {
+            post.setCreationDate(request.getScheduledAt().toLocalDateTime());
+        } else {
+            post.setCreationDate(LocalDateTime.now());
+        }
 
         return postRepository.save(post);
     }

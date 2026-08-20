@@ -97,9 +97,22 @@
         }
 
         @if (post.postType === 'BOX_WOD') {
-          <button type="button" class="join-btn" (click)="checkInWod(post)">
+          <button
+            type="button"
+            class="join-btn"
+            (click)="checkInWod(post)"
+            [disabled]="!isWodCheckinOpen(post)"
+            [attr.title]="
+              isWodCheckinOpen(post)
+                ? null
+                : 'Disponible cuando haya pasado la fecha y hora del WOD'
+            "
+            [attr.aria-disabled]="!isWodCheckinOpen(post)"
+          >
             <mat-icon aria-hidden="true">fitness_center</mat-icon>
-            <span class="join-btn__label">He hecho este WOD</span>
+            <span class="join-btn__label">{{
+              isWodCheckinOpen(post) ? 'He hecho este WOD' : 'WOD aún no disponible'
+            }}</span>
           </button>
         }
       </div>

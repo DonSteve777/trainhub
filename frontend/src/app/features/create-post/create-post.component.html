@@ -47,7 +47,9 @@
                 [max]="todayIsoDate()"
               />
               <span class="optional-hint">Define el día en el que cuenta para tu constancia semanal</span>
-              @if (
+              @if (checkinForm.get('wodPostId')?.value && checkinForm.get('trainingDate')?.disabled) {
+                <span class="optional-hint">Fijado por el WOD seleccionado</span>
+              } @else if (
                 checkinForm.get('trainingDate')?.invalid && checkinForm.get('trainingDate')?.touched
               ) {
                 <span class="field-error">Indica el día del entrenamiento</span>

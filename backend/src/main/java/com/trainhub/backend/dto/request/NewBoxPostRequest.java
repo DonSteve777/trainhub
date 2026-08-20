@@ -17,6 +17,8 @@ public class NewBoxPostRequest {
     @NotBlank private String description;
     private TrainingTag trainingTag;
     private OffsetDateTime challengeDeadline;
+    /** Día y hora del WOD (solo BOX_WOD); se guarda como creation_date del post. */
+    private OffsetDateTime scheduledAt;
 
     public NewBoxPostRequest() {}
 
@@ -34,4 +36,7 @@ public class NewBoxPostRequest {
 
     public OffsetDateTime getChallengeDeadline() { return challengeDeadline; }
     public void setChallengeDeadline(OffsetDateTime challengeDeadline) { this.challengeDeadline = challengeDeadline; }
+
+    public OffsetDateTime getScheduledAt() { return scheduledAt; }
+    public void setScheduledAt(OffsetDateTime scheduledAt) { this.scheduledAt = scheduledAt; }
 }
