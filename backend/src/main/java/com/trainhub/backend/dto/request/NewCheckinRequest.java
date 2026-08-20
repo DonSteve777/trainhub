@@ -2,6 +2,7 @@ package com.trainhub.backend.dto.request;
 
 import com.trainhub.backend.enums.TrainingTag;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 /**
  * DTO para la solicitud de creación de un check-in de entrenamiento.
@@ -13,6 +14,11 @@ public class NewCheckinRequest {
     private String description;
     /** Id opcional de un post BOX_WOD del mismo box. */
     private Integer wodPostId;
+    /**
+     * Día del entrenamiento (aparece en la constancia semanal).
+     * Si es null, se usa la fecha de hoy.
+     */
+    private LocalDate trainingDate;
 
     public NewCheckinRequest() {}
 
@@ -24,4 +30,7 @@ public class NewCheckinRequest {
 
     public Integer getWodPostId() { return wodPostId; }
     public void setWodPostId(Integer wodPostId) { this.wodPostId = wodPostId; }
+
+    public LocalDate getTrainingDate() { return trainingDate; }
+    public void setTrainingDate(LocalDate trainingDate) { this.trainingDate = trainingDate; }
 }

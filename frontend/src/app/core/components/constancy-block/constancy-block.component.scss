@@ -14,9 +14,117 @@
 }
 
 :host-context(.feed-constancy) .constancy,
+:host-context(.feed-constancy) .constancy--empty,
+:host-context(.checkin-reward-constancy) .constancy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  grid-template-areas:
+    'streak week'
+    'caption caption';
+  align-items: center;
+  column-gap: 1.25rem;
+  row-gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  border-radius: 14px;
+}
+
+:host-context(.feed-constancy) .constancy,
 :host-context(.feed-constancy) .constancy--empty {
   background: var(--trainhub-surface-dark);
   border-color: transparent;
+}
+
+:host-context(.checkin-reward-constancy) .constancy {
+  background: transparent;
+  border-color: transparent;
+}
+
+:host-context(.checkin-reward-constancy) .constancy--empty {
+  background: transparent;
+  border-color: transparent;
+}
+
+:host-context(.feed-constancy) .constancy__streak,
+:host-context(.checkin-reward-constancy) .constancy__streak {
+  grid-area: streak;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+:host-context(.feed-constancy) .constancy__flame,
+:host-context(.checkin-reward-constancy) .constancy__flame {
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+  translate: 0;
+}
+
+:host-context(.feed-constancy) .constancy__weeks,
+:host-context(.checkin-reward-constancy) .constancy__weeks {
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+:host-context(.feed-constancy) .constancy__weeks-hint,
+:host-context(.checkin-reward-constancy) .constancy__weeks-hint {
+  font-size: 0.95rem;
+}
+
+:host-context(.feed-constancy) .constancy__week,
+:host-context(.checkin-reward-constancy) .constancy__week {
+  grid-area: week;
+  max-width: none;
+  width: 100%;
+  gap: 0.35rem;
+}
+
+:host-context(.feed-constancy) .constancy__day,
+:host-context(.checkin-reward-constancy) .constancy__day {
+  gap: 0.4rem;
+  min-height: 3.1rem;
+}
+
+:host-context(.feed-constancy) .constancy__day-label,
+:host-context(.checkin-reward-constancy) .constancy__day-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:host-context(.feed-constancy) .constancy__tag-icon,
+:host-context(.checkin-reward-constancy) .constancy__tag-icon {
+  width: 26px;
+  height: 26px;
+  font-size: 26px;
+}
+
+:host-context(.feed-constancy) .constancy__dot,
+:host-context(.checkin-reward-constancy) .constancy__dot {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-block: 0.3rem;
+  border-width: 2px;
+}
+
+:host-context(.feed-constancy) .constancy__caption,
+:host-context(.checkin-reward-constancy) .constancy__caption {
+  grid-area: caption;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 560px) {
+  :host-context(.feed-constancy) .constancy,
+  :host-context(.feed-constancy) .constancy--empty,
+  :host-context(.checkin-reward-constancy) .constancy {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'streak'
+      'week'
+      'caption';
+    row-gap: 0.75rem;
+  }
 }
 
 .constancy--empty {

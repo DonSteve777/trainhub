@@ -10,6 +10,8 @@ export interface NewCheckinRequest {
   trainingTag: TrainingTag;
   description?: string;
   wodPostId?: number;
+  /** Día del entrenamiento (yyyy-MM-dd); define el día en la constancia. */
+  trainingDate?: string;
 }
 
 export interface BoxWodSummaryDto {

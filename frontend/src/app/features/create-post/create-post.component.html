@@ -2,87 +2,128 @@
   <div class="create-post-content">
     <h1 class="th-title-gradient">Nuevo entrenamiento</h1>
 
-    <form [formGroup]="checkinForm" (ngSubmit)="onSubmit()" class="create-post-form">
-      <section class="checkin-entry-panel" aria-label="Entrada de check-in">
-        <div>
-          <span class="checkin-kicker">Check-in rápido</span>
-          <h2>Publica que has entrenado</h2>
-          <p>
-            Elige el WOD del box para fijar el tipo y precargar la descripción, o completa el
-            check-in a mano sin vincular WOD.
-          </p>
+    @if (showReward()) {
+      <section class="checkin-entry-panel checkin-reward-panel" aria-label="Check-in publicado">
+        <div class="checkin-reward-hero">
+          <mat-icon class="checkin-reward-icon" aria-hidden="true">local_fire_department</mat-icon>
+          <span class="checkin-kicker">Listo</span>
+          <h2>¡Check-in publicado!</h2>
+          <p>Tu entrenamiento ya cuenta para la constancia de esta semana.</p>
         </div>
 
-        <div class="checkin-fields">
-          <div class="form-field checkin-field">
-            <label class="th-label" for="wodPostId">
-              WOD del box <span class="optional-hint">(opcional)</span>
-            </label>
-            <select id="wodPostId" formControlName="wodPostId" class="th-input th-select">
-              <option value="">Sin vincular a un WOD</option>
-              @for (wod of boxWods(); track wod.id) {
-                <option [value]="wod.id">{{ wod.title }}</option>
-              }
-            </select>
-            @if (boxWodsLoading()) {
-              <span class="optional-hint">Cargando WODs…</span>
-            } @else if (boxWods().length === 0) {
-              <span class="optional-hint">No hay WODs esta semana en tu box</span>
-            }
+        @if (constancy(); as c) {
+          <div class="checkin-reward-constancy">
+            <app-constancy-block
+              [streakWeeks]="c.streakWeeks"
+              [weekDayTags]="c.weekDayTags"
+            />
           </div>
+        }
 
-          <div class="form-field checkin-field">
-            <label class="th-label" for="trainingTag">Tipo de entrenamiento</label>
-            <select id="trainingTag" formControlName="trainingTag" class="th-input th-select">
-              <option value="" disabled>Selecciona una etiqueta</option>
-              @for (tag of trainingTagOptions; track tag.value) {
-                <option [value]="tag.value">{{ tag.label }}</option>
-              }
-            </select>
-            @if (checkinForm.get('wodPostId')?.value && checkinForm.get('trainingTag')?.disabled) {
-              <span class="optional-hint">Fijado por el WOD seleccionado</span>
-            } @else if (
-              checkinForm.get('trainingTag')?.invalid && checkinForm.get('trainingTag')?.touched
-            ) {
-              <span class="field-error">Debes elegir un tipo de entrenamiento</span>
-            }
-          </div>
-
-          <div class="form-field checkin-field">
-            <label class="th-label" for="checkinDescription">
-              Descripción <span class="optional-hint">(opcional)</span>
-            </label>
-            <textarea
-              id="checkinDescription"
-              formControlName="description"
-              class="th-input checkin-description"
-              rows="4"
-              maxlength="500"
-              placeholder="¿Qué has entrenado hoy?&#10;¿Qué sensaciones has tenido?&#10;¿En qué ejercicios has tenido dificultades?&#10;¿Algún PR o marca que quieras destacar?"
-            ></textarea>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="th-btn-primary create-post-submit"
-          [disabled]="checkinForm.invalid || !checkinForm.getRawValue().trainingTag || submitting()"
-        >
-          @if (submitting()) {
-            Publicando…
-          } @else {
-            Publicar check-in
-          }
+        <button type="button" class="th-btn-primary create-post-submit" (click)="goToFeed()">
+          Ver en el feed
         </button>
       </section>
+    } @else {
+      <form [formGroup]="checkinForm" (ngSubmit)="onSubmit()" class="create-post-form">
+        <section class="checkin-entry-panel" aria-label="Entrada de check-in">
+          <div>
+            <span class="checkin-kicker">Check-in rápido</span>
+            <h2>Publica que has entrenado</h2>
+            <p>
+              Elige el día en que entrenaste, el WOD del box para fijar el tipo y precargar la
+              descripción, o completa el check-in a mano sin vincular WOD.
+            </p>
+          </div>
 
-      <a routerLink="/feed" class="th-link-info create-post-back">Volver al feed</a>
+          <div class="checkin-fields">
+            <div class="form-field checkin-field">
+              <label class="th-label" for="trainingDate">Día del entrenamiento</label>
+              <input
+                id="trainingDate"
+                type="date"
+                formControlName="trainingDate"
+                class="th-input"
+                [max]="todayIsoDate()"
+              />
+              <span class="optional-hint">Define el día en el que cuenta para tu constancia semanal</span>
+              @if (
+                checkinForm.get('trainingDate')?.invalid && checkinForm.get('trainingDate')?.touched
+              ) {
+                <span class="field-error">Indica el día del entrenamiento</span>
+              }
+            </div>
 
-      @if (backendMessage()) {
-        <div class="backend-message-wrapper">
-          <p class="backend-message" role="alert">{{ backendMessage() }}</p>
-        </div>
-      }
-    </form>
+            <div class="form-field checkin-field">
+              <label class="th-label" for="wodPostId">
+                WOD del box <span class="optional-hint">(opcional)</span>
+              </label>
+              <select id="wodPostId" formControlName="wodPostId" class="th-input th-select">
+                <option value="">Sin vincular a un WOD</option>
+                @for (wod of boxWods(); track wod.id) {
+                  <option [value]="wod.id">{{ wod.title }}</option>
+                }
+              </select>
+              @if (boxWodsLoading()) {
+                <span class="optional-hint">Cargando WODs…</span>
+              } @else if (boxWods().length === 0) {
+                <span class="optional-hint">No hay WODs esta semana en tu box</span>
+              }
+            </div>
+
+            <div class="form-field checkin-field">
+              <label class="th-label" for="trainingTag">Tipo de entrenamiento</label>
+              <select id="trainingTag" formControlName="trainingTag" class="th-input th-select">
+                <option value="" disabled>Selecciona una etiqueta</option>
+                @for (tag of trainingTagOptions; track tag.value) {
+                  <option [value]="tag.value">{{ tag.label }}</option>
+                }
+              </select>
+              @if (checkinForm.get('wodPostId')?.value && checkinForm.get('trainingTag')?.disabled) {
+                <span class="optional-hint">Fijado por el WOD seleccionado</span>
+              } @else if (
+                checkinForm.get('trainingTag')?.invalid && checkinForm.get('trainingTag')?.touched
+              ) {
+                <span class="field-error">Debes elegir un tipo de entrenamiento</span>
+              }
+            </div>
+
+            <div class="form-field checkin-field">
+              <label class="th-label" for="checkinDescription">
+                Descripción <span class="optional-hint">(opcional)</span>
+              </label>
+              <textarea
+                id="checkinDescription"
+                formControlName="description"
+                class="th-input checkin-description"
+                rows="4"
+                maxlength="500"
+                placeholder="¿Qué has entrenado hoy?&#10;¿Qué sensaciones has tenido?&#10;¿En qué ejercicios has tenido dificultades?&#10;¿Algún PR o marca que quieras destacar?"
+              ></textarea>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="th-btn-primary create-post-submit"
+            [disabled]="checkinForm.invalid || !checkinForm.getRawValue().trainingTag || !checkinForm.getRawValue().trainingDate || submitting()"
+          >
+            @if (submitting()) {
+              Publicando…
+            } @else {
+              Publicar check-in
+            }
+          </button>
+        </section>
+
+        <a routerLink="/feed" class="th-link-info create-post-back">Volver al feed</a>
+
+        @if (backendMessage()) {
+          <div class="backend-message-wrapper">
+            <p class="backend-message" role="alert">{{ backendMessage() }}</p>
+          </div>
+        }
+      </form>
+    }
   </div>
 </div>

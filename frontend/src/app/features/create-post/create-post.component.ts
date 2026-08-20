@@ -5,13 +5,19 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ConstancyBlockComponent } from '../../core/components/constancy-block/constancy-block.component';
 import {
   PostService,
   type BoxWodSummaryDto,
   type NewCheckinRequest,
   type TrainingTag,
 } from '../../core/services/post.service';
+import {
+  UserService,
+  type WeeklyConstancyDto,
+} from '../../core/services/user.service';
 
 interface TrainingTagOption {
   value: TrainingTag;
@@ -21,7 +27,7 @@ interface TrainingTagOption {
 @Component({
   selector: 'app-create-post',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, MatIconModule, ConstancyBlockComponent],
   templateUrl: './create-post.component.html',
   styleUrl: './create-post.component.scss',
 })
@@ -29,6 +35,7 @@ export class CreatePostComponent implements OnInit {
   checkinForm!: FormGroup;
   private readonly fb = inject(FormBuilder);
   private readonly postService = inject(PostService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -46,10 +53,13 @@ export class CreatePostComponent implements OnInit {
 
   readonly backendMessage = signal<string | null>(null);
   readonly submitting = signal(false);
+  readonly showReward = signal(false);
+  readonly constancy = signal<WeeklyConstancyDto | null>(null);
 
   ngOnInit(): void {
     this.checkinForm = this.fb.group({
-      trainingTag: ['', Validators.required],
+      trainingDate: [this.todayIsoDate(), Validators.required],
+      trainingTag: ['OTRO' as TrainingTag, Validators.required],
       description: [''],
       wodPostId: [''],
     });
@@ -66,6 +76,15 @@ export class CreatePostComponent implements OnInit {
     this.syncTrainingTagLock(this.checkinForm.get('wodPostId')!.value);
 
     this.loadBoxWods();
+  }
+
+  /** Fecha de hoy en formato input[type=date] (yyyy-MM-dd, zona local). */
+  todayIsoDate(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   private loadBoxWods(): void {
@@ -118,8 +137,11 @@ export class CreatePostComponent implements OnInit {
 
   onSubmit(): void {
     if (this.submitting()) return;
-    const trainingTag = this.checkinForm.getRawValue().trainingTag as string;
-    if (this.checkinForm.invalid || !trainingTag) {
+    const raw = this.checkinForm.getRawValue() as {
+      trainingTag?: string;
+      trainingDate?: string;
+    };
+    if (this.checkinForm.invalid || !raw.trainingTag || !raw.trainingDate) {
       this.checkinForm.markAllAsTouched();
       return;
     }
@@ -127,7 +149,7 @@ export class CreatePostComponent implements OnInit {
     this.submitting.set(true);
     const payload = this.buildPayload();
     this.postService.createCheckin(payload).subscribe({
-      next: () => void this.router.navigate(['/feed'], { replaceUrl: true }),
+      next: () => this.showRewardScreen(),
       error: err => {
         this.submitting.set(false);
         const errBody = err.error;
@@ -140,14 +162,38 @@ export class CreatePostComponent implements OnInit {
     });
   }
 
+  goToFeed(): void {
+    void this.router.navigate(['/feed'], { replaceUrl: true });
+  }
+
+  private showRewardScreen(): void {
+    this.userService.getWeeklyConstancy().subscribe({
+      next: data => {
+        this.constancy.set(data);
+        this.enterReward();
+      },
+      error: () => {
+        this.constancy.set(null);
+        this.enterReward();
+      },
+    });
+  }
+
+  private enterReward(): void {
+    this.showReward.set(true);
+    this.submitting.set(false);
+  }
+
   private buildPayload(): NewCheckinRequest {
     const formValue = this.checkinForm.getRawValue() as {
+      trainingDate: string;
       trainingTag: TrainingTag;
       description?: string;
       wodPostId?: string;
     };
     const payload: NewCheckinRequest = {
       trainingTag: formValue.trainingTag,
+      trainingDate: formValue.trainingDate,
     };
     const description = formValue.description?.trim();
     if (description) payload.description = description;

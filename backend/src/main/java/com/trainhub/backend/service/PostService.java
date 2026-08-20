@@ -24,6 +24,7 @@ import java.sql.Date;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
@@ -79,13 +80,21 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + userId));
 
+        LocalDate trainingDate = request.getTrainingDate() != null
+                ? request.getTrainingDate()
+                : LocalDate.now();
+        if (trainingDate.isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de entrenamiento no puede ser futura");
+        }
+
         Post post = new Post();
         post.setUser(user);
         post.setPostType(PostType.CHECKIN);
         post.setBox(user.getBox());
         post.setTrainingTag(request.getTrainingTag());
         post.setDescription(request.getDescription());
-        post.setCreationDate(LocalDateTime.now());
+        // La constancia semanal se calcula sobre creation_date (día calendario).
+        post.setCreationDate(LocalDateTime.of(trainingDate, LocalTime.now()));
 
         if (request.getWodPostId() != null) {
             Post wod = postRepository.findById(request.getWodPostId())
