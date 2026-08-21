@@ -20,19 +20,16 @@
           {{ getFieldError('name') }}
         </span> -->
       </div>
-        <!-- Email -->
+        <!-- Email (solo lectura: se confirma en el registro) -->
         <div class="form-group">
-          <label for="email">Email *</label>
+          <label for="email">Email</label>
           <input
             id="email"
             type="email"
             formControlName="email"
-            placeholder="tu@email.com"
-            [class.error]="profileForm.get('email')?.touched && profileForm.get('email')?.invalid"
+            class="readonly-input"
           />
-          @if (getFieldError('email')) {
-            <span class="error-message">{{ getFieldError('email') }}</span>
-          }
+          <span class="field-hint">El email no se puede cambiar</span>
         </div>
 
         <!-- Box -->

@@ -37,7 +37,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -108,19 +107,7 @@ public class UserController {
         
         User user = userPrincipal.getUser();
 
-        // Verificar si el email ha cambiado y si ya está en uso por otro usuario
-        if (!user.getEmail().equals(request.getEmail())) {
-            Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
-            if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
-                throw new ResponseStatusException(
-                        HttpStatus.CONFLICT,
-                        "El email ya está en uso por otro usuario"
-                );
-            }
-        }
-
-        // Actualizar los campos del usuario
-        user.setEmail(request.getEmail());
+        // El email no es editable (confirmado en el registro)
         user.setPhotoUrl(request.getPhotoUrl());
         user.setUsername(request.getName());
         user.setGender(request.getGender());
@@ -243,7 +230,8 @@ public class UserController {
         String filename = UUID.randomUUID() + extension;
 
         try {
-            Path uploadPath = Paths.get(uploadDir);
+            // transferTo con File relativo lo resuelve bajo el work dir de Tomcat, no el cwd
+            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
             Files.createDirectories(uploadPath);
             Path destination = uploadPath.resolve(filename);
             file.transferTo(destination.toFile());

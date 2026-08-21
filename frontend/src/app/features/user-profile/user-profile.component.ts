@@ -66,7 +66,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   private initializeForm(): void {
     this.profileForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      email: [{ value: '', disabled: true }],
       name: ['', [Validators.required, Validators.maxLength(255)]],
       boxId: [''],
     });
@@ -164,7 +164,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    const { email, name, boxId } = this.profileForm.value;
+    const { name, boxId } = this.profileForm.value;
     const file = this.pendingAvatarFile();
 
     let upload$: Observable<AvatarUploadResponse | null>;
@@ -181,7 +181,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         switchMap((avatarRes: AvatarUploadResponse | null) => {
           const photoUrl = avatarRes?.url ?? this.savedPhotoUrl() ?? '';
           return this.apiService.put<UserProfileResponse>('/user/profile', {
-            email,
             name,
             photoUrl,
             boxId: this.resolveBoxId(boxId),
@@ -199,9 +198,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.successMessage.set('Perfil actualizado correctamente');
         },
         error: (error: { status?: number; error?: { message?: string } }) => {
-          if (error.status === 409) {
-            this.errorMessage.set('El email ya está en uso por otro usuario');
-          } else if (error.error?.message) {
+          if (error.error?.message) {
             this.errorMessage.set(error.error.message);
           } else {
             this.errorMessage.set('Error al actualizar el perfil. Por favor, intenta de nuevo.');
@@ -214,7 +211,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     const field = this.profileForm.get(fieldName);
     if (field?.touched && field?.errors) {
       if (field.errors['required']) return 'Este campo es obligatorio';
-      if (field.errors['email']) return 'Debe ser un email válido';
       if (field.errors['maxlength']) {
         return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
       }

@@ -1,6 +1,5 @@
 package com.trainhub.backend.dto.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -8,13 +7,9 @@ import com.trainhub.backend.enums.Gender;
 
 /**
  * DTO de petición para actualizar el perfil del usuario.
+ * El email no se incluye: se fija en el registro y no es editable.
  */
 public class UpdateUserProfileRequest {
-
-    @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Debe ser un email válido")
-    @Size(max = 255, message = "El email no puede tener más de 255 caracteres")
-    private String email;
 
     @Size(max = 255, message = "La URL de la foto no puede tener más de 255 caracteres")
     private String photoUrl;
@@ -32,14 +27,6 @@ public class UpdateUserProfileRequest {
     }
 
     // Getters y Setters
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPhotoUrl() {
         return photoUrl;
     }

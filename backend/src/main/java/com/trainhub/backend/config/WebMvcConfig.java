@@ -1,5 +1,8 @@
 package com.trainhub.backend.config;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -12,13 +15,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private String uploadDir;
 
     /**
-     * cualquier peticion que empiece por /uploads/ 
-     * file: -> indica que es una ruta del filesystem, no del classpath (por defecto,
-     * spring boot sirve solo recursos estáticos desde ubicaciones predefinidas dentro del classpath)
+     * Sirve /uploads/** desde el directorio padre de {@code app.upload.dir}
+     * (p. ej. uploads/avatars → file:.../uploads/), para que coincida con la escritura.
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**")  
-                .addResourceLocations("file:uploads/");
+        Path avatarsAbs = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path uploadsRoot = avatarsAbs.getParent();
+        if (uploadsRoot == null) {
+            uploadsRoot = avatarsAbs;
+        }
+        // file:///.../uploads/  (barra final obligatoria para ResourceHandler)
+        String location = uploadsRoot.toUri().toString();
+        if (!location.endsWith("/")) {
+            location = location + "/";
+        }
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(location);
     }
 }
