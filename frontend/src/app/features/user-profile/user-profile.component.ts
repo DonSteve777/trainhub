@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Observable, of } from 'rxjs';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
+import { BoxService, type BoxDto } from '../../core/services/box.service';
 
 interface UserProfileResponse {
   id: number;
@@ -12,6 +13,7 @@ interface UserProfileResponse {
   name: string;
   accountStatus: string;
   emailVerified: boolean;
+  boxId: number | null;
 }
 
 interface AvatarUploadResponse {
@@ -29,6 +31,7 @@ const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   private readonly apiService = inject(ApiService);
+  private readonly boxService = inject(BoxService);
   private readonly fb = inject(FormBuilder);
 
   profileForm!: FormGroup;
@@ -37,6 +40,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   readonly isSubmitting = signal(false);
   readonly successMessage = signal('');
   readonly errorMessage = signal('');
+  readonly boxes = signal<BoxDto[]>([]);
+  readonly boxesLoading = signal(false);
 
   /** URL de la foto guardada en servidor (tras cargar o guardar perfil). */
   readonly savedPhotoUrl = signal<string | null>(null);
@@ -51,6 +56,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadBoxes();
     this.loadCurrentUser();
   }
 
@@ -62,7 +68,22 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.profileForm = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
       name: ['', [Validators.required, Validators.maxLength(255)]],
+      boxId: [''],
     });
+  }
+
+  private loadBoxes(): void {
+    this.boxesLoading.set(true);
+    this.boxService
+      .listBoxes()
+      .pipe(finalize(() => this.boxesLoading.set(false)))
+      .subscribe({
+        next: (boxes) => this.boxes.set(boxes),
+        error: () => {
+          this.boxes.set([]);
+          this.errorMessage.set('Error al cargar la lista de boxes.');
+        },
+      });
   }
 
   private loadCurrentUser(): void {
@@ -76,6 +97,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.profileForm.patchValue({
             email: user.email,
             name: user.name,
+            boxId: user.boxId != null ? String(user.boxId) : '',
           });
         },
         error: (error) => {
@@ -124,6 +146,14 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  private resolveBoxId(raw: string | number | null | undefined): number | null {
+    if (raw === '' || raw == null) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
   onSubmit(): void {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
@@ -134,7 +164,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    const { email, name } = this.profileForm.value;
+    const { email, name, boxId } = this.profileForm.value;
     const file = this.pendingAvatarFile();
 
     let upload$: Observable<AvatarUploadResponse | null>;
@@ -154,6 +184,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             email,
             name,
             photoUrl,
+            boxId: this.resolveBoxId(boxId),
           });
         }),
         finalize(() => this.isSubmitting.set(false)),
@@ -161,6 +192,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (updated: UserProfileResponse) => {
           this.savedPhotoUrl.set(updated.photoUrl);
+          this.profileForm.patchValue({
+            boxId: updated.boxId != null ? String(updated.boxId) : '',
+          });
           this.clearPendingAvatar();
           this.successMessage.set('Perfil actualizado correctamente');
         },

@@ -35,6 +35,22 @@
           }
         </div>
 
+        <!-- Box -->
+        <div class="form-group">
+          <label for="boxId">Box</label>
+          <select id="boxId" formControlName="boxId">
+            <option value="">Sin box</option>
+            @for (box of boxes(); track box.id) {
+              <option [value]="box.id">
+                {{ box.cityName ? box.name + ' — ' + box.cityName : box.name }}
+              </option>
+            }
+          </select>
+          @if (boxesLoading()) {
+            <span class="file-hint">Cargando boxes…</span>
+          }
+        </div>
+
         <!-- Avatar -->
         <div class="form-group avatar-group">
           <label>Foto de perfil</label>

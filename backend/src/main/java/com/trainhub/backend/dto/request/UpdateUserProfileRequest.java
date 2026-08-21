@@ -25,6 +25,9 @@ public class UpdateUserProfileRequest {
 
     private Gender gender;
 
+    /** Id del box asignado; {@code null} para dejar al usuario sin box. */
+    private Integer boxId;
+
     public UpdateUserProfileRequest() {
     }
 
@@ -59,5 +62,13 @@ public class UpdateUserProfileRequest {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public Integer getBoxId() {
+        return boxId;
+    }
+
+    public void setBoxId(Integer boxId) {
+        this.boxId = boxId;
     }
 }

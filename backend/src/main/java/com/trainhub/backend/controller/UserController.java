@@ -8,9 +8,11 @@ import com.trainhub.backend.dto.response.UserProfileResponse;
 import com.trainhub.backend.dto.response.UserSearchResult;
 import com.trainhub.backend.dto.response.WeeklyConstancyResponse;
 import com.trainhub.backend.enums.FriendshipStatus;
+import com.trainhub.backend.model.Box;
 import com.trainhub.backend.model.Friendship;
 import com.trainhub.backend.model.FriendshipId;
 import com.trainhub.backend.model.User;
+import com.trainhub.backend.repository.BoxRepository;
 import com.trainhub.backend.repository.FriendshipRepository;
 import com.trainhub.backend.repository.UserRepository;
 import com.trainhub.backend.security.UserPrincipal;
@@ -48,6 +50,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BoxRepository boxRepository;
 
     @Autowired
     private FriendshipRepository friendshipRepository;
@@ -119,6 +124,17 @@ public class UserController {
         user.setPhotoUrl(request.getPhotoUrl());
         user.setUsername(request.getName());
         user.setGender(request.getGender());
+
+        if (request.getBoxId() == null) {
+            user.setBox(null);
+        } else {
+            Box box = boxRepository.findById(request.getBoxId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "El box indicado no existe"
+                    ));
+            user.setBox(box);
+        }
 
         // Guardar cambios
         User updatedUser = userRepository.save(user);
