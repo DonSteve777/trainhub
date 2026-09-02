@@ -17,33 +17,36 @@ services:
       timeout: 5s
       retries: 5
 
-  # backend:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.backend
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/trainhub_dev_db
-  #     SPRING_DATASOURCE_USERNAME: dev_user
-  #     SPRING_DATASOURCE_PASSWORD: dev_pass
-  #     APP_UPLOAD_DIR: /app/uploads/avatars
-  #     MAIL_USERNAME: ${MAIL_USERNAME}
-  #     MAIL_PASSWORD: ${MAIL_PASSWORD}
-  #   volumes:
-  #     - uploads_data:/app/uploads
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Mail credentials from deploy/.env — do NOT use MAIL_USERNAME: ${MAIL_USERNAME}
+    # here: when unset, Compose injects "" and overrides Spring's default username.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/trainhub_dev_db
+      SPRING_DATASOURCE_USERNAME: dev_user
+      SPRING_DATASOURCE_PASSWORD: dev_pass
+      APP_UPLOAD_DIR: /app/uploads/avatars
+    volumes:
+      - uploads_data:/app/uploads
 
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.frontend
-  #   ports:
-  #     - "4200:80"
-  #   depends_on:
-  #     - backend
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
 
   pgadmin:
     image: dpage/pgadmin4

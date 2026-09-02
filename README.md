@@ -9,111 +9,115 @@ Aplicación web de red social deportiva desarrollada como Trabajo de Fin de Grad
 ## Requisitos previos
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y en ejecución
-Para usar  el SMTP:
-- Una cuenta de Gmail con [verificación en dos pasos](https://myaccount.google.com/security) activada
-- Una [contraseña de aplicación de Google](https://myaccount.google.com/apppasswords) generada para el envío de emails
+
+Para el envío de emails (SMTP / Gmail):
+
+- Cuenta de Gmail con [verificación en dos pasos](https://myaccount.google.com/security) activada
+- Una [contraseña de aplicación de Google](https://myaccount.google.com/apppasswords)
 
 ---
 
 ## Despliegue con Docker (recomendado)
 
+Todos los comandos de esta sección se ejecutan desde la carpeta `deploy/`.
+
 ### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/DonSteve777/trainhub.git
-cd repo
+cd trainhub/deploy
 ```
-
-
 
 ### 2. Configurar las credenciales de email
 
-Nota:
-.env.example → se sube al repo, muestra qué variables hacen falta
-.env → cada persona lo crea con sus propias credenciales, nunca se sube
-
-Copia la plantilla de variables de entorno y rellena tus credenciales:
+- `.env.example` — plantilla versionada en el repo (qué variables hacen falta)
+- `.env` — credenciales reales de cada persona; **no se sube** al repositorio
 
 ```bash
+# Linux / macOS / Git Bash
 cp .env.example .env
+
+# Windows (cmd / PowerShell)
+copy .env.example .env
 ```
 
-Edita el archivo `.env`:
+Edita `.env`:
 
 ```
 MAIL_USERNAME=tu-email@gmail.com
-MAIL_PASSWORD=xxxx-xxxx-xxxx-xxxx   # contraseña de aplicación de Google
+MAIL_PASSWORD=xxxx-xxxx-xxxx-xxxx
 ```
 
-
-
-### 3. Levantar todos los servicios
+### 3. Levantar los servicios
 
 ```bash
 docker compose up --build
 ```
 
-Este comando construye las imágenes del backend y el frontend, y arranca los tres contenedores (base de datos, backend y frontend). La primera vez tarda varios minutos.
+Construye las imágenes de backend y frontend, y arranca Postgres, backend, frontend y pgAdmin. La primera vez puede tardar varios minutos.
 
-La base de datos se crea mediante el script `schema.sql`
+El esquema de la base de datos se crea automáticamente con `bdd/schema.sql` la primera vez que se inicializa el volumen de Postgres.
 
-### 4. Poblar la base de datos con datos de ejemplo: ejecutar en bash desde la raíz del repositorio
-```bash
-seed.sh
+### 4. Poblar datos de ejemplo
+
+Con los contenedores en marcha, desde `deploy/`:
+
+```powershell
+# Windows (PowerShell)
+.\seed.ps1
 ```
 
-Este script realiza dos operaciones:
+```bash
+# Linux / macOS / Git Bash
+bash seed.sh
+```
 
-1. **Usuarios** — los registra vía API REST (no directamente en SQL) para que las contraseñas queden encriptadas con BCrypt. Si los usuarios ya existen, los omite sin error. Las contraseñas son siempre la misma: password123
-2. **Resto de datos** — vacía completamente las tablas `posts`, `friendships`, `comments`, `comment_likes` y `post_likes`, y las vuelve a poblar desde cero. La tabla `users` **no se toca** en este paso.
+El script:
 
-Se puede ejecutar varias veces: siempre deja la base de datos en un estado limpio y consistente.
+1. **Usuarios** — los registra vía API REST para que las contraseñas queden en BCrypt. Si ya existen, los omite. Contraseña de todos: `password123`
+2. **Resto de datos** — vacía posts, amistades, comentarios, likes, goals, etc., y los vuelve a insertar desde `bdd/inserts.sql`. La tabla `users` no se trunca en este paso.
 
-> **Usuarios de ejemplo** — todos con contraseña `password123`:
-> `pedro.alonso@example.com`, `lucia.vega@example.com`, `javier.mena@example.com`, …
+Se puede ejecutar varias veces: deja la base en un estado limpio y consistente (salvo los usuarios, que se reutilizan).
 
-
+> **Usuarios de ejemplo** (password `password123`):
+> `pedro.alonso@example.com`, `lucia.vega@example.com`, `javier.mena@example.com`
 
 ### 5. Acceder a la aplicación
 
+| Servicio | URL |
+| -------- | --- |
+| Frontend | http://localhost:4200 |
+| Backend  | http://localhost:8080 |
+| pgAdmin  | http://localhost:5050 |
 
-| Servicio | URL                                            |
-| -------- | ---------------------------------------------- |
-| Frontend | [http://localhost:4200](http://localhost:4200) |
-| Backend  | [http://localhost:8080](http://localhost:8080) |
-| pgAdmin  | [http://localhost:5050](http://localhost:5050) |
+**Credenciales de pgAdmin**
 
+| Campo    | Valor             |
+| -------- | ----------------- |
+| Email    | admin@trainhub.com |
+| Password | admin123          |
 
-**Credenciales de pgAdmin:**
-
-
-| Campo    | Valor                                           |
-| -------- | ----------------------------------------------- |
-| Email    | [admin@trainhub.com](mailto:admin@trainhub.com) |
-| Password | admin123                                        |
-
-
-Una vez dentro, para conectar al servidor PostgreSQL usa:
-
+Para registrar el servidor PostgreSQL dentro de pgAdmin (contenedor Docker):
 
 | Campo    | Valor           |
 | -------- | --------------- |
-| Host     | postgres        |
-| Port     | 5432            |
+| Host     | `postgres`      |
+| Port     | `5432`          |
 | Database | trainhub_dev_db |
 | Username | dev_user        |
 | Password | dev_pass        |
 
-
-
+> Desde pgAdmin de escritorio en el host Windows, usa host `localhost` y puerto `5431`.
 
 ### Parar los servicios
+
+Desde `deploy/`:
 
 ```bash
 docker compose down
 ```
 
-Para parar y eliminar también los datos de la base de datos:
+Para parar y borrar también los datos de Postgres:
 
 ```bash
 docker compose down -v
@@ -121,28 +125,19 @@ docker compose down -v
 
 ---
 
-
-
-## Desarrollo local (sin Docker)
-
-
+## Desarrollo local (sin contenedores de app)
 
 ### Requisitos adicionales
 
 - Java 17
-- Maven 3.9+
+- Maven 3.9+ (o el wrapper `./mvnw` del backend)
 - Node.js 22 y npm 11.6+
-- PostgreSQL 17 (o usar solo el contenedor de Postgres: `docker compose up postgres`)
-
-
-
-### Base de datos
+- PostgreSQL 17, o solo el contenedor de Postgres:
 
 ```bash
-docker compose up postgres
+cd deploy
+docker compose up -d postgres
 ```
-
-
 
 ### Backend
 
@@ -151,11 +146,9 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-El backend arranca en [http://localhost:8080](http://localhost:8080).
+Arranca en http://localhost:8080.
 
-> Las variables de entorno `MAIL_USERNAME` y `MAIL_PASSWORD` deben estar definidas en el sistema, o configuradas en el IDE antes de arrancar.
-
-
+Define `MAIL_USERNAME` y `MAIL_PASSWORD` en el sistema o en el IDE. El backend se conecta a Postgres en `localhost:5431` (puerto publicado del contenedor).
 
 ### Frontend
 
@@ -165,25 +158,27 @@ npm install
 npm start
 ```
 
-El frontend arranca en [http://localhost:4200](http://localhost:4200).
+Arranca en http://localhost:4200.
 
 ---
-
-
 
 ## Estructura del proyecto
 
 ```
-repo/
-├── backend/              # API REST Spring Boot
-├── frontend/             # SPA Angular
-├── design/               # Documentación y diseño
-├── bdd/                  # Esquema de la base de datos, inicialización, y utilidades
-├── inserts.sql           # Datos de ejemplo
-├── docker-compose.yml    # Orquestación de servicios
-├── Dockerfile.backend
-├── Dockerfile.frontend
-├── nginx.conf
-└── .env.example          # Plantilla de variables de entorno
+trainhub/
+├── backend/                 # API REST Spring Boot
+├── frontend/                # SPA Angular
+├── design/                  # Documentación y diseño
+├── bdd/                     # Esquema SQL e inserts de ejemplo
+│   ├── schema.sql
+│   └── inserts.sql
+└── deploy/                  # Docker, seed y variables de entorno
+    ├── docker-compose.yml
+    ├── Dockerfile.backend
+    ├── Dockerfile.frontend
+    ├── nginx.conf
+    ├── seed.ps1             # seed en Windows (PowerShell)
+    ├── seed.sh              # seed en Linux / macOS / Git Bash
+    ├── seed-users.json
+    └── .env.example
 ```
-

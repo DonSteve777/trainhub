@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# seed.sh — Poblar la base de datos con usuarios y datos de ejemplo
-# Uso: ejecutar desde la raiz del repo DESPUES de: docker compose up --build
+# seed.sh — Poblar la base de datos con usuarios y datos de ejemplo (Linux/macOS/Git Bash)
+# Uso: desde deploy/, con los contenedores en marcha:
 #
 #   bash seed.sh
 #
-# Solo ejecutar una vez. Si se repite, los usuarios se omiten (ya existen)
-# pero los posts, amistades y comentarios se duplicarian.
+# En Windows (PowerShell) usar: .\seed.ps1
+#
+# Se puede repetir: los usuarios existentes se omiten; el SQL trunca y
+# vuelve a poblar posts, amistades, comentarios, likes, goals, etc.
 
 set -e
 

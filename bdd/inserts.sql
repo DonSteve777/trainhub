@@ -1,5 +1,5 @@
 -- ============================================================
--- SEED DATA — ejecutar con seed.ps1 DESPUÉS de docker compose up
+-- SEED DATA — ejecutar con seed.ps1 (Windows) o seed.sh (bash) DESPUÉS de docker compose up
 -- ============================================================
 
 -- select * from users;
