@@ -15,6 +15,13 @@ Para el envío de emails (SMTP / Gmail):
 - Cuenta de Gmail con [verificación en dos pasos](https://myaccount.google.com/security) activada
 - Una [contraseña de aplicación de Google](https://myaccount.google.com/apppasswords)
 
+Si omites este paso, el resto de la aplicación funciona con normalidad. Solo dejan de estar disponibles:
+
+- el **registro** con confirmación por correo
+- el flujo de **“olvidé mi contraseña”**
+
+Los usuarios de ejemplo creados con el seed (paso 4) no dependen del correo: se crean ya activos y puedes iniciar sesión con ellos.
+
 ---
 
 ## Despliegue con Docker (recomendado)
